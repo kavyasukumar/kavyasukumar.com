@@ -1,0 +1,235 @@
+﻿/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+::selection{
+    background-color:#DC3522;
+}
+body{
+    background-color:#D9CB9E;    
+    font-family: 'Myriad Set Pro', 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
+}
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.story{
+    height:400px;
+}
+
+.story img{
+    width: 100%;
+    overflow: hidden;
+    max-height:180px;
+}
+
+.story a{
+    text-decoration: none;
+    color: #333;
+}
+
+.story .typetag{
+    display:inline;
+    background-color:#333;
+    color:#ffe;
+    padding:5px;
+    text-transform:uppercase;
+}
+.fa-fw {
+    font-size: 1.75em;
+}
+.left{
+    float: left;
+}
+.right{
+    float:right;
+}
+.variable{
+    color: blue;
+}
+
+.comment{
+    color:forestgreen;
+}
+
+code{
+    font-size:1.2em;
+    font-weight:lighter;
+    background:none;
+}
+.jumbotron{
+    padding-top:50px;
+    background-color: #f9f9f9;
+    text-align:center;
+}
+
+.socialList{
+    list-style: none;
+    padding: 10px;
+    border: none;
+    width: 50px;
+    position: fixed;
+    top: 25%;
+    margin: 0;
+    left: 0;
+    background-color: whitesmoke;
+}
+
+.socialList li{
+    display:inline-block;    
+    font-size:1.5em;
+    text-align:center;
+}
+
+i{
+    color: #444;
+}
+
+i:hover {
+    color: #DC3522;
+    font-size:1.2em;
+}
+
+#cover{
+    width:100%;
+    height:100vh;
+    padding:10px;
+    padding-top:50px;
+}
+
+#cover>*{
+     width: 70%;
+     margin:auto;
+     display:block;     
+    border-bottom:1px solid #DC3522;
+}
+
+h1{
+    text-align: center;
+    padding:10px;
+    text-transform: uppercase;
+    letter-spacing: 15px;
+    font-style: normal;
+}
+
+.container h1{
+    display:block;     
+    border-bottom:1px solid #DC3522;
+}
+
+#cover .nav{
+    border:none;
+    padding-top:5%;
+}
+
+#cover .nav li{
+    width:48%;
+    margin:5px;
+    background-color:#2A2C2B;
+}
+
+#cover .nav > li > a:hover,
+#cover .nav > li > a:focus {
+    background-color:#DC3522;
+}
+
+#cover .nav li a{
+    color:white;
+    text-align:center;
+    text-transform:uppercase;
+}
+
+#imgs{
+    position:relative;
+    height:auto;
+}
+
+#imgs img{
+    width:100%;
+}
+
+#imgs .base{
+    position:relative;
+}
+
+#imgs .highlight{
+    position: absolute;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+    width:0%;
+}
+
+.navbar{
+    background-color:#374140;
+    border:none;
+}
+
+.navbar img{
+    height:45px;
+    margin-left:30px;
+}
+
+.undernav{
+    padding-top:45px;
+}
+
+.resume-section{
+    margin-top:30px;
+}
+
+.section-header{    
+    border-bottom:1px dotted #374140;
+}
+
+.section-header *{
+    display:inline;
+}
+
+.section-header img{
+    width:50px;
+    margin-left:15px;
+}
+.section-header h2{
+    text-transform:uppercase;
+    margin-left:15px;
+    font-size:1.5em;
+}
+
+.collapsed .section-body{
+    display:none;
+}
+
+.collapsed {
+    width:20%;
+    display: inline-block;
+    height: 225px;
+    border: 1px dotted #374140;
+    margin-right: 3%;
+    cursor:pointer;
+}
+
+.collapsed:first-of-type{
+    margin-left:3%;
+}
+.collapsed .section-header{
+    border:none;
+}
+
+.collapsed .section-header img{
+    width: 80%;
+}
+
+.collapsed .section-header h2{
+    display:block;
+    width:100%;
+    margin:0;
+    text-align:center;
+}
