@@ -7,8 +7,11 @@
     <link rel="stylesheet" type="text/css" href="./style/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="./style/Site.css">
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="./script/ext/angular.min.js"></script>
+    <script type="text/javascript" src="./script/ext/angular-route.min.js"></script>
 </head>
-<body>
+<body ng-app="PersonalSiteApp">
     <ul class="socialList">
         <li>
             <a href="https://twitter.com/kavyaSukumar" target="_blank">
@@ -36,31 +39,20 @@
             </a>
         </li>
         <li>
-    </ul>   
-    <div class="body-content">
-        <div id="cover">
-            <div id="imgs">
-                <div class="base">
-                    <img src="./img/logo.png" />
-                </div>
-                <div class="highlight">
-                    <img src="./img/logohighlight.png" />
-                </div>
-            </div>
-            <h1>kavya sukumar</h1>
-            <ul class="nav">
-                <li class="left"><a href="./">Who Am I?</a></li>
-                <li class="right"><a href="/">What do I do?</a></li>
-            </ul>
-         </div>
-        <hr />
-        <footer class="container">
-            Swiss Army Knife designed by <a href="http://www.thenounproject.com/gerlach">Jeff Gerlach</a> from the <a href="http://www.thenounproject.com">Noun Project</a>
-            <p>&copy; 2014 - kavyasukumar.com</p>
-        </footer>
-    </div>
-    <script type="text/javascript" src="./script/ext/jquery-1.10.2.min.js"></script
+    </ul>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header hidden-xs">
+           <img src="../../img/logohighlight.png" width="100px"/>
+        </div>
+    </div>   
+    <div class="viewholder" ng-view></div>
+    <hr />
+    <footer class="container">
+        Swiss Army Knife designed by <a href="http://www.thenounproject.com/gerlach">Jeff Gerlach</a> from the <a href="http://www.thenounproject.com">Noun Project</a>
+        <p>&copy; 2014 - kavyasukumar.com</p>
+    </footer>
     <script type="text/javascript" src="./script/ext/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./script/sitecontroller.js"></script>
     <script type="text/javascript" src="./script/customizations.js"></script>
 </body>
 </html>
