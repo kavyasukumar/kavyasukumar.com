@@ -65,4 +65,51 @@ angular.module('PersonalSiteApp', ['ngRoute'])
        $scope.winHeight = w.height();
        angular.element('#imgs img').width(angular.element('#imgs').width()+'px');
     }
+})
+.controller('aboutCtrl', function ($scope, $filter, $http) { 
+    $http.get("data/resume.json").success(function (data, status, headers, config) {
+        $scope.resume = data;
+    });
+    angular.element('.resume-section').click(function () {
+      angular.element('.selected').removeClass('selected');
+      angular.element(this).addClass('selected');
+      angular.element('#displaywell')
+        .html(angular.element(this).children('.section-body').html())
+        .removeClass('hidden');
+    });
+
+    var w = $(window);
+    $scope.winHeight = w.height();
+
+    w.bind('resize', function () {
+        $scope.winHeight = w.height();
+        $scope.$apply();
+    });
+})
+.controller('portfolioCtrl', function ($scope, $filter, $http) {   
+  $http.get("data/worksamples.json").success(function (data, status, headers, config) {
+        $scope.fullList = data;
+        $scope.worksamples = data;
+        $scope.categories = _.chain(data)
+                  .pluck('categories')
+                  .flatten()
+                  .unique()
+                  .value();
+    });
+   var w = $(window);
+    $scope.winHeight = w.height();
+
+    w.bind('resize', function () {
+        $scope.winHeight = w.height();
+        $scope.$apply();
+    });
+  $scope.filterByCategory = function (that) {
+    if(!that){
+      $scope.worksamples = $scope.fullList;
+      return;
+    }
+    $scope.worksamples = _.filter($scope.fullList, function(story){
+      return _.contains(story.categories, that.category);
+    })    
+  };
 });

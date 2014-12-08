@@ -1,0 +1,28 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header">
+           <a href="./"><img src="../../img/logohighlight.png" width="100px"/></a>
+        </div>
+</div>
+<div class="undernav container" ng-controller="portfolioCtrl" style="min-height:{{winHeight*.9}}px">
+ <h1>Portfolio</h1>
+ <section id="samples">
+ 	<span class="uppercase">Filters: </span>
+	<ul id="filters" class="categories">
+		<li ng-click="filterByCategory()">All</li>
+		<li ng-repeat="category in categories" ng-click="filterByCategory(this)">{{category}}</li>
+	</ul>
+	<ul id="storylist">
+		<li ng-repeat="sample in worksamples">
+			<div class="storydiv" style="background-image:url('{{sample.imgLink}}')"></div>			
+			<div class="details">
+				<a href="{{sample.link}}"><h2>{{sample.title}}</h2></a>
+				<p>{{sample.descr}}</p>	
+				<p><span class="uppercase">Technology: </span> {{sample.technology}}</p>							
+				<ul class="categories">
+					<li ng-repeat="category in sample.categories">{{category}}</li>
+				</ul>
+			</div>
+		</li>
+	</ul>
+ </section>
+</div>

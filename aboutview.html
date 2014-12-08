@@ -1,0 +1,78 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header">
+           <a href="./"><img src="../../img/logohighlight.png" width="100px"/></a>
+        </div>
+</div>
+<div class="undernav container" ng-controller="aboutCtrl" style="min-height:{{winHeight*.9}}px">
+    <h1><span class="nowrap">I code.</span><span class="nowrap">I write.</span><span class="nowrap">I data.</span></h1>
+    <section id="intro">
+        <p>I am a developer-journalist interested in using my technical skills in finding and presenting stories.</p>
+        <p>I was a software developer at Microsoft when the journalism bug bit me. Now armed with a master's degree in reporting
+         from Medill, Northwestern Unversity, I am a Data Interactive Editor at the Palm Beach Post.</p>
+        <p>My work involves sifting through large quantities of data to find stories and creating data services and visualizations to help
+         tell the story. I also do custom digital presentations for longform stories. And every once in a while, I report and write
+         my own stories.</p>
+     </section> 
+    <div id="resume">
+        <section id="skills" class="resume-section">
+            <div class="section-header">
+                <img src="../../img/icons/skills.svg"/>
+                <h2>Skills</h2>
+            </div>
+            <div class="section-body">
+                <p>I consider myself a language-agnostic programmer. For me, languages and libraries are purely means to an end and not a religion. But that does not mean that I don't have strong opinions. (I will defend .Net to my grave.)</p>
+                <p>Below is my usual tech stack listed for those who ask me ,"But can you do X?"</p>
+                <ul>
+                    <li ng-repeat="skill in resume.skills"> <span class="uppercase">{{skill.type}}</span>: {{skill.values}}</li>
+                </ul>
+            </div>
+        </section>
+        <section id="workex" class="resume-section">
+            <div class="section-header">
+                <img src="../../img/icons/workex.svg" />
+                <h2>Experience</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li ng-repeat="ex in resume.workex">
+                        <p><span class="uppercase">{{ex.company}}</span> &mdash; {{ex.title}} [{{ex.dates}}]</p>
+                        <p ng-repeat="descr in ex.descr">{{descr}}</p> 
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section id="education" class="resume-section">
+            <div class="section-header">
+                <img src="../../img/icons/education.svg" />
+                <h2>Education</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li ng-repeat="education in resume.education">
+                        <p class="uppercase">{{education.school}} [{{education.dates}}]</p>
+                        <p>{{education.degree}}</p>
+                        <p> Major or concentration: {{education.major}}</p>
+                    </li>
+                </ul>
+            </div>
+        </section>        
+        <section id="awards" class="resume-section">
+            <div class="section-header">
+                <img src="../../img/icons/awards.svg" />
+                <h2>Awards</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li ng-repeat="award in resume.awards"><span class="uppercase">{{award.name}}</span> : {{award.descr}}</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+    <div id="displaywell" class="hidden">
+    </div>
+</div>
+<div class=" container footer">
+        <p>Icons from the <a href="http://www.thenounproject.com">Noun Project.</a></p>
+        <p>Swiss Army Knife designed by <a href="http://www.thenounproject.com/gerlach">Jeff Gerlach.</a>
+         Work Experience designed by <a href="http://thenounproject.com/jontesta">Jon Testa.</a> Awards designed by <a href="http://thenounproject.com/davidlopez.fr">David Lopez</a></p>
+</div>

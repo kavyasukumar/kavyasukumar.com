@@ -1,0 +1,73 @@
+{
+	"skills":[
+				{"type":"Server Side","values":"C#, ASP.net, Ruby On Rails, Node.js, .Net"},
+				{"type":"Data Manipulation","values":"SQL, R"},
+				{"type":"Client Side","values":"The holy trinity - HTML5, CSS, JavaScript"},
+				{"type":"Dataviz libraries","values":"D3, Highcharts"},
+				{"type":"Other libraries","values":"AngularJS, UnderScoreJS, BackboneJS"},
+				{"type":"Mapping","values":"PostGIS, QGIS, Leaflet.js, Mapbox"},
+				{"type":"Source Control","values":"Git, Team Foundation Server"},
+				{"type":"Cloud Services","values":"Amazon AWS, Microsoft Azure"},
+				{"type":"Animation","values":"Adobe  Illustrator, Adobe After Effects"},
+				{"type":"Video","values":"Shooting, Editing (Adobe Premiere)"},
+				{"type":"Photo","values":"Shooting, Editing (Adobe Photoshop)"},
+				{"type":"Audio","values":"Adobe Audition"}
+	],
+	"workex":[
+			{
+				"title":"Data & Interactives Editor",
+				"company":"The Palm Beach Post",
+				"dates":"Jun 2014 -Present",
+				"descr":["In charge of the data and visualization team at The Palm Beach Post","Also working as an investigative reporter on the Post investigation team","Work includes getting"]
+			},
+			{
+				"title":"Developer-journalist",
+				"company":"Freelance",
+				"dates":"Nov 2013 - Jun 2014",
+				"descr":["Worked as a freelance developer for the new MSN platform.","Freelance developer for Bing News aggregation engine.","Freelance content developer for news agencies including The Palm Beach Post and The Windy City Times."]
+			},
+			{
+				"title":"Reporter",
+				"company":"Medill News Service, Washington, D.C.",
+				"dates":"Jan 2013 - Sep 2013",
+				"descr":["Covered Congressional hearings and White House events for Washington","Reported on national security issues with a focus on foreign relations and border security","Reported on changing demography stories with a focus on immigration and LGBTQ issues Published in Northwest Indiana Times.","Published as front page lead article in the Windy City Times"]
+			},
+			{
+				"title":"Production Lead",
+				"company":"Sojourn Chicago",
+				"dates":"Mar 2013 - Jun 2013",
+				"descr":["Developed a locationbased mobile web application that provides customized interactive tours of neighborhood of Chicago","Developed a motion controlled companion app using Kinect"]
+			},
+			{
+				"title":"Software Development Engineer II",
+				"company":"Microsoft Corp.",
+				"dates":"Jun 2008 - Aug 2012",
+				"descr":["Worked on MSN/ Bing videos platform and website","Received Gold Star Stock Award for outstanding potential for work on MSN/Bing Videos","Developed and maintained highly scalable deployment and data center monitoring system","Worked on video ingestion and delivery backend for MSNBC.com Worked on video delivery on MSN Now.","Developed scalable data ingestion for MSN entertainment and MSN on Windows 8"]
+			},
+			{
+				"title":"Software Design Engineer in Test",
+				"company":"Microsoft R&D India",
+				"dates":"Jul 2006 - Jun 2008",
+				"descr":["Worked on a variety of products including MSN Games","Recognized for contribution to MSN games test team."]
+			}
+	],
+	"education":[
+		{
+			"school":"Medill School of Journalism, Northwestern University",
+			"degree":"MS in Journalism",
+			"dates":"Sep-13",
+			"major":"Reporting &Interactive Publishing"
+		},
+		{
+			"school":"National Institute of Technology, Trichy, India",
+			"degree":"B.Tech",
+			"dates":"May-06",
+			"major":"Computer Science & Engineering"
+		}
+	],
+	"awards":[
+		{"name":"Medill-Knight News Scholar","descr":"Recipient Of Knight News Foundation’s scholarship for promoting technology in journalism."},
+		{"name":"McCormick National Security Reporting Scholar","descr":"Awarded Scholarship to pursue national security reporting  at Medill."},
+		{"name":"Microsoft Gold Star Stock Award Winner","descr":"Received Microsoft’s Gold Star Award presented to employees with outstanding potential."}
+	]
+}
