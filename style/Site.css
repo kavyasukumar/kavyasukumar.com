@@ -362,6 +362,7 @@ padding-left: 2%;
    .socialList{
         bottom: 0;
         top: initial;
+        top:auto;
         width: 90%;
         text-align: center;
         margin: auto;
