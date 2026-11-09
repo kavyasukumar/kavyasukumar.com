@@ -10,21 +10,24 @@ Fixed design element, do not alter: the **solid block word over outlined word** 
 
 ## 2. Color Palette & Roles
 
-Two themes, both flat. No gradients.
+**Chosen: Pistachio** (`pistachio`, the default in `src/themes.ts`). Also kept via `?theme=`: `roseGanache` (cocoa / peach / dusty rose, charcoal dark) and `aubice` (aubergine / lilac white / ice cyan). Light and dark themes are both kept; flat colour, no gradients.
 
-- **Electric Ultramarine** (#0000FF) — Light-theme text, outlines, solid headline fill; dark-theme background.
-- **Paper White** (#FFFFFF) — Light-theme background; dark-theme text and outlines.
-- **Acid Lime** (#DEFF00) — The single accent: CTA fill, tagline rule, hover shadows, focus rings, selection, timeline node rings.
-- **Ink** (#0A0A0A) — Text on Acid Lime only (replaces pure black). Never used as a page text colour.
-- **Hairline** (rgba(0,0,255,0.15) light / rgba(255,255,255,0.25) dark) — Card borders and dividers.
+### Pistachio
+- **Cream** (#F3E2BE) — Light-theme background; dark-theme text and outlines.
+- **Forest** (#0B3D2E) — Dark-theme background; light-theme text, outlines and solid headline fill.
+- **Pink** (#FF7AB8) — The single accent: solid blocks (CTA, marquee, badges, hover blocks) with Ink text, plus thin lines (tagline bar, timeline rings, underline).
+- **Ink** (#0A0A0A) — Text on Pink. Never a page text colour.
 
-Dark theme (Ultramarine field) notes from review: white 1px outlines on blue nearly vanish at section-title scale, so dark-theme outline strokes are 2px minimum. Card tint (white at 8%) reads well; keep. Lime accents read strongly on blue and can carry hover colour changes.
+Contrast: Forest on Cream 9.5:1. Pink on Forest 5.1:1. Ink on Pink 8.2:1. Pink on Cream is 1.9:1, so on the light theme Pink is used for blocks and rules, never as text.
 
-Rules: Lime is never used as text on White (fails contrast). On Ultramarine, Lime text is allowed for large type and hover states only. Outline strokes must stay at least 1.5px on body-adjacent sizes and 2px at display sizes to survive anti-aliasing.
+### Rules
+- Avoid combinations that read as national flags or brands: green + orange + white (India/Ireland), green + yellow (Brazil), red + yellow (fast food), orange + black (Claude/Halloween).
+- Rejected: Ultramarine (tired of it), Plum, tomato, butter yellow, egg yolk, Teal & Apricot, Signal Red, Tangerine, Violet & Sun, Watermelon, mint/green-cream Pistachio variants, per-visit theme rotation.
+- Outline strokes: 3px light / 4px dark, painted with `paint-order: stroke fill` so variable-font overlaps stay hidden.
 
 ## 3. Typography Rules
 
-- **Display:** Current Archivo Black is functional but generic. Replace with a font with more character (see proposals). Uppercase, tracking -0.04em, leading 0.8–0.9.
+- **Display:** Bricolage Grotesque ExtraBold (chosen). Letter-spacing +0.01em so outlined letters don't touch. Uppercase, tracking -0.04em, leading 0.8–0.9.
 - **Body:** Space Grotesk (keep) 400/500, leading 1.5, max 60ch.
 - **Mono:** JetBrains Mono 700 for eyebrows, phases, tags. Minimum 12px (current 9–10px is too small).
 - **Scale:** Fluid via `clamp()`. Hero name `clamp(4.5rem, 15vw, 13rem)`. Section titles `clamp(3.5rem, 11vw, 10rem)`. Body min 1rem.

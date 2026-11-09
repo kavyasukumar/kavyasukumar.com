@@ -2,7 +2,7 @@ import { Zap } from 'lucide-react';
 
 type MarqueeProps = { text: string; color?: string; isDark?: boolean };
 
-export const MarqueeDivider = ({ text, color = '#deff00' }: MarqueeProps) => (
+export const MarqueeDivider = ({ text, color = '#E8238C' }: MarqueeProps) => (
   <div
     className="marquee py-5 border-y-4 -rotate-1 overflow-hidden whitespace-nowrap z-20 relative"
     style={{ backgroundColor: color, borderColor: '#0a0a0a', marginBlock: 'clamp(3rem, 8vw, 6rem)' }}

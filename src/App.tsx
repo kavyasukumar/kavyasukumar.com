@@ -12,6 +12,7 @@ import SITE_DATA from './siteData';
 import { SectionTitle } from './components/SectionTitle';
 import { MarqueeDivider } from './components/MarqueeDivider';
 import { Reveal } from './components/Reveal';
+import { getTheme, hexToRgb } from './themes';
 
 // Display font candidates. Preview with ?font=bricolage | dela | unbounded (default: bricolage).
 // [family, first-line offset, second-line offset] offsets pull glyph edges onto the grid line (em).
@@ -50,12 +51,21 @@ export default function App() {
     : 'bricolage';
   const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey] || DISPLAY_FONTS.bricolage;
 
-  // Colors unchanged: Ultramarine / White / Acid Lime.
+  // Palette comes from themes.ts (?theme=watermelon|forest).
+  const themeKey = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('theme') : null;
+  const T = getTheme(themeKey);
+  const FIELD = hexToRgb(T.field);
+  // Dark theme may override field/paper/fill (hybrid themes); light theme always uses field/paper/fill.
+  const darkBg = T.darkField || T.field;
+  const darkText = T.darkPaper || T.paper;
+  const PAPER = hexToRgb(darkText);
+  const fillNow = isDark ? (T.darkFill || T.fill) : T.fill;
+  const PAL = { field: T.field, paper: T.paper, ink: T.ink };
   const colors = {
-    bg: isDark ? '#0000ff' : '#ffffff',
-    text: isDark ? '#ffffff' : '#0000ff',
-    accent: '#deff00',
-    border: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,255,0.15)'
+    bg: isDark ? darkBg : PAL.paper,
+    text: isDark ? darkText : PAL.field,
+    accent: isDark ? T.lineDark : T.lineLight,
+    border: isDark ? `rgba(${PAPER},0.25)` : `rgba(${FIELD},0.18)`
   };
 
   const rootVars = {
@@ -64,13 +74,14 @@ export default function App() {
     '--fg': colors.text,
     '--bg': colors.bg,
     '--accent': colors.accent,
+    '--fill': fillNow,
     '--hairline': colors.border,
     // Outline words stroke at 2x and paint the fill over the inner half (paint-order),
     // which hides overlapping contours in variable fonts.
     '--stroke': isDark ? '4px' : '3px',
     '--stroke-hover': '6px',
     '--track': `${track}em`,
-    '--hard': isDark ? '#0a0a0a' : '#0000ff',
+    '--hard': isDark ? PAL.ink : PAL.field,
     '--o1': `${-off1}em`,
     '--o2': `${-off2}em`,
     '--font-display': displayFamily
@@ -78,7 +89,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen font-body selection:bg-[#deff00] selection:text-[#0a0a0a] overflow-x-hidden transition-colors duration-500"
+      className="min-h-screen font-body overflow-x-hidden transition-colors duration-500"
       style={rootVars}
     >
       <style>{`
@@ -100,8 +111,9 @@ export default function App() {
         html { scroll-behavior: smooth; font-size: 18px; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: ${colors.bg}; }
-        ::-webkit-scrollbar-thumb { background: ${isDark ? '#deff00' : '#0000ff'}; }
+        ::-webkit-scrollbar-thumb { background: ${isDark ? darkText : PAL.field}; }
 
+        ::selection { background: var(--fill); color: #0a0a0a; }
         :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
         /* One container, one grid edge, used by every section including nav and footer */
@@ -142,7 +154,7 @@ export default function App() {
         @media (max-width: 480px) { .nav-link { letter-spacing: 0.08em; } }
 
         /* CTA: hard offset shadow, tactile press */
-        .cta { background: var(--accent); color: #0a0a0a; box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+        .cta { background: var(--fill); color: #0a0a0a; box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
         .cta:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--hard); }
         .cta:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--hard); }
 
@@ -159,17 +171,17 @@ export default function App() {
         .enter { animation: fade-up .9s var(--ease) both; animation-delay: var(--d, 0ms); }
 
         /* Cards */
-        .card { border: 2px solid var(--hairline); background: ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,255,0.02)'}; }
+        .card { border: 2px solid var(--hairline); background: ${isDark ? `rgba(${PAPER},0.08)` : `rgba(${FIELD},0.04)`}; }
         .clip { display: flex; flex-direction: column; padding: 2rem; border: 2px solid var(--hairline); background: var(--bg); position: relative; transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .2s; }
-        .clip .badge { background: var(--accent); padding: .5rem; transition: transform .35s var(--ease); }
+        .clip .badge { background: var(--fill); padding: .5rem; transition: transform .35s var(--ease); }
         .clip .ext { transition: transform .35s var(--ease); }
         .clip .tag { padding: .15rem .4rem; transition: background .25s, color .25s; }
         @media (hover: hover) {
           .clip:hover { transform: translate(-4px, -6px); box-shadow: 8px 10px 0 var(--accent); border-color: var(--accent); }
           .clip:hover .badge { transform: rotate(-12deg) scale(1.1); }
           .clip:hover .ext { transform: translate(3px, -3px) scale(1.2); }
-          .clip:hover .tag { background: var(--accent); color: #0a0a0a; }
-          .clip:hover .clip-title { color: ${isDark ? '#deff00' : 'inherit'}; }
+          .clip:hover .tag { background: var(--fill); color: #0a0a0a; }
+          .clip:hover .clip-title { color: ${isDark ? darkText : 'inherit'}; }
         }
         .clip:active { transform: translate(-2px, -3px); box-shadow: 5px 6px 0 var(--accent); border-color: var(--accent); }
         .clip-grid > .reveal:nth-child(4n+2) { --d: 80ms; }
@@ -177,7 +189,7 @@ export default function App() {
         .clip-grid > .reveal:nth-child(4n+4) { --d: 240ms; }
 
         .social { transition: background .25s, color .25s, transform .3s var(--ease); min-height: 44px; }
-        @media (hover: hover) { .social:hover { background: var(--accent); color: #0a0a0a !important; transform: translateY(-4px); } }
+        @media (hover: hover) { .social:hover { background: var(--fill); color: #0a0a0a !important; transform: translateY(-4px); } }
 
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
@@ -199,7 +211,7 @@ export default function App() {
               className="theme-toggle relative w-14 sm:w-16 h-8 rounded-full border-2 transition-all duration-300 flex items-center px-1 shrink-0"
               title="Toggle Theme"
               aria-label="Toggle theme"
-              style={{ borderColor: colors.text, backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'transparent' }}
+              style={{ borderColor: colors.text, backgroundColor: isDark ? `rgba(${PAPER},0.1)` : 'transparent' }}
             >
               <div
                 className="w-5 h-5 rounded-full flex items-center justify-center transition-transform duration-300"
@@ -241,7 +253,7 @@ export default function App() {
         </div>
       </section>
 
-      <MarqueeDivider isDark={isDark} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
+      <MarqueeDivider isDark={isDark} color={fillNow} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
 
       {/* --- CAREER EVOLUTION --- */}
       <section id="pivot" className="section relative overflow-hidden">
@@ -251,7 +263,7 @@ export default function App() {
           <div className="relative">
             <div
               className="absolute left-4 md:left-8 top-0 h-full w-[2px] z-0"
-              style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,255,0.2)' }}
+              style={{ backgroundColor: isDark ? `rgba(${PAPER},0.3)` : `rgba(${FIELD},0.25)` }}
             ></div>
 
             <div className="relative flex flex-col gap-10 md:gap-16">
@@ -269,7 +281,7 @@ export default function App() {
                         </h3>
                         <p
                           className="text-base font-normal leading-relaxed max-w-2xl"
-                          style={{ color: isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)' }}
+                          style={{ color: isDark ? `rgba(${PAPER},0.9)` : `rgba(${FIELD},0.85)` }}
                         >
                           {step.description}
                         </p>
@@ -312,7 +324,7 @@ export default function App() {
                   </h3>
                   <p
                     className="text-sm leading-relaxed font-normal mb-8"
-                    style={{ color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)' }}
+                    style={{ color: isDark ? `rgba(${PAPER},0.82)` : `rgba(${FIELD},0.78)` }}
                   >
                     {clip.snippet}
                   </p>
