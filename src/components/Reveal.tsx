@@ -5,10 +5,11 @@ type RevealProps = {
   delay?: number;
   className?: string;
   as?: 'div' | 'span';
+  bare?: boolean; // observe and add `in`, but skip the default fade/translate `.reveal` styles
 };
 
 // Adds the `in` class once the element scrolls into view. Styles live in App.tsx (.reveal).
-export const Reveal = ({ children, delay = 0, className = '', as = 'div' }: RevealProps) => {
+export const Reveal = ({ children, delay = 0, className = '', as = 'div', bare = false }: RevealProps) => {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export const Reveal = ({ children, delay = 0, className = '', as = 'div' }: Reve
   return (
     <Tag
       ref={ref}
-      className={`reveal ${className}`}
+      className={bare ? className : `reveal ${className}`}
       style={{ ['--d' as string]: `${delay}ms` }}
     >
       {children}

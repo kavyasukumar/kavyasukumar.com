@@ -157,10 +157,18 @@ export default function App() {
         .cta { background: var(--fill); color: #0a0a0a; box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
         .cta:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--hard); }
         .cta:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--hard); }
+        .cta svg { transition: transform 200ms var(--ease); }
+        @media (hover: hover) and (pointer: fine) { .cta:hover svg { transform: translate(3px, -3px); } }
 
         /* Reveal on scroll */
         .reveal { opacity: 0; transform: translateY(36px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--d, 0ms); }
         .reveal.in { opacity: 1; transform: none; }
+
+        /* Timeline rail draws in; icon nodes pop in after their card */
+        .rail { transform-origin: top; transform: scaleY(0); transition: transform 900ms var(--ease); }
+        .rail-wrap.in .rail { transform: scaleY(1); }
+        .node { opacity: 0; transform: scale(0.8); transition: transform 400ms var(--ease) 150ms, opacity 400ms var(--ease) 150ms; }
+        .reveal.in .node { opacity: 1; transform: none; }
 
         /* Hero entrance */
         @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
@@ -190,10 +198,21 @@ export default function App() {
 
         .social { transition: background .25s, color .25s, transform .3s var(--ease); min-height: 44px; }
         @media (hover: hover) { .social:hover { background: var(--fill); color: #0a0a0a !important; transform: translateY(-4px); } }
+        .social:active { transform: translateY(-2px) scale(0.97); transition-duration: .12s; }
+
+        /* Email link: fill sweeps in behind the text */
+        .mail-link { position: relative; isolation: isolate; transition: color 300ms var(--ease); }
+        .mail-link::after { content: ''; position: absolute; inset: -0.04em -0.12em; background: var(--fill); transform: scaleX(0); transform-origin: left; transition: transform 300ms var(--ease); z-index: -1; }
+        .mail-link:focus-visible { color: #0a0a0a !important; }
+        .mail-link:focus-visible::after { transform: scaleX(1); }
+        @media (hover: hover) and (pointer: fine) {
+          .mail-link:hover { color: #0a0a0a !important; }
+          .mail-link:hover::after { transform: scaleX(1); }
+        }
 
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
-          .reveal, .enter, .hero-line > span, .animate-marquee, .clip, .clip *, .cta { animation: none !important; transition: none !important; opacity: 1; transform: none; }
+          .reveal, .enter, .hero-line > span, .animate-marquee, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
         }
       `}</style>
 
@@ -260,9 +279,9 @@ export default function App() {
         <div className="wrap">
           <SectionTitle isDark={isDark} outline="CAREER" solid="EVOLUTION" />
 
-          <div className="relative">
+          <Reveal bare className="rail-wrap relative">
             <div
-              className="absolute left-4 md:left-8 top-0 h-full w-[2px] z-0"
+              className="rail absolute left-4 md:left-8 top-0 h-full w-[2px] z-0"
               style={{ backgroundColor: isDark ? `rgba(${PAPER},0.3)` : `rgba(${FIELD},0.25)` }}
             ></div>
 
@@ -290,7 +309,7 @@ export default function App() {
 
                     <div className="absolute left-4 md:left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
                       <div
-                        className="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center"
+                        className="node w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: colors.bg, borderWidth: '4px', borderStyle: 'solid', borderColor: colors.accent }}
                       >
                         <Icon size={24} style={{ color: colors.text }} />
@@ -300,7 +319,7 @@ export default function App() {
                 );
               })}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -352,7 +371,7 @@ export default function App() {
           <Reveal delay={200}>
             <a
               href={`mailto:${SITE_DATA.profile.email}`}
-              className="inline-block font-display underline underline-offset-[10px] md:underline-offset-[20px] decoration-4 transition-all break-all"
+              className="mail-link inline-block font-display underline underline-offset-[10px] md:underline-offset-[20px] decoration-4 break-all"
               style={{ fontSize: 'clamp(1rem, 5.4vw, 3.5rem)', letterSpacing: 'var(--track)', color: colors.text, textDecorationColor: colors.accent }}
             >
               {SITE_DATA.profile.email}
