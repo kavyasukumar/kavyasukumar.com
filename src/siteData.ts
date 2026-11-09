@@ -1,16 +1,9 @@
-import { 
-  Cpu,
-  Newspaper,
-  FolderKanban,
-  BadgeDollarSign
-} from 'lucide-react';
-
 const SITE_DATA = {
   profile: {
     name: "KAVYA SUKUMAR",
     firstName: "Kavya",
     lastName: "Sukumar",
-    title: "Creative Technologist",
+    title: "Chief Technology Officer",
     tagline: "A developer with a journalism habit, now investing in the future of media and community engagement.",
     location: "Bangalore, India",
     email: "hello@kavyasukumar.com",
@@ -22,8 +15,8 @@ const SITE_DATA = {
     }
   },
   navigation: [
-    { name: "Evolution", id: "pivot" },
-    { name: "Clips", id: "clips" },
+    { name: "Career", id: "career" },
+    { name: "Writing", id: "writing" },
     { name: "Contact", id: "contact" }
   ],
   currentPursuit: {
@@ -37,29 +30,25 @@ const SITE_DATA = {
       phase: "01",
       title: "ENGINEERING",
       subtitle: "Systems & Scalability",
-      description: "Career foundation established at Microsoft, developing core features for global platforms including Xbox platform, MSN Games and Bing Videos.",
-      icon: Cpu
+      description: "Career foundation established at Microsoft, developing core features for global platforms including Xbox platform, MSN Games and Bing Videos."
     },
     {
       phase: "02",
       title: "JOURNALISM",
       subtitle: "Editorial Technology",
-      description: "Held multiple roles across the content publishing space including investigative journalist, data editor, and editorial engineer at The Washington Post, Vox Media and The Palm Beach Post.",
-      icon: Newspaper
+      description: "Held multiple roles across the content publishing space including investigative journalist, data editor, and editorial engineer at The Washington Post, Vox Media and The Palm Beach Post."
     },
     {
       phase: "03",
       title: "PRODUCT MANAGEMENT",
       subtitle: "Product Leadership",
-      description: "Led product development and strategy for media and media-adjacent platforms such as Hearken, focusing on user-centric design and data-driven decision making.",
-      icon: FolderKanban
+      description: "Led product development and strategy for media and media-adjacent platforms such as Hearken, focusing on user-centric design and data-driven decision making."
     },
     {
       phase: "04",
       title: "VENTURE CAPITAL",
       subtitle: "Strategic Leadership",
-      description: "Building technology for critical decision-making in investment. Providing executive product leadership and advisory services to high-growth startups.",
-      icon: BadgeDollarSign
+      description: "Building technology for critical decision-making in investment. Providing executive product leadership and advisory services to high-growth startups."
     },
   ],
   clips: [

@@ -16,9 +16,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Group React and React DOM into a 'vendor' chunk
-          vendor: ['react', 'react-dom'],
-          // Group the Lucide icons into an 'icons' chunk
-          icons: ['lucide-react']
+          vendor: ['react', 'react-dom']
         }
       }
     }
