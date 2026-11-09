@@ -1,18 +1,16 @@
-export const SectionTitle = ({ outline, solid, isDark }) => (
-  <div className="flex flex-col mb-12 lg:mb-20 relative">
-    <h2 className="text-6xl md:text-8xl lg:text-[10rem] leading-[0.8] tracking-tighter font-display uppercase relative z-10">
-      <span className="block" style={{ 
-        color: isDark ? '#ffffff' : '#0000ff',
-        transition: 'color 0.5s ease'
-      }}>
-        {outline}
-      </span>
-      <span className="block text-transparent" style={{ 
-        WebkitTextStroke: `1px ${isDark ? '#ffffff' : '#0000ff'}`,
-        transition: 'all 0.5s ease'
-      }}>
-        {solid}
-      </span>
-    </h2>
-  </div>
+import { Reveal } from './Reveal';
+
+type SectionTitleProps = { outline: string; solid: string; isDark?: boolean };
+
+// Solid word over outlined word. Kept as the signature pairing; motion is reveal-only.
+// (Prop names are historical: `outline` renders solid, `solid` renders outlined.)
+export const SectionTitle = ({ outline, solid }: SectionTitleProps) => (
+  <h2 className="section-title font-display uppercase">
+    <Reveal as="span" className="block title-solid" delay={0}>
+      {outline}
+    </Reveal>
+    <Reveal as="span" className="block title-outline" delay={140}>
+      {solid}
+    </Reveal>
+  </h2>
 );
