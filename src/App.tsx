@@ -175,7 +175,7 @@ export default function App() {
         .clip { display: flex; flex-direction: column; padding: 2rem; border: 2px solid var(--hairline); background: var(--bg); position: relative; transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .2s; }
         .clip .badge { background: var(--fill); padding: .5rem; transition: transform .35s var(--ease); }
         .clip .ext { transition: transform .35s var(--ease); }
-        .clip .tag { padding: .15rem .4rem; transition: background .25s, color .25s; }
+        .clip .tag { color: inherit; padding: .15rem .4rem; transition: background .25s, color .25s; }
         @media (hover: hover) {
           .clip:hover { transform: translate(-4px, -6px); box-shadow: 8px 10px 0 var(--accent); border-color: var(--accent); }
           .clip:hover .badge { transform: rotate(-12deg) scale(1.1); }
@@ -330,7 +330,7 @@ export default function App() {
                   </p>
                   <div className="mt-auto flex flex-wrap gap-2 pt-4 border-t" style={{ borderColor: colors.border }}>
                     {clip.tags?.map(tag => (
-                      <span key={tag} className="tag font-mono text-xs uppercase tracking-widest font-bold" style={{ color: 'inherit' }}>
+                      <span key={tag} className="tag font-mono text-xs uppercase tracking-widest font-bold">
                         #{tag}
                       </span>
                     ))}
