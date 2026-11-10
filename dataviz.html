@@ -77,6 +77,9 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 /* Moves aside to the bottom when at the top it would cover the hovered thing (trackbar.ts) */
 .tm-trackbar-bar.is-bottom{top:auto;bottom:16px;transform:translate(-50%,8px)}
 .tm-trackbar-bar.is-bottom.is-on{transform:translate(-50%,0)}
+/* Tooltip mode: follows a mouse/pen pointer (trackbar.ts sets the transform). Fades on show/hide only. */
+.tm-trackbar.tm-trackbar-tip{position:fixed;top:0;left:0;z-index:50;width:max-content;max-width:min(360px,calc(100vw - 16px));box-sizing:border-box;background:var(--pink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 14px;transition:opacity .15s,visibility 0s .15s;will-change:transform}
+.tm-trackbar.tm-trackbar-tip.is-on{transition:opacity .15s,visibility 0s}
 @media(max-width:699px){.tm-trackbar .tb-desc{display:none}}
 @media(prefers-reduced-motion:reduce){.tm-trackbar,.tm-trackbar.is-on{transition:none!important}}
 @media(max-width:700px){

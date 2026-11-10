@@ -10,8 +10,14 @@ let mapEl: HTMLElement | null = null;
 let keyEl: HTMLElement | null = null;
 let docBound = false;
 let announced: string | null = null;
+let announcedSrc: HighlightSource = null;
 
 const active = (): string | null => hover ?? focus ?? pinned;
+
+/** What drives the active highlight: a mouse/pen hover, key-row focus, or a touch tap. */
+export type HighlightSource = 'hover' | 'focus' | 'pinned' | null;
+export const highlightSource = (): HighlightSource =>
+  hover !== null ? 'hover' : focus !== null ? 'focus' : pinned !== null ? 'pinned' : null;
 
 function apply(): void {
   const t = active();
@@ -28,9 +34,12 @@ function apply(): void {
   if (mapEl) {
     if (t) mapEl.dataset.highlight = t;
     else delete mapEl.dataset.highlight;
-    // Tell listeners (the track bar) when the highlighted theme changes.
-    if (t !== announced) {
+    // Tell listeners (the track bar) when the highlighted theme, or what drives
+    // it, changes. `detail` is the theme; read the source with highlightSource().
+    const src = highlightSource();
+    if (t !== announced || src !== announcedSrc) {
       announced = t;
+      announcedSrc = src;
       mapEl.dispatchEvent(new CustomEvent('tm:highlight', { detail: t }));
     }
   }
