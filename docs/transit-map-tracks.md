@@ -10,11 +10,13 @@ Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing
 
 ## Lines (in order)
 
-1. code — Ink #0A0A0A (from the old map)
+1. code — Forest #0B3D2E (owner pick, replaces Ink)
 2. journalism — Pink #E39BAE (from the old map)
-3. product — Gold #F2C14E (from the old map)
-4. investing — Mint #9AD9B0 (from the old map)
+3. product — Mint #9AD9B0 (owner pick, replaces Gold)
+4. investing — Ink #0A0A0A (owner pick, replaces Mint; not drawn yet)
 5. leadership and outreach — Raspberry #B0466F (owner pick; a darker pink) (added during the station walk; working name)
+
+Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, product, top to bottom; product's tracks are numbered 8, 9, 10 and leadership's 11, 12 for now (`num` in the data).
 
 Colours are also stored as `colour` on each line in `data/transit-map-data.json`. Raspberry is 4.4:1 on Cream but 2.3:1 on Forest, so the map keeps its Cream background in both themes.
 
