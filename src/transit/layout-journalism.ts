@@ -1,4 +1,4 @@
-import type { LineLayout, StationLayout, TrackLayout } from './types';
+import type { LayoutPoint, LineLayout, StationLayout, TrackLayout } from './types';
 
 /** Slots follow career order only, evenly spaced (rule 28). No time axis (rule 39). */
 const slots: Record<string, number> = {
@@ -14,60 +14,107 @@ const slots: Record<string, number> = {
   'lighthouse-reports': 9,
 };
 
-/** Part-time stations label below their tracks; full-time ones above. */
-const below = new Set(['bad-idea-factory', 'all-things-small', 'uw-lecturer']);
+/**
+ * Full-time stops label above the trunk. Washington Post labels below, because the
+ * Lighthouse branches ride above the trunk there. Gigs end in J-curves and label at
+ * the tip (rule 20); Bad Idea Factory labels beside its dots.
+ */
+const sides: Record<string, StationLayout['labelSide']> = {
+  'washington-post': 'after',
+  'bad-idea-factory': 'back',
+  'all-things-small': 'tip',
+  'uw-lecturer': 'tip',
+  'lighthouse-reports': 'tip',
+};
 
 const stations: Record<string, StationLayout> = {};
 for (const [id, slot] of Object.entries(slots)) {
-  stations[id] = { slot, labelSide: below.has(id) ? 'after' : 'before' };
+  stations[id] = { slot, labelSide: sides[id] ?? 'before' };
 }
 
+// Geometry below is in lw: x runs along time (slot * GAP), lane runs across.
 const GAP = 8; // lw per slot, both orientations
-const LW = 1 / GAP; // one lw in slot units
 const P = 1.12; // track pitch (rule 10)
 const R = 1.5; // inner bend radius (rule 14)
+const DIAG = P * Math.SQRT2; // x offset between parallel 45 degree tracks one pitch apart
+const V0 = 5.1; // lane where a fan's inner branch turns from 45 degrees into its leg
+const DOT = 7.8; // lane of every leg-end dot: gigs and Bad Idea Factory share one row
+const BIF = 12.5; // top lane of the Bad Idea Factory bundle along the bottom
+const EDGE = 9.9 * GAP; // ongoing branches are run on to the canvas edge by the renderer
 
-const RIDE = 3.36; // first lane under the full-time bundle (5a, 6a, 7a at 0, 1.12, 2.24)
-const GIG = 10.2; // first lane of the gig stubs
-const BIF = 20.5; // first lane of the Bad Idea Factory bundle
+const LANE: Record<string, number> = { '5': 0, '6': P, '7': 2 * P };
+const pt = (x: number, lane: number): LayoutPoint => ({ slot: x / GAP, lane });
 
-const straight = (from: number, to: number, lane: number): TrackLayout => ({
-  route: [{ slot: from, lane }, { slot: to, lane }],
+/** Trunk: straight through, so it stays on top at every crossing (rule 8). */
+const trunk = (from: number, to: number, lane: number): TrackLayout => ({
+  route: [pt(from * GAP, lane), pt(to * GAP, lane)],
+  top: true,
 });
 
 /**
- * Tracks that ride beside a bundle from `from`, peel off at `drop` with concentric
- * 90 degree bends (rules 14, 20), and run on at `toLane` to `to`. `dir` 1 = peel
- * down off the bundle above them, -1 = peel up off the bundle below them.
+ * Branches that leave their trunks downward, upper theme first, cross the trunks below
+ * at 45 degrees (rule 18) and turn into parallel legs that touch, centred on x. A leg
+ * ends at DOT (single-stop J-curve, rule 20) or, for ongoing work, carries on down and
+ * turns along the bottom to the edge (rule 27) with its dot on the leg.
  */
-function branch(ids: string[], from: number, drop: number, rideLane: number, toLane: number, to: number, dir: 1 | -1): Record<string, TrackLayout> {
-  const n = ids.length;
+function fanDown(themes: string[], ids: string[], x: number, station: string, ongoing = false): Record<string, TrackLayout> {
+  const n = themes.length;
   const out: Record<string, TrackLayout> = {};
-  ids.forEach((id, k) => {
-    const ride = dir === 1 ? rideLane + k * P : rideLane - (n - k) * P;
-    const lane = toLane + k * P;
-    const outer = dir === 1 ? n - 1 - k : k; // steps from the inside of the first bend
-    const x = drop + outer * P * LW;
-    out[id] = {
-      route: [{ slot: from, lane: ride }, { slot: x, lane: ride }, { slot: x, lane }, { slot: to, lane }],
-      radii: [R + outer * P, R + (n - 1 - outer) * P],
+  themes.forEach((th, i) => {
+    const lane = LANE[th]!;
+    const leg = x + (i - (n - 1) / 2) * P;
+    const v = V0 - i * (DIAG - P);
+    const s = leg - (v - lane);
+    const route = [pt(s - 2, lane), pt(s, lane), pt(leg, v)];
+    const radii = [R, R + i * P];
+    if (ongoing) {
+      const lane2 = BIF + (n - 1 - i) * P;
+      route.push(pt(leg, lane2), pt(EDGE, lane2));
+      radii.push(R + (n - 1 - i) * P);
+    } else {
+      route.push(pt(leg, DOT));
+    }
+    out[ids[i]!] = { route, radii, stops: { [station]: pt(leg, DOT) } };
+  });
+  return out;
+}
+
+/**
+ * Branches that leave the trunk upward before it ends, lower theme first, cross the
+ * trunks above at 45 degrees, ride above the trunk past its end and drop as concentric
+ * J-curves (one 90 degree bend, long leg) to touching dots centred on x.
+ */
+function fanUpThenJ(themes: string[], ids: string[], lastSplit: number, x: number, station: string): Record<string, TrackLayout> {
+  const n = themes.length;
+  const out: Record<string, TrackLayout> = {};
+  themes.forEach((th, k) => {
+    const lane = LANE[th]!;
+    const ride = -(k + 1) * P; // the upper theme rides lowest: inner track of both bends
+    const s = lastSplit - k * (DIAG + P);
+    const c = s + (lane - ride);
+    const leg = x + (k - (n - 1) / 2) * P;
+    out[ids[k]!] = {
+      route: [pt(s - 2, lane), pt(s, lane), pt(c, ride), pt(leg, ride), pt(leg, DOT)],
+      radii: [R, R + k * P, R + k * P],
+      stops: { [station]: pt(leg, DOT) },
     };
   });
   return out;
 }
 
+const J = 'journalism-';
 const tracks: Record<string, TrackLayout> = {
-  // Full-time bundle
-  'journalism-finding-stories-1': straight(0, 8, 0),
-  'journalism-storytelling-1': straight(0, 8, 1.12),
-  'journalism-tooling-1': straight(1, 8, 2.24),
-  // Bad Idea Factory (ongoing): peels off under the full-time bundle, runs along the bottom to the edge.
-  ...branch(['journalism-finding-stories-2', 'journalism-storytelling-2', 'journalism-tooling-2'], 2.95, 3.34, RIDE, BIF, 9, 1),
-  // Gigs never chain (rule 37); each peels off, stops at its station and ends there.
-  ...branch(['journalism-storytelling-3', 'journalism-tooling-3'], 5.07, 5.45, RIDE, GIG, 6, 1),
-  ...branch(['journalism-finding-stories-3', 'journalism-storytelling-4', 'journalism-tooling-4'], 5.965, 6.34, RIDE, GIG, 7, 1),
-  // Lighthouse Reports comes after the full-time bundle ends, so it peels up off Bad Idea Factory.
-  ...branch(['journalism-finding-stories-4', 'journalism-storytelling-5', 'journalism-tooling-5'], 7.875, 8.25, BIF, GIG, 9, -1),
+  // Trunks: full-time work (rule 37).
+  [`${J}finding-stories-1`]: trunk(0, 8, LANE['5']!),
+  [`${J}storytelling-1`]: trunk(0, 8, LANE['6']!),
+  [`${J}tooling-1`]: trunk(1, 8, LANE['7']!),
+  // Bad Idea Factory (ongoing) splits just after Vox Media, stops on the drop, runs along the bottom to TODAY.
+  ...fanDown(['5', '6', '7'], [`${J}finding-stories-2`, `${J}storytelling-2`, `${J}tooling-2`], 4 * GAP + 0.82, 'bad-idea-factory', true),
+  // Gigs never chain (rule 37): each is a single-stop J-curve (rule 20).
+  ...fanDown(['6', '7'], [`${J}storytelling-3`, `${J}tooling-3`], 6 * GAP, 'all-things-small'),
+  ...fanDown(['5', '6', '7'], [`${J}finding-stories-3`, `${J}storytelling-4`, `${J}tooling-4`], 7 * GAP, 'uw-lecturer'),
+  // Lighthouse Reports leaves the trunk before Washington Post, never Bad Idea Factory.
+  ...fanUpThenJ(['5', '6', '7'], [`${J}finding-stories-4`, `${J}storytelling-5`, `${J}tooling-5`], 61.3, 9 * GAP, 'lighthouse-reports'),
 };
 
 export const journalismLayout: LineLayout = {

@@ -1,15 +1,15 @@
 import { select, type Selection } from 'd3-selection';
 import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
+import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
-import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale } from './types';
+import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
+import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
 
 export const INK = '#0A0A0A';
 const MUTED = '#555555';
 const WHITE = '#FFFFFF';
+const CREAM = '#F4E9D5'; // map background, used for crossing casings (rule 19)
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
-const LABEL_PX = 12;
-const CHAR_W = 0.6 * LABEL_PX;
-const LINE_H = 15;
 const LABEL_GAP = 0.75;
 // Dots must hold a 12px track ID (rule 22), so a track is at least 16px wide.
 const MIN_LW = 16;
@@ -23,8 +23,8 @@ const AXIS_COL = PAD;
 export interface StationModel {
   st: MapStation;
   slot: number;
-  labelSide: 'before' | 'after';
-  dots: { track: MapTrack; lane: number }[];
+  labelSide: StationLayout['labelSide'];
+  dots: { track: MapTrack; lane: number; slot: number }[];
   minLane: number;
   maxLane: number;
   kind: 'station' | 'interchange' | 'terminal';
@@ -52,11 +52,14 @@ export function buildModel(data: MapData, layout: LineLayout): Model {
     const dots: StationModel['dots'] = [];
     for (const track of tracks) {
       if (!track.stations.includes(st.id)) continue;
-      const lane = laneAt(layout.tracks[track.id]!.route, sl.slot);
-      if (lane !== null) dots.push({ track, lane });
+      const tl = layout.tracks[track.id]!;
+      const at = tl.stops?.[st.id];
+      if (at) { dots.push({ track, lane: at.lane, slot: at.slot }); continue; }
+      const lane = laneAt(tl.route, sl.slot);
+      if (lane !== null) dots.push({ track, lane, slot: sl.slot });
     }
     if (!dots.length) continue;
-    dots.sort((a, b) => a.lane - b.lane);
+    dots.sort((a, b) => a.lane - b.lane || a.slot - b.slot);
     const endsHere = dots.some((d) => !d.track.ongoing && d.track.stations[d.track.stations.length - 1] === st.id);
     const themes: string[] = [];
     for (const d of dots) {
@@ -113,7 +116,8 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; theme: string; d: string; colour: string }[];
+  tracks: { id: string; theme: string; d: string; colour: string; top: boolean }[];
+  casings: Casing[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; theme: string; x1: number; y1: number; x2: number; y2: number }[];
@@ -123,21 +127,6 @@ interface Plan {
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
   axis: { key: string; x: number; y: number; anchor: string; text: string }[];
   today: { x: number; y: number } | null;
-}
-
-function wrap(text: string, budget: number): string[] {
-  if (text.length * CHAR_W <= budget) return [text];
-  const words = text.split(' ');
-  if (words.length < 2) return [text];
-  let best = [text];
-  let bestW = Infinity;
-  for (let i = 1; i < words.length; i++) {
-    const a = words.slice(0, i).join(' ');
-    const b = words.slice(i).join(' ');
-    const m = Math.max(a.length, b.length) * CHAR_W;
-    if (m < bestW) { bestW = m; best = [a, b]; }
-  }
-  return best;
 }
 
 function luminance(hex: string): number {
@@ -182,71 +171,89 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       if (!today || (horiz ? t3.y > today.y : t3.x > today.x)) today = t3;
     }
     const mid = pts.slice(1, -1);
-    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), colour };
+    const tl = layout.tracks[t.id]!;
+    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (tl.radii ?? [1.5]).map((r) => r * lw)), colour, top: !!tl.top };
   });
 
   const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
   const stations: Plan['stations'] = model.stations.map((sm) => {
-    const [sx, sy] = toXY(sm.slot, 0, s);
-    const lanes = [sm.minLane, sm.maxLane];
-    grow(...(horiz ? [sx - lw / 2, toXY(0, lanes[0]!, s)[1] - lw / 2, sx + lw / 2, toXY(0, lanes[1]!, s)[1] + lw / 2] as const
-      : [toXY(sm.slot, lanes[0]!, s)[0] - lw / 2, sy - lw / 2, toXY(sm.slot, lanes[1]!, s)[0] + lw / 2, sy + lw / 2] as const));
-    const connectors: Plan['stations'][number]['connectors'] = [];
     const dots = sm.dots.map((d) => {
-      const [cx, cy] = toXY(sm.slot, d.lane, s);
+      const [cx, cy] = toXY(d.slot, d.lane, s);
+      grow(cx - lw / 2, cy - lw / 2, cx + lw / 2, cy + lw / 2);
       return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label };
     });
-    for (let i = 1; i < sm.dots.length; i++) {
-      const a = sm.dots[i - 1]!; const b = sm.dots[i]!;
-      if (b.lane - a.lane > DOT_D * 1.01 + 0.12) {
-        const [x1, y1] = toXY(sm.slot, a.lane, s); const [x2, y2] = toXY(sm.slot, b.lane, s);
-        connectors.push({ key: `${a.track.id}|${b.track.id}`, theme: a.track.theme === b.track.theme ? a.track.theme : '', x1, y1, x2, y2 });
+    // Dots that do not touch are joined by a connector (rule 24).
+    const connectors: Plan['stations'][number]['connectors'] = [];
+    for (let i = 1; i < dots.length; i++) {
+      const a = dots[i - 1]!; const b = dots[i]!;
+      if (Math.hypot(b.cx - a.cx, b.cy - a.cy) > (DOT_D * 1.01 + 0.12) * lw) {
+        connectors.push({ key: `${a.key}|${b.key}`, theme: a.theme === b.theme ? a.theme : '', x1: a.cx, y1: a.cy, x2: b.cx, y2: b.cy });
       }
     }
-    // Label placement: start just past this station's dots, then step past any
-    // track or disc in the way. The label may sit in a gap between bands when it
-    // fits there (rules 29, 30).
-    const before = sm.labelSide === 'before';
     const lines = wrap(sm.st.name, budget);
     const n = lines.length;
     const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
-    const needPx = horiz ? n * LINE_H + 2 * LABEL_GAP * lw : wpx + 2 * LABEL_GAP * lw;
-    const need = needPx / lw;
-    const obstacles: [number, number][] = [];
-    for (const tl of Object.values(layout.tracks)) {
-      const ln = laneAt(tl.route, sm.slot);
-      if (ln !== null) obstacles.push([ln - DOT_D / 2, ln + DOT_D / 2]);
-    }
-    for (const d of layout.discs) {
-      if (d.slot === sm.slot) obstacles.push([d.lane - DISC_D / 2, d.lane + DISC_D / 2]);
-    }
-    let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
-    for (let moved = true; moved;) {
-      moved = false;
-      for (const [lo, hi] of obstacles) {
-        const blocks = before ? lo < edge && hi > edge - need : hi > edge && lo < edge + need;
-        if (!blocks) continue;
-        const next = before ? Math.min(edge, lo) : Math.max(edge, hi);
-        if (next !== edge) { edge = next; moved = true; }
+    const side = sm.labelSide;
+    let ex: number; let ey: number; let dir: ScreenDir;
+    if (side === 'tip' || side === 'back') {
+      const mean = (f: (d: StationModel['dots'][number]) => number): number => sm.dots.reduce((a, d) => a + f(d), 0) / sm.dots.length;
+      if (side === 'tip') {
+        // J-curve tip: past the dot and the square end, in the leg's direction (rule 20).
+        const tip = sm.maxLane + DOT_D / 2 + END_OVERRUN;
+        const mid = mean((d) => d.slot);
+        // Vertical layout: if a track runs where the label would go (east of the tip), the
+        // label sits under the dots instead, so it never crosses a track (rules 20, 29).
+        const need = (wpx + 2 * LABEL_GAP * lw) / lw;
+        const blocked = !horiz && Object.values(layout.tracks).some((tl) => {
+          const ln = laneAt(tl.route, mid);
+          return ln !== null && ln + DOT_D / 2 > tip && ln - DOT_D / 2 < tip + need;
+        });
+        if (blocked) {
+          const last = Math.max(...sm.dots.map((d) => d.slot));
+          [ex, ey] = toXY(last + DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
+          dir = 'down';
+        } else {
+          [ex, ey] = toXY(mid, tip, s);
+          dir = horiz ? 'down' : 'right';
+        }
+      } else {
+        const first = Math.min(...sm.dots.map((d) => d.slot));
+        [ex, ey] = toXY(first - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
+        dir = horiz ? 'left' : 'up';
       }
-    }
-    const [ex, ey] = toXY(sm.slot, edge, s);
-    const gap = LABEL_GAP * lw;
-    let lx: number; let ly: number; let anchor: string;
-    if (horiz) {
-      lx = ex; anchor = 'middle';
-      ly = before ? ey - gap - (n - 1) * LINE_H - 3 : ey + gap + 10;
-      grow(lx - wpx / 2, ly - 10, lx + wpx / 2, ly + (n - 1) * LINE_H + 3);
     } else {
-      ly = ey - ((n - 1) * LINE_H) / 2 + 4;
-      lx = before ? ex - gap : ex + gap;
-      anchor = before ? 'end' : 'start';
-      grow(before ? lx - wpx : lx, ly - 10, before ? lx : lx + wpx, ly + (n - 1) * LINE_H + 3);
+      // Start just past this station's dots, then step past any track or disc in the
+      // way. The label may sit in a gap between bands when it fits there (rules 29, 30).
+      const before = side === 'before';
+      const needPx = horiz ? n * LINE_H + 2 * LABEL_GAP * lw : wpx + 2 * LABEL_GAP * lw;
+      const need = needPx / lw;
+      const obstacles: [number, number][] = [];
+      for (const tl of Object.values(layout.tracks)) {
+        const ln = laneAt(tl.route, sm.slot);
+        if (ln !== null) obstacles.push([ln - DOT_D / 2, ln + DOT_D / 2]);
+      }
+      for (const d of layout.discs) {
+        if (d.slot === sm.slot) obstacles.push([d.lane - DISC_D / 2, d.lane + DISC_D / 2]);
+      }
+      let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
+      for (let moved = true; moved;) {
+        moved = false;
+        for (const [lo, hi] of obstacles) {
+          const blocks = before ? lo < edge && hi > edge - need : hi > edge && lo < edge + need;
+          if (!blocks) continue;
+          const next = before ? Math.min(edge, lo) : Math.max(edge, hi);
+          if (next !== edge) { edge = next; moved = true; }
+        }
+      }
+      [ex, ey] = toXY(sm.slot, edge, s);
+      dir = horiz ? (before ? 'up' : 'down') : (before ? 'left' : 'right');
     }
+    const placed = placeLabel(dir, ex, ey, LABEL_GAP * lw, lines);
+    grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
       themes: [...new Set(sm.dots.map((d) => d.track.theme))].join(' '),
-      connectors, dots, label: { lines, x: lx, y: ly, anchor },
+      connectors, dots, label: { lines, x: placed.x, y: placed.y, anchor: placed.anchor },
     };
   });
 
@@ -255,7 +262,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
   const axis: Plan['axis'] = [];
   const td = today as Plan['today'];
   if (td) grow(td.x - (horiz ? 50 : 0), td.y - 12, td.x + (horiz ? 0 : 50), td.y + 4);
-  return { box, tracks, stations, discs, axis, today };
+  return { box, tracks, casings: casings(model.tracks, layout, s), stations, discs, axis, today };
 }
 
 type Sel<E extends Element> = Selection<E, unknown, any, unknown>;
@@ -278,7 +285,9 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('aria-label', `${model.line.name} line`) as Sel<SVGSVGElement>;
 
 
-  layer(svg, 'tracks').selectAll<SVGPathElement, Plan['tracks'][number]>('path.tm-track').data(p.tracks, (d) => d.id).join('path')
+  // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
+  const drawTracks = (name: string, list: Plan['tracks']) => layer(svg, name)
+    .selectAll<SVGPathElement, Plan['tracks'][number]>('path.tm-track').data(list, (d) => d.id).join('path')
     .attr('class', 'tm-track').attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
     .attr('stroke', (d) => d.colour)
     .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round')
@@ -286,6 +295,11 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .on('pointerenter', (e: PointerEvent, d) => hoverIn(e, d.theme))
     .on('pointerleave', (e: PointerEvent) => hoverOut(e))
     .on('pointerup', (e: PointerEvent, d) => tapTrack(e, d.theme));
+  drawTracks('tracks', p.tracks.filter((t) => !t.top));
+  layer(svg, 'casings').selectAll<SVGLineElement, Casing>('line.tm-casing').data(p.casings, (c) => c.key).join('line')
+    .attr('class', 'tm-casing').attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
+    .attr('stroke', CREAM).attr('stroke-width', 1.5 * lw).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
+  drawTracks('tracks-top', p.tracks.filter((t) => t.top));
 
   const discs = layer(svg, 'discs').selectAll<SVGGElement, Plan['discs'][number]>('g.tm-disc-group').data(p.discs, (d) => d.key).join('g').attr('class', 'tm-disc-group');
   discs.selectAll<SVGCircleElement, Plan['discs'][number]>('circle.tm-disc').data((d) => [d]).join('circle')
