@@ -6,7 +6,7 @@ Inputs for the redraw in `transit-map-rules.md`. Vocabulary: line = colour/facet
 
 Short names (column "Short name") are for the map labels and the key; the long names stay as descriptions. Space is tight on the map.
 
-Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing (2) and leadership and outreach (2) have tracks (14 total). Dropped "code as a problem solver" (covered by the line plus other tracks). Station walk done for all 14 tracks. Ongoing (owner rule): a track runs on only if a current station (Bad Idea Factory or Aspada) serves it; every other track ends as a terminal at its last station. Ends: Diligence (LightRock India), and Finding stories and Storytelling (Lighthouse Reports, 2024-25; owner removed them from Bad Idea Factory). Years: station years only, no per-track dates (owner decision); all tracks share one time axis in career order. All station years filled. Next: redraw (rules in transit-map-rules.md).
+Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing (2) and leadership and outreach (2) have tracks (14 total). Dropped "code as a problem solver" (covered by the line plus other tracks). Station walk done for all 14 tracks. Ongoing (owner rule): a track runs on only if a current station (Bad Idea Factory or Aspada) serves it; every other track ends as a terminal at its last station. Ends: Diligence (LightRock India) and Teaching and evangelism (its last full-time stop is Hearken; owner removed it from Bad Idea Factory). Finding stories and Storytelling are back on Bad Idea Factory, so they are ongoing. Years: station years only, no per-track dates (owner decision); all tracks share one time axis in career order. All station years filled. Next: redraw (rules in transit-map-rules.md).
 
 ## Lines (in order)
 
@@ -69,7 +69,7 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 | 4 | Palm Beach Post | data & interactives, 2014-15 | code, journalism, leadership and outreach | Data science; Finding stories; Storytelling and presentation; Editorial tooling; Team leadership and management |
 | 5 | OpenNews Fellow | at Vox Media, 2015-16 | code, journalism, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
 | 6 | Vox Media | full-stack +, 2016-18 | code, journalism | for the love of code; code as a tool for social justice; Data science; opensource coding; Storytelling and presentation; Editorial tooling; Finding stories |
-| 7 | Bad Idea Factory | since 2018 | code, journalism, product, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Editorial tooling; product management; Team leadership and management; Teaching and evangelism of tech in media |
+| 7 | Bad Idea Factory | since 2018 | code, journalism, product | for the love of code; code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; product management |
 | 8 | Hearken | full-stack to product, 2018-20 | code, journalism, product, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Editorial tooling; product management; Product economics; Fundraising and investor relations; Team leadership and management; Teaching and evangelism of tech in media |
 | 9 | Seattle Globalist | board, 2019 | product, leadership and outreach | Team leadership and management; Fundraising and investor relations; Teaching and evangelism of tech in media |
 | 10 | All Things Small | consulting, 2019-20 | code, journalism, product, leadership and outreach | for the love of code; Data science; Editorial tooling; Storytelling and presentation; product management; Product economics; Team leadership and management |
@@ -81,7 +81,7 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 
 Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their tracks are hatched (rule 35) and kept apart from full-time tracks.
 
-Strands: a theme above is drawn as one track per concurrent role (rule 37). Full-time roles share the first track where they don't overlap; hatched tracks follow. 14 themes become 35 tracks, listed with labels (1a, 1b, ...) in `data/transit-map-data.json` under `tracks`.
+Strands: a theme above is drawn as one track per concurrent role (rule 37). Full-time roles share the first track where they don't overlap; hatched tracks follow. Part-time gigs never chain (owner, rule 37): each part-time station gets its own track per theme that starts and ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals; only Bad Idea Factory's tracks run on. 14 themes become 47 tracks, listed with labels (1a, 1b, ...) in `data/transit-map-data.json` under `tracks`.
 
 ## Interview notes
 

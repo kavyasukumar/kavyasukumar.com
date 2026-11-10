@@ -197,23 +197,33 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
         connectors.push({ key: `${a.track.id}|${b.track.id}`, x1, y1, x2, y2 });
       }
     }
-    // Label placement
+    // Label placement: start just past this station's dots, then step past any
+    // track or disc in the way. The label may sit in a gap between bands when it
+    // fits there (rules 29, 30).
     const before = sm.labelSide === 'before';
-    let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
-    // Clear every track that runs through this slot, not just the ones that stop here.
-    for (const tl of Object.values(layout.tracks)) {
-      const ln = laneAt(tl.route, sm.slot);
-      if (ln === null) continue;
-      edge = before ? Math.min(edge, ln - DOT_D / 2) : Math.max(edge, ln + DOT_D / 2);
-    }
-    for (const d of layout.discs) {
-      if (d.slot !== sm.slot) continue;
-      if (before && d.lane < sm.minLane) edge = Math.min(edge, d.lane - DISC_D / 2);
-      if (!before && d.lane > sm.maxLane) edge = Math.max(edge, d.lane + DISC_D / 2);
-    }
     const lines = wrap(sm.st.name, budget);
     const n = lines.length;
     const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
+    const needPx = horiz ? n * LINE_H + 2 * LABEL_GAP * lw : wpx + 2 * LABEL_GAP * lw;
+    const need = needPx / lw;
+    const obstacles: [number, number][] = [];
+    for (const tl of Object.values(layout.tracks)) {
+      const ln = laneAt(tl.route, sm.slot);
+      if (ln !== null) obstacles.push([ln - DOT_D / 2, ln + DOT_D / 2]);
+    }
+    for (const d of layout.discs) {
+      if (d.slot === sm.slot) obstacles.push([d.lane - DISC_D / 2, d.lane + DISC_D / 2]);
+    }
+    let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
+    for (let moved = true; moved;) {
+      moved = false;
+      for (const [lo, hi] of obstacles) {
+        const blocks = before ? lo < edge && hi > edge - need : hi > edge && lo < edge + need;
+        if (!blocks) continue;
+        const next = before ? Math.min(edge, lo) : Math.max(edge, hi);
+        if (next !== edge) { edge = next; moved = true; }
+      }
+    }
     const [ex, ey] = toXY(sm.slot, edge, s);
     const gap = LABEL_GAP * lw;
     let lx: number; let ly: number; let anchor: string;

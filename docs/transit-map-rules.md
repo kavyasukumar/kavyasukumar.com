@@ -84,7 +84,7 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 
 ### Themes and concurrent work
 
-37. **A theme gets one track per concurrent role.** When two roles of the same theme overlap in time, each gets its own track in the theme's colour. A track never serves two stations at the same time. Where roles do not overlap, one track passes through them in order. Track assignment is by time, earliest first, and is recorded in `data/transit-map-data.json`. [new, owner decision]
+37. **A theme gets one track per concurrent role.** When two roles of the same theme overlap in time, each gets its own track in the theme's colour. A track never serves two stations at the same time. Where full-time roles do not overlap, one track passes through them in order. Part-time gigs never chain: each part-time station gets its own track per theme, which starts and ends there (a terminal), unless the gig is ongoing (rule 27). Track assignment is by time, earliest first, and is recorded in `data/transit-map-data.json`. [new, owner decision]
 38. **Tracks of one theme are numbered in the dots.** A theme with one track shows its number (rule 22). A theme with several shows the number plus a letter (for example 8a, 8b, 8c, 8d). The key lists the theme once, with its number, and notes the letters. [new, owner decision]
 
 ### Label content
@@ -94,6 +94,10 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 ### Screen sizes
 
 40. **The map is responsive and works well on every screen size**, from phone to wide desktop. On narrow screens the map is redrawn in a vertical layout (time runs top to bottom), not shrunk or panned. All other rules still apply to the vertical layout. A library such as d3.js may be used to lay out and draw both layouts. [new, owner decision]
+
+### Interaction
+
+41. **Hovering or clicking a track highlights its whole theme.** The track and every other track of the same theme stay at full strength, along with their dots and discs. For example, hovering 5a highlights 5a, 5b and 5c. Everything else dims. The theme's name is highlighted in the key. Hover shows it while the pointer is on the track. A click (or tap, or Enter on keyboard focus) keeps it until the same track is clicked again or the reader clicks empty map. [new, owner decision]
 
 ## Open decisions
 
