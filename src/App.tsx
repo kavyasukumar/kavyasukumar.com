@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowUpRight,
-  Zap,
-  ExternalLink,
-  Quote,
+  Lightning,
+  ArrowSquareOut,
+  Quotes,
   Sun,
   Moon
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 import SITE_DATA from './siteData';
 import { SectionTitle } from './components/SectionTitle';
@@ -123,7 +123,7 @@ export default function App() {
     '--stroke': isDark ? '4px' : '3px',
     '--stroke-hover': '6px',
     '--track': `${track}em`,
-    '--hard': isDark ? darkText : PAL.field,
+    '--hard': isDark ? ON_FILL : PAL.field,
     '--o1': `${-off1}em`,
     '--o2': `${-off2}em`,
     '--font-display': displayFamily
@@ -302,7 +302,7 @@ export default function App() {
                 className="w-5 h-5 rounded-full flex items-center justify-center transition-transform duration-300"
                 style={{ backgroundColor: colors.text, color: colors.bg, transform: isDark ? 'translateX(var(--knob, 32px))' : 'translateX(0)' }}
               >
-                {isDark ? <Sun size={12} /> : <Moon size={12} />}
+                {isDark ? <Sun size={12} weight="bold" /> : <Moon size={12} weight="bold" />}
               </div>
             </button>
           </nav>
@@ -310,7 +310,7 @@ export default function App() {
 
         <div className="wrap flex-1 flex flex-col justify-center" style={{ paddingBlock: 'clamp(2rem, 6vw, 4rem)' }}>
           <span className="label flex items-center gap-2 mb-6 enter opacity-90" style={{ ['--d' as string]: '50ms' }}>
-            <Zap size={14} fill={colors.text} /> {SITE_DATA.profile.title}
+            <Lightning size={14} weight="fill" /> {SITE_DATA.profile.title}
           </span>
 
           <h1 className="hero-name font-display uppercase mb-10 md:mb-14" aria-label={SITE_DATA.profile.name}>
@@ -331,7 +331,7 @@ export default function App() {
                 className="cta flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto px-8 sm:px-10 py-5 font-black uppercase tracking-widest text-sm"
               >
                 EXPLORE
-                <ArrowUpRight size={20} />
+                <ArrowUpRight size={20} weight="bold" />
               </button>
             </div>
           </div>
@@ -378,7 +378,7 @@ export default function App() {
                         className="node w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: colors.bg, borderWidth: '4px', borderStyle: 'solid', borderColor: colors.accent }}
                       >
-                        <Icon size={24} style={{ color: colors.text }} />
+                        <Icon size={24} weight="bold" style={{ color: colors.text }} />
                       </div>
                     </div>
                   </Reveal>
@@ -399,9 +399,9 @@ export default function App() {
                 <a href={clip.url} target="_blank" rel="noreferrer" className="clip group w-full">
                   <div className="flex justify-between items-start mb-6">
                     <div className="badge">
-                      <Quote size={16} fill={ON_FILL} stroke={ON_FILL} />
+                      <Quotes size={16} weight="fill" color={ON_FILL} />
                     </div>
-                    <ExternalLink size={18} className="ext" style={{ color: colors.text }} />
+                    <ArrowSquareOut size={18} weight="bold" className="ext" style={{ color: colors.text }} />
                   </div>
                   <span className="label block mb-4" style={{ color: colors.text }}>{clip.source}</span>
                   <h3 className="clip-title text-xl font-display uppercase leading-tight mb-6 transition-colors">

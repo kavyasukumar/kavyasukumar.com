@@ -1,4 +1,4 @@
-import { Zap } from 'lucide-react';
+import { Lightning } from '@phosphor-icons/react';
 
 type MarqueeProps = { text: string; color?: string; textColor?: string };
 
@@ -17,7 +17,7 @@ export const MarqueeDivider = ({ text, color = '#E8238C', textColor = '#0a0a0a' 
           className="font-display text-2xl md:text-4xl uppercase px-8 flex items-center gap-8 italic"
           style={{ color: textColor }}
         >
-          {text} <Zap size={24} fill={textColor} stroke={textColor} />
+          {text} <Lightning size={24} weight="fill" color={textColor} />
         </span>
       ))}
     </div>
