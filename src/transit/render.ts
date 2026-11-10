@@ -113,7 +113,7 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; theme: string; d: string; hatched: boolean; colour: string }[];
+  tracks: { id: string; theme: string; d: string; colour: string }[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; theme: string; x1: number; y1: number; x2: number; y2: number }[];
@@ -182,7 +182,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       if (!today || (horiz ? t3.y > today.y : t3.x > today.x)) today = t3;
     }
     const mid = pts.slice(1, -1);
-    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), hatched: t.hatched, colour };
+    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), colour };
   });
 
   const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
@@ -262,19 +262,6 @@ type Sel<E extends Element> = Selection<E, unknown, any, unknown>;
 const layer = (svg: Sel<SVGSVGElement>, name: string): Sel<SVGGElement> =>
   svg.selectAll<SVGGElement, null>(`g.tm-layer-${name}`).data([null]).join('g').attr('class', `tm-layer-${name}`) as Sel<SVGGElement>;
 
-/** Write one hatch pattern per colour into a <defs>. Rule 35: stripes 0.25 lw wide, period 0.5 lw, 45 degrees. */
-export function hatchPatterns(defs: Sel<SVGDefsElement>, colours: string[], lw: number): void {
-  const pats = defs.selectAll<SVGPatternElement, string>('pattern').data(colours, (c) => c).join('pattern');
-  pats.attr('id', (c) => hatchId(c)).attr('patternUnits', 'userSpaceOnUse')
-    .attr('width', 0.5 * lw).attr('height', 0.5 * lw).attr('patternTransform', 'rotate(45)');
-  pats.each(function (c) {
-    const rects = select(this).selectAll<SVGRectElement, { x: number; fill: string }>('rect')
-      .data([{ x: 0, fill: c }, { x: 0.25 * lw, fill: WHITE }]).join('rect');
-    rects.attr('x', (d) => d.x).attr('y', 0).attr('width', 0.25 * lw).attr('height', 0.5 * lw).attr('fill', (d) => d.fill);
-  });
-}
-export const hatchId = (c: string): string => `tm-hatch-${c.replace('#', '')}`;
-
 export function renderMap(container: HTMLElement, data: MapData, layout: LineLayout): RenderResult {
   const W = Math.max(1, Math.round(container.clientWidth || container.getBoundingClientRect().width));
   const model = buildModel(data, layout);
@@ -290,12 +277,10 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'group')
     .attr('aria-label', `${model.line.name} line`) as Sel<SVGSVGElement>;
 
-  const defs = svg.selectAll<SVGDefsElement, null>('defs').data([null]).join('defs') as Sel<SVGDefsElement>;
-  hatchPatterns(defs, [model.line.colour], lw);
 
   layer(svg, 'tracks').selectAll<SVGPathElement, Plan['tracks'][number]>('path.tm-track').data(p.tracks, (d) => d.id).join('path')
     .attr('class', 'tm-track').attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
-    .attr('stroke', (d) => (d.hatched ? `url(#${hatchId(d.colour)})` : d.colour))
+    .attr('stroke', (d) => d.colour)
     .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round')
     // Rule 41: hover (mouse) or tap (touch) highlights the theme; tracks take no clicks.
     .on('pointerenter', (e: PointerEvent, d) => hoverIn(e, d.theme))

@@ -1,7 +1,7 @@
 import { select, type Selection } from 'd3-selection';
 import { DISC_D, DOT_D } from './geometry';
 import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
-import { hatchId, hatchPatterns, INK, textOn } from './render';
+import { INK, textOn } from './render';
 import type { LineLayout, MapData } from './types';
 
 type Row = { key: string; theme?: string; name: string; draw: (svg: Selection<SVGSVGElement, unknown, null, undefined>, lw: number, colour: string) => void; w: number };
@@ -44,13 +44,6 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
         svg.append('text').attr('class', 'tm-disc-id').attr('x', 1.5 * lw).attr('y', lw / 2).attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'central').attr('font-family', FONT).attr('font-weight', 700).attr('font-size', 0.7 * lw)
           .attr('fill', textOn(colour)).text(endedLabel);
-      },
-    },
-    {
-      key: 'part-time', name: 'Part-time', w: 3 * lw,
-      draw: (svg) => {
-        hatchPatterns(svg.append('defs'), [colour], lw);
-        bar(svg, 3 * lw, `url(#${hatchId(colour)})`);
       },
     },
     {

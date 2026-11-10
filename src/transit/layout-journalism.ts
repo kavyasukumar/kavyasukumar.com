@@ -14,7 +14,7 @@ const slots: Record<string, number> = {
   'lighthouse-reports': 9,
 };
 
-/** Part-time stations (all hatched) label below their tracks; full-time ones above. */
+/** Part-time stations label below their tracks; full-time ones above. */
 const below = new Set(['bad-idea-factory', 'all-things-small', 'uw-lecturer']);
 
 const stations: Record<string, StationLayout> = {};
