@@ -296,9 +296,17 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .on('pointerleave', (e: PointerEvent) => hoverOut(e))
     .on('pointerup', (e: PointerEvent, d) => tapTrack(e, d.theme));
   drawTracks('tracks', p.tracks.filter((t) => !t.top));
+  // Each crossing casing is masked to the track it crosses, so it never touches neighbours.
+  const defs = svg.selectAll<SVGDefsElement, null>('defs.tm-defs').data([null]).join('defs').attr('class', 'tm-defs');
+  const unders = p.tracks.filter((t) => !t.top);
+  defs.selectAll<SVGMaskElement, Plan['tracks'][number]>('mask').data(unders, (t) => t.id).join('mask')
+    .attr('id', (t) => `tm-mask-${t.id}`).attr('maskUnits', 'userSpaceOnUse').attr('x', 0).attr('y', 0).attr('width', W).attr('height', H)
+    .selectAll<SVGPathElement, Plan['tracks'][number]>('path').data((t) => [t]).join('path')
+    .attr('d', (t) => t.d).attr('fill', 'none').attr('stroke', '#fff').attr('stroke-width', lw).attr('stroke-linejoin', 'round');
   layer(svg, 'casings').selectAll<SVGLineElement, Casing>('line.tm-casing').data(p.casings, (c) => c.key).join('line')
     .attr('class', 'tm-casing').attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
-    .attr('stroke', CREAM).attr('stroke-width', 1.5 * lw).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
+    .attr('mask', (c) => (c.under ? `url(#tm-mask-${c.under})` : null))
+    .attr('stroke', CREAM).attr('stroke-width', (c) => c.w).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
   drawTracks('tracks-top', p.tracks.filter((t) => t.top));
 
   const discs = layer(svg, 'discs').selectAll<SVGGElement, Plan['discs'][number]>('g.tm-disc-group').data(p.discs, (d) => d.key).join('g').attr('class', 'tm-disc-group');
