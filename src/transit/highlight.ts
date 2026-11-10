@@ -9,6 +9,7 @@ let pinned: string | null = null;
 let mapEl: HTMLElement | null = null;
 let keyEl: HTMLElement | null = null;
 let docBound = false;
+let announced: string | null = null;
 
 const active = (): string | null => hover ?? focus ?? pinned;
 
@@ -27,6 +28,11 @@ function apply(): void {
   if (mapEl) {
     if (t) mapEl.dataset.highlight = t;
     else delete mapEl.dataset.highlight;
+    // Tell listeners (the track bar) when the highlighted theme changes.
+    if (t !== announced) {
+      announced = t;
+      mapEl.dispatchEvent(new CustomEvent('tm:highlight', { detail: t }));
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import rawData from '../../data/transit-map-data.json';
 import { renderKey } from './key';
 import { journalismLayout } from './layout-journalism';
 import { renderMap, yearsOf, type RenderResult } from './render';
+import { initTrackbar } from './trackbar';
 import type { MapData } from './types';
 
 const data = rawData as unknown as MapData;
@@ -57,6 +58,7 @@ if (mapEl) {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') clearStation();
   });
+  initTrackbar(mapEl, data);
   mapEl.addEventListener('tm:select', (e) => showStation((e as CustomEvent<string>).detail));
   let frame = 0;
   new ResizeObserver(() => {

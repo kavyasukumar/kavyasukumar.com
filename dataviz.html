@@ -63,6 +63,20 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .card h3{font:800 28px/1 'Bricolage Grotesque',sans-serif;text-transform:uppercase;margin:0 0 8px}
 #transit .card .k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555}
 #transit .card p{margin:8px 0 0;line-height:1.5}
+/* Track bar: names the highlighted track (src/transit/trackbar.ts) */
+#transit .map{position:relative}
+.tm-trackbar{pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility 0s .15s;color:var(--ink);font-family:'Space Grotesk',sans-serif}
+.tm-trackbar.is-on{opacity:1;visibility:visible;transition:opacity .15s,transform .15s,visibility 0s}
+.tm-trackbar .tb-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:700 12px/1.3 'JetBrains Mono',monospace}
+.tm-trackbar .tb-line{text-transform:uppercase;letter-spacing:.08em}
+.tm-trackbar .tb-num{flex:none;width:20px;height:20px;border-radius:50%;background:#0A0A0A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font:700 12px/1 'JetBrains Mono',monospace}
+.tm-trackbar .tb-short{font:700 14px/1.3 'Space Grotesk',sans-serif}
+.tm-trackbar .tb-desc{margin:4px 0 0;max-width:60ch;font:400 14px/1.4 'Space Grotesk',sans-serif}
+.tm-trackbar-inline{position:absolute;top:0;left:0;right:0;z-index:5;background:var(--cream);border-bottom:1px solid var(--ink);padding:10px 12px}
+.tm-trackbar-toast{position:fixed;top:16px;left:50%;width:calc(100% - 32px);max-width:640px;z-index:50;background:var(--pink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 14px;transform:translate(-50%,-8px)}
+.tm-trackbar-toast.is-on{transform:translate(-50%,0)}
+@media(max-width:699px){.tm-trackbar .tb-desc{display:none}}
+@media(prefers-reduced-motion:reduce){.tm-trackbar,.tm-trackbar.is-on{transition:none!important}}
 @media(max-width:700px){
 #transit .wrap{padding:24px 16px}
 #transit .panel{grid-template-columns:1fr}
