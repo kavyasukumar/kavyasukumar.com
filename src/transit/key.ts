@@ -2,6 +2,7 @@ import { select, type Selection } from 'd3-selection';
 import { CONNECTOR_W } from './connectors';
 import { DOT_D, END_OVERRUN, PITCH } from './geometry';
 import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
+import { DASH, DASH_GAP } from './ongoing';
 import { INK } from './render';
 import type { LineLayout, MapData, MapTrack } from './types';
 
@@ -26,10 +27,9 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
 
   // Key symbols are drawn exactly as the map draws them (rule 34): solid tracks
   // 1 lw wide, black dots 1 lw across carrying the track ID in white (rule 22).
-  const SW = 4 * lw; // frame width; the ongoing track runs out to its right edge
-  const TAG_PX = 12;
-  const TAG_W = 6 + 5 * 0.6 * TAG_PX + 4 * 0.08 * TAG_PX + 2; // gap + "TODAY" in mono with letter-spacing
-  const BW = SW + TAG_W; // every symbol swatch is this wide so names line up (rule 36)
+  // Every symbol swatch is this wide so names line up (rule 36); the ongoing track's dashes
+  // are cut at its right edge, as the map's are at the frame.
+  const BW = 5 * lw;
   const CX = 1.5 * lw; // dot centre, the same in every symbol row
   const track = (svg: Svg, x0: number, x1: number, cy: number): void => {
     svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
@@ -44,7 +44,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const mid = lw / 2;
 
   const lineRows: Row[] = [
-    { key: 'line', name: line.name, w: BW, h: lw, draw: (svg) => track(svg, 0, SW, mid) },
+    { key: 'line', name: line.name, w: BW, h: lw, draw: (svg) => track(svg, 0, BW, mid) },
     // Each track once, number and name; branches are not listed (rule 33).
     ...themes.map((th) => ({
       key: th.id,
@@ -71,18 +71,17 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     },
     // Rule 26: a terminal ends square about 0.6 lw past its last dot, no marker.
     { key: 'terminal', name: 'Terminal', w: BW, h: lw, draw: (svg) => { track(svg, 0, CX + END_OVERRUN * lw, mid); dot(svg, mid, idOf(first)); } },
-    // Rule 27: ongoing work runs off the map's right edge. Drawn like that edge:
-    // the track runs out to the frame, a thin Ink rule marks the cut, TODAY follows.
+    // Rule 27: ongoing work is solid to just past its dot, then dashed (1 lw dash, 0.5 lw gap)
+    // off the edge, here cut at the swatch's edge as the map's are at the frame.
     {
-      key: 'ongoing', name: 'Runs on to today', w: BW, h: Math.max(lw, TAG_PX + 4),
+      key: 'ongoing', name: 'Ongoing', w: BW, h: lw,
       draw: (svg) => {
-        const cy = Math.max(lw, TAG_PX + 4) / 2;
-        track(svg, 0, SW, cy); dot(svg, cy, idOf(first));
-        svg.append('line').attr('class', 'tm-key-edge').attr('x1', SW).attr('x2', SW).attr('y1', 0)
-          .attr('y2', Math.max(lw, TAG_PX + 4)).attr('stroke', INK).attr('stroke-width', 1);
-        svg.append('text').attr('class', 'tm-key-today').attr('x', SW + 6).attr('y', cy).attr('dominant-baseline', 'central')
-          .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', TAG_PX).attr('letter-spacing', '0.08em')
-          .attr('fill', INK).text('TODAY');
+        const solidEnd = CX + END_OVERRUN * lw;
+        track(svg, 0, solidEnd, mid);
+        svg.append('line').attr('class', 'tm-key-dash').attr('x1', solidEnd + DASH_GAP * lw).attr('x2', BW)
+          .attr('y1', mid).attr('y2', mid).attr('stroke', colour).attr('stroke-width', lw)
+          .attr('stroke-linecap', 'butt').attr('stroke-dasharray', `${DASH * lw} ${DASH_GAP * lw}`);
+        dot(svg, mid, idOf(first));
       },
     },
   ];

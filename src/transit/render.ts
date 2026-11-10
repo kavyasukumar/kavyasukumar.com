@@ -4,6 +4,7 @@ import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
 import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
+import { dashedRun } from './ongoing';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
 
 export const INK = '#0A0A0A';
@@ -117,7 +118,7 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; theme: string; d: string; colour: string; top: boolean }[];
+  tracks: { id: string; theme: string; d: string; colour: string; top: boolean; dash: string | null }[];
   casings: Casing[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
@@ -127,7 +128,6 @@ interface Plan {
   }[];
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
   axis: { key: string; x: number; y: number; anchor: string; text: string }[];
-  today: { x: number; y: number } | null;
 }
 
 function luminance(hex: string): number {
@@ -147,9 +147,8 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
   };
   const over = END_OVERRUN * lw;
   const colour = model.line.colour;
-  let today: Plan['today'] = null;
 
-  const tracks: Plan['tracks'] = model.tracks.map((t) => {
+  const tracks: Plan['tracks'] = model.tracks.flatMap((t) => {
     const pts = layout.tracks[t.id]!.route.map((p) => toXY(p.slot, p.lane, s));
     const first = pts[0]!;
     const last = pts[pts.length - 1]!;
@@ -160,20 +159,16 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const f = dir(first, pts[1] ?? [first[0] + (horiz ? 1 : 0), first[1] + (horiz ? 0 : 1)]);
     const l = dir(pts[pts.length - 2] ?? first, last);
     const start: [number, number] = [first[0] - f[0] * over, first[1] - f[1] * over];
-    let end: [number, number] = [last[0] + l[0] * over, last[1] + l[1] * over];
+    const end: [number, number] = [last[0] + l[0] * over, last[1] + l[1] * over];
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
-    if (t.ongoing) {
-      const k = horiz ? l[0] : l[1];
-      // While measuring (H === 0) reserve a short run; the final pass runs to the canvas edge.
-      const t2 = H === 0 ? 3 * lw : k > 0.001 ? ((horiz ? W - last[0] : H - last[1]) / k) : 0;
-      end = [last[0] + l[0] * Math.max(0, t2), last[1] + l[1] * Math.max(0, t2)];
-      // TODAY sits just outside the outermost ongoing track, never on a track (rule 29).
-      const t3 = horiz ? { x: end[0] - 6, y: end[1] + lw / 2 + LABEL_GAP * lw + 10 } : { x: end[0] + lw / 2 + LABEL_GAP * lw, y: end[1] - 6 };
-      if (!today || (horiz ? t3.y > today.y : t3.x > today.x)) today = t3;
-    }
-    const mid = pts.slice(1, -1);
     const tl = layout.tracks[t.id]!;
-    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (tl.radii ?? [1.5]).map((r) => r * lw)), colour, top: !!tl.top };
+    const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, dash: null,
+      d: roundedPath([start, ...pts.slice(1, -1), end], (tl.radii ?? [1.5]).map((r) => r * lw)) };
+    if (!t.ongoing) return [solid];
+    // Ongoing work runs on dashed past its last stop and off the canvas edge (rule 27).
+    const run = dashedRun(end, l, lw, W, H);
+    if (H === 0) grow(run.to[0] - lw / 2, run.to[1] - lw / 2, run.to[0] + lw / 2, run.to[1] + lw / 2);
+    return [solid, { ...solid, id: `${t.id}~dash`, d: run.d, dash: run.dash }];
   });
 
   const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
@@ -205,14 +200,9 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
         // J-curve tip: past the dot and the square end, in the leg's direction (rule 20).
         const tip = sm.maxLane + DOT_D / 2 + END_OVERRUN;
         const mid = mean((d) => d.slot);
-        // Vertical layout: if a track runs where the label would go (east of the tip), the
-        // label sits under the dots instead, so it never crosses a track (rules 20, 29).
-        const need = (wpx + 2 * LABEL_GAP * lw) / lw;
-        const blocked = !horiz && Object.values(layout.tracks).some((tl) => {
-          const ln = laneAt(tl.route, mid);
-          return ln !== null && ln + DOT_D / 2 > tip && ln - DOT_D / 2 < tip + need;
-        });
-        if (blocked) {
+        // Vertical layout: the label sits under the dots, so it never crosses a track or runs
+        // off a phone-width canvas past the tip (rules 20, 29).
+        if (!horiz) {
           const last = Math.max(...sm.dots.map((d) => d.slot));
           [ex, ey] = toXY(last + DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
           dir = 'down';
@@ -224,6 +214,8 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
         const first = Math.min(...sm.dots.map((d) => d.slot));
         [ex, ey] = toXY(first - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
         dir = horiz ? 'left' : 'up';
+        // Vertical: flush the label's right edge with the dots, away from the branches' bend (rule 30).
+        if (!horiz) ex -= Math.max(0, wpx / 2 - (DOT_D * lw) / 2);
       }
     } else {
       // Start just past this station's dots, then step past any track or disc in the
@@ -263,9 +255,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
   // No terminal discs (owner decision; rule 26) and no time axis (rule 39).
   const discs: Plan['discs'] = [];
   const axis: Plan['axis'] = [];
-  const td = today as Plan['today'];
-  if (td) grow(td.x - (horiz ? 50 : 0), td.y - 12, td.x + (horiz ? 0 : 50), td.y + 4);
-  return { box, tracks, casings: casings(model.tracks, layout, s), stations, discs, axis, today };
+  return { box, tracks, casings: casings(model.tracks, layout, s), stations, discs, axis };
 }
 
 type Sel<E extends Element> = Selection<E, unknown, any, unknown>;
@@ -294,6 +284,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', cls).attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
     .attr('stroke', (d) => d.colour)
     .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round')
+    .attr('stroke-dasharray', (d) => d.dash)
     // Rule 41: hover (mouse) or tap (touch) highlights the theme; tracks take no clicks.
     .on('pointerenter', (e: PointerEvent, d) => hoverIn(e, d.theme))
     .on('pointerleave', (e: PointerEvent) => hoverOut(e))
@@ -365,9 +356,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-axis').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', (d) => d.anchor)
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text((d) => d.text);
 
-  layer(svg, 'today').selectAll<SVGTextElement, NonNullable<Plan['today']>>('text.tm-today').data(p.today ? [p.today] : []).join('text')
-    .attr('class', 'tm-today').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', p.today && scale.orientation === 'vertical' ? 'start' : 'end')
-    .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('font-weight', 700).attr('fill', INK).text('TODAY');
 
   registerMap(container);
   return { scale, model };
