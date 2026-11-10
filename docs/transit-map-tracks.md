@@ -10,11 +10,13 @@ Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing
 
 ## Lines (in order)
 
-1. code
-2. journalism
-3. product
-4. investing
-5. leadership and outreach (added during the station walk; working name)
+1. code — Ink #0A0A0A (from the old map)
+2. journalism — Pink #E39BAE (from the old map)
+3. product — Gold #F2C14E (from the old map)
+4. investing — Mint #9AD9B0 (from the old map)
+5. leadership and outreach — Raspberry #B0466F (owner pick; a darker pink) (added during the station walk; working name)
+
+Colours are also stored as `colour` on each line in `data/transit-map-data.json`. Raspberry is 4.4:1 on Cream but 2.3:1 on Forest, so the map keeps its Cream background in both themes.
 
 ## Code line
 
