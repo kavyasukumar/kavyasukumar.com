@@ -26,6 +26,11 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
         : Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
       [ex, ey] = toXY(end, mean((d) => d.lane), s);
       dir = horiz ? 'right' : 'down';
+    } else if (side === 'tip' && !horiz && legRoute[legRoute.length - 1]!.lane < legRoute[legRoute.length - 2]!.lane) {
+      // Vertical layout, west leg: label over the squares, centred, not past the tip, so the fan
+      // can sit near the canvas's west edge on a phone (rules 20, 29; owner decision).
+      [ex, ey] = toXY(Math.min(...sm.dots.map((d) => d.slot)) - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
+      dir = 'up';
     } else if (side === 'tip' && legRoute[legRoute.length - 1]!.lane < legRoute[legRoute.length - 2]!.lane) {
       // North leg: label past the squares' edge, above the dots (rule 20).
       const top = sm.minLane - DOT_D / 2 - (sm.square ? 0 : END_OVERRUN);
@@ -46,9 +51,11 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
         dir = horiz ? 'down' : 'right';
       }
     } else {
-      const first = Math.min(...sm.dots.map((d) => d.slot));
-      [ex, ey] = toXY(first - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-      dir = horiz ? 'left' : 'up';
+      const under = !horiz && !!layout.stations[sm.st.id]?.vUnder;
+      const first = under ? Math.max(...sm.dots.map((d) => d.slot)) + DOT_D / 2 / s.slotGap
+        : Math.min(...sm.dots.map((d) => d.slot)) - DOT_D / 2 / s.slotGap;
+      [ex, ey] = toXY(first, mean((d) => d.lane), s);
+      dir = horiz ? 'left' : under ? 'down' : 'up';
       // Vertical: flush the label's right edge with the dots, away from the branches' bend (rule 30).
       if (!horiz) ex -= Math.max(0, wpx / 2 - (DOT_D * lw) / 2);
     }
