@@ -1,5 +1,6 @@
 import { select, type Selection } from 'd3-selection';
 import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
+import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
 import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
@@ -120,7 +121,7 @@ interface Plan {
   casings: Casing[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
-    connectors: { key: string; theme: string; x1: number; y1: number; x2: number; y2: number }[];
+    connectors: { key: string; d: string; themes: string }[];
     dots: { key: string; theme: string; cx: number; cy: number; label: string }[];
     label: { lines: string[]; x: number; y: number; anchor: string };
   }[];
@@ -182,14 +183,10 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       grow(cx - lw / 2, cy - lw / 2, cx + lw / 2, cy + lw / 2);
       return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label };
     });
-    // Dots that do not touch are joined by a connector (rule 24).
-    const connectors: Plan['stations'][number]['connectors'] = [];
-    for (let i = 1; i < dots.length; i++) {
-      const a = dots[i - 1]!; const b = dots[i]!;
-      if (Math.hypot(b.cx - a.cx, b.cy - a.cy) > (DOT_D * 1.01 + 0.12) * lw) {
-        connectors.push({ key: `${a.key}|${b.key}`, theme: a.theme === b.theme ? a.theme : '', x1: a.cx, y1: a.cy, x2: b.cx, y2: b.cy });
-      }
-    }
+    // Every interchange's dots are joined by a thin connector, even where they touch (rules 24, 25).
+    const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
+    const themes = [...new Set(sm.dots.map((d) => d.track.theme))].join(' ');
+    const connectors = conn ? [{ ...conn, themes }] : [];
     const lines = wrap(sm.st.name, budget);
     const n = lines.length;
     const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
@@ -259,8 +256,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
-      themes: [...new Set(sm.dots.map((d) => d.track.theme))].join(' '),
-      connectors, dots, label: { lines, x: placed.x, y: placed.y, anchor: placed.anchor },
+      themes, connectors, dots, label: { lines, x: placed.x, y: placed.y, anchor: placed.anchor },
     };
   });
 
@@ -345,9 +341,12 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .on('keydown', (e: KeyboardEvent, d) => {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); choose(d.id); }
     });
-  sts.selectAll<SVGLineElement, Plan['stations'][number]['connectors'][number]>('line.tm-connector').data((d) => d.connectors, (c) => c.key).join('line')
-    .attr('class', 'tm-connector').attr('data-themes', (c) => c.theme).attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
-    .attr('stroke', INK).attr('stroke-width', 0.14 * lw);
+  // Connectors sit under the dots, inside the station group, so they inherit its themes for the
+  // grey-out and draw above the hover-on-top (hl) layer like the dots do (rule 41).
+  sts.selectAll<SVGPathElement, Plan['stations'][number]['connectors'][number]>('path.tm-connector').data((d) => d.connectors, (c) => c.key).join('path')
+    .attr('class', 'tm-connector').attr('data-themes', (c) => c.themes)
+    .attr('d', (c) => c.d).attr('fill', 'none').attr('stroke', INK).attr('stroke-width', CONNECTOR_W * lw)
+    .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('pointer-events', 'none');
   sts.selectAll<SVGCircleElement, Plan['stations'][number]['dots'][number]>('circle.tm-dot').data((d) => d.dots, (c) => c.key).join('circle')
     .attr('class', 'tm-dot').attr('data-themes', (c) => c.theme).attr('cx', (c) => c.cx).attr('cy', (c) => c.cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')

@@ -1,4 +1,5 @@
 import { select, type Selection } from 'd3-selection';
+import { CONNECTOR_W } from './connectors';
 import { DOT_D, END_OVERRUN, PITCH } from './geometry';
 import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
 import { INK } from './render';
@@ -62,6 +63,9 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
       draw: (svg) => {
         const y2 = mid + PITCH * lw;
         track(svg, 0, 3 * lw, mid); track(svg, 0, 3 * lw, y2);
+        // The same thin Ink connector the map draws between interchange dots (rule 24).
+        svg.append('line').attr('class', 'tm-connector').attr('x1', CX).attr('x2', CX).attr('y1', mid).attr('y2', y2)
+          .attr('stroke', INK).attr('stroke-width', CONNECTOR_W * lw).attr('stroke-linecap', 'round');
         dot(svg, mid, idOf(first)); dot(svg, y2, idOf(other));
       },
     },
