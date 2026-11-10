@@ -275,7 +275,9 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   const svg = root.selectAll<SVGSVGElement, null>('svg.tm-svg').data([null]).join('svg')
     .attr('class', 'tm-svg').attr('width', W).attr('height', H)
     .attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'group')
-    .attr('aria-label', `${model.line.name} line`) as Sel<SVGSVGElement>;
+    .attr('aria-label', `${model.line.name} line`)
+    // Line colour for hovered/selected station IDs and connector width for its hover scaling (CSS).
+    .style('--tm-line', model.line.colour).style('--tm-cw', `${CONNECTOR_W * lw}px`) as Sel<SVGSVGElement>;
 
 
   // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
