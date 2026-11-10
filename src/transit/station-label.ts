@@ -1,6 +1,6 @@
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, toXY } from './geometry';
 import { CHAR_W, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
-import type { StationModel } from './render';
+import type { StationModel } from './model';
 import type { LineLayout, Scale } from './types';
 
 const LABEL_GAP = 0.75;

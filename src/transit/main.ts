@@ -1,7 +1,8 @@
 import rawData from '../../data/transit-map-data.json';
 import { renderKey } from './key';
 import { careerLayout } from './layout-code';
-import { renderMap, yearsOf, type RenderResult } from './render';
+import { yearsOf } from './model';
+import { renderMap, type RenderResult } from './render';
 import { initTrackbar } from './trackbar';
 import type { MapData } from './types';
 

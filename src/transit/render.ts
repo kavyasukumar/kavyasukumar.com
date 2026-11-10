@@ -2,12 +2,12 @@ import { select, type Selection } from 'd3-selection';
 import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
-import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
+import { DISC_D, DOT_D, END_OVERRUN, roundedPath, toXY } from './geometry';
 import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
+import { buildModel, yearsOf, type Model } from './model';
 import { stationLabel } from './station-label';
-import { isPureTerminal } from './terminals';
-import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
+import type { LineLayout, MapData, Orientation, Scale } from './types';
 
 export const INK = '#0A0A0A';
 const MUTED = '#555555';
@@ -24,70 +24,7 @@ const AXIS_ROW = 12;
 const AXIS_COL = PAD;
 const VPAD = 6; // side margin of the vertical (phone) layout
 
-export interface StationModel {
-  st: MapStation;
-  slot: number;
-  labelSide: StationLayout['labelSide'];
-  dots: { track: MapTrack; lane: number; slot: number }[];
-  minLane: number;
-  maxLane: number;
-  kind: 'station' | 'interchange' | 'terminal';
-  /** Pure terminal (rule 26): every track ends here, so the dots are squares and the tracks stop at them. */
-  square: boolean;
-  themes: string[];
-}
-export interface Model { line: MapLine; colours: Record<string, string>; tracks: MapTrack[]; stations: StationModel[] }
 export interface RenderResult { scale: Scale; model: Model }
-
-export function yearsOf(st: MapStation): string {
-  if (st.end === null) return `${st.start}–now`;
-  if (st.end === st.start) return `${st.start}`;
-  const same = Math.floor(st.start / 100) === Math.floor(st.end / 100);
-  return `${st.start}–${same ? String(st.end).slice(2) : st.end}`;
-}
-
-export function buildModel(data: MapData, layout: LineLayout): Model {
-  const line = data.lines.find((l) => l.id === layout.lineId);
-  if (!line) throw new Error(`Unknown line ${layout.lineId}`);
-  const lineIds = layout.lineIds ?? [line.id];
-  const colours: Record<string, string> = {};
-  for (const th of data.themes) {
-    const l = data.lines.find((x) => x.id === th.line);
-    if (l && lineIds.includes(l.id)) colours[th.id] = l.colour;
-  }
-  const themeIds = new Set(Object.keys(colours));
-  const tracks = data.tracks.filter((t) => themeIds.has(t.theme) && layout.tracks[t.id]);
-  const stations: StationModel[] = [];
-  for (const st of data.stations) {
-    const sl = layout.stations[st.id];
-    if (!sl || !st.lines.some((l) => lineIds.includes(l))) continue;
-    const dots: StationModel['dots'] = [];
-    for (const track of tracks) {
-      if (!track.stations.includes(st.id)) continue;
-      const tl = layout.tracks[track.id]!;
-      const at = tl.stops?.[st.id];
-      if (at) { dots.push({ track, lane: at.lane, slot: at.slot }); continue; }
-      const lane = laneAt(tl.route, sl.slot);
-      if (lane !== null) dots.push({ track, lane, slot: sl.slot });
-    }
-    if (!dots.length) continue;
-    dots.sort((a, b) => a.lane - b.lane || a.slot - b.slot);
-    const endsHere = dots.some((d) => !d.track.ongoing && d.track.stations[d.track.stations.length - 1] === st.id);
-    const themes: string[] = [];
-    for (const d of dots) {
-      const th = data.themes.find((t) => t.id === d.track.theme);
-      if (th && !themes.includes(th.short)) themes.push(th.short);
-    }
-    stations.push({
-      st, slot: sl.slot, labelSide: sl.labelSide, dots, themes,
-      minLane: dots[0]!.lane, maxLane: dots[dots.length - 1]!.lane,
-      kind: dots.length >= 2 ? 'interchange' : endsHere ? 'terminal' : 'station',
-      square: isPureTerminal(st.id, sl.slot, dots.map((d) => d.track), tracks, layout),
-    });
-  }
-  stations.sort((a, b) => a.slot - b.slot);
-  return { line, colours, tracks, stations };
-}
 
 /** Choose orientation and lw for a container width. Fits content by iterating on measured extent. */
 export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
@@ -250,7 +187,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     // Line colour for hovered/selected station IDs and connector width for its hover scaling (CSS).
     .style('--tm-line', model.line.colour).style('--tm-cw', `${CONNECTOR_W * lw}px`) as Sel<SVGSVGElement>;
 
-
   // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
   const drawTracks = (name: string, list: Plan['tracks'], cls = 'tm-track') => layer(svg, name)
     .selectAll<SVGPathElement, Plan['tracks'][number]>(`path.${cls}`).data(list, (d) => d.id).join('path')
@@ -333,7 +269,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   layer(svg, 'axis').selectAll<SVGTextElement, Plan['axis'][number]>('text.tm-axis').data(p.axis, (d) => d.key).join('text')
     .attr('class', 'tm-axis').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', (d) => d.anchor)
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text((d) => d.text);
-
 
   registerMap(container);
   return { scale, model };
