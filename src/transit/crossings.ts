@@ -1,14 +1,19 @@
 // Crossings between tracks of one line (rules 8, 18, 19). The straight-through
-// track stays on top; under it, a background-colour casing about 0.25 lw wide on
+// track stays on top; under it, a background-colour casing as thick as the hairline (0.12 lw) on
 // each side cuts the crossing track.
 
 import { PITCH, toXY } from './geometry';
 import type { LineLayout, MapTrack, Scale } from './types';
 
-/** `under` set: a crossing casing, drawn only where it overlaps that track. Empty: a hairline (rule 10). */
-export interface Casing { key: string; under: string; w: number; x1: number; y1: number; x2: number; y2: number }
+/**
+ * `mask` set: a crossing casing, drawn only where it overlaps that track. Empty: a hairline (rule 10).
+ * `raised`: the same crossing seen while the under track's theme is highlighted and the under track
+ * is lifted over the top one; it runs along the under track and is shown only then (rule 41).
+ */
+export interface Casing { key: string; mask: string; w: number; raised: boolean; theme: string; x1: number; y1: number; x2: number; y2: number }
 
 type Pt = [number, number];
+const HAIR = PITCH - 1; // casing is as thick as the hairline between parallel tracks (rules 10, 19)
 
 function intersect(a: Pt, b: Pt, c: Pt, d: Pt): Pt | null {
   const r: Pt = [b[0] - a[0], b[1] - a[1]];
@@ -19,6 +24,16 @@ function intersect(a: Pt, b: Pt, c: Pt, d: Pt): Pt | null {
   const u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den;
   if (t <= 0.001 || t >= 0.999 || u <= 0.001 || u >= 0.999) return null;
   return [a[0] + t * r[0], a[1] + t * r[1]];
+}
+
+function near(p: Pt, route: Pt[], tol: number): boolean {
+  for (let i = 0; i < route.length - 1; i++) {
+    const a = route[i]!; const b = route[i + 1]!;
+    const dx = b[0] - a[0]; const dy = b[1] - a[1];
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy)));
+    if (Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy) < tol) return true;
+  }
+  return false;
 }
 
 /** Casing segments along each top track wherever a track of another theme crosses it. */
@@ -46,12 +61,20 @@ export function casings(tracks: MapTrack[], layout: LineLayout, s: Scale): Casin
           // The renderer masks the casing to the crossing track, so a generous length never
           // cuts a neighbour or the hairline between parallel tracks.
           const cos = Math.sqrt(1 - Math.min(sin, 0.99) ** 2);
-          const half = (0.5 * s.lw) / Math.max(sin, 0.3) + (0.75 * s.lw * cos) / Math.max(sin, 0.3);
+          const half = (0.5 * s.lw) / Math.max(sin, 0.3) + ((0.5 + HAIR) * s.lw * cos) / Math.max(sin, 0.3);
           const a1 = -half;
           const a2 = half;
+          // Rule 19, trimmed at the bundle's edge: a side with no neighbouring track one pitch away
+          // is the outside of the cluster, and gets no cream there.
+          const nrm: Pt = [-td[1], td[0]];
+          const side = (k: number): number => (tops.some((o) => o.id !== top.id
+            && near([x[0] + k * nrm[0] * PITCH * s.lw, x[1] + k * nrm[1] * PITCH * s.lw], pts(o.id), 0.15 * s.lw)) ? 1 : 0);
+          const hi = side(1); const lo = side(-1);
+          const shift = ((hi - lo) * 0.5 * HAIR * s.lw);
           out.push({
-            key: `${top.id}|${under.id}|${i}|${j}`, under: under.id, w: 1.5 * s.lw,
-            x1: x[0] + td[0] * a1, y1: x[1] + td[1] * a1, x2: x[0] + td[0] * a2, y2: x[1] + td[1] * a2,
+            key: `${top.id}|${under.id}|${i}|${j}`, mask: under.id, w: s.lw + HAIR * s.lw * (hi + lo), raised: false, theme: under.theme,
+            x1: x[0] + td[0] * a1 + nrm[0] * shift, y1: x[1] + td[1] * a1 + nrm[1] * shift,
+            x2: x[0] + td[0] * a2 + nrm[0] * shift, y2: x[1] + td[1] * a2 + nrm[1] * shift,
           });
         }
       }
@@ -85,7 +108,7 @@ function hairlines(tops: MapTrack[], pts: (id: string) => Pt[], s: Scale): Casin
           if (hi - lo < 1e-6) continue;
           const h = off / 2;
           out.push({
-            key: `hair|${tops[m]!.id}|${tops[n]!.id}|${i}|${j}`, under: '', w: (PITCH - 1) * s.lw,
+            key: `hair|${tops[m]!.id}|${tops[n]!.id}|${i}|${j}`, mask: '', w: (PITCH - 1) * s.lw, raised: false, theme: '',
             x1: a[0] + u[0] * lo + nrm[0] * h, y1: a[1] + u[1] * lo + nrm[1] * h,
             x2: a[0] + u[0] * hi + nrm[0] * h, y2: a[1] + u[1] * hi + nrm[1] * h,
           });

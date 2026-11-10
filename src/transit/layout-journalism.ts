@@ -66,7 +66,8 @@ function fanDown(themes: string[], ids: string[], x: number, station: string, on
     const v = V0 - i * (DIAG - P);
     const s = leg - (v - lane);
     const route = [pt(s - 2, lane), pt(s, lane), pt(leg, v)];
-    const radii = [R, R + i * P];
+    // Concentric departure bend: the lower track is on the inside, so it takes the smaller radius.
+    const radii = [R + (n - 1 - i) * P, R + i * P];
     if (ongoing) {
       const lane2 = BIF + (n - 1 - i) * P;
       route.push(pt(leg, lane2), pt(EDGE, lane2));

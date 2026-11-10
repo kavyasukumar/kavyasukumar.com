@@ -286,9 +286,9 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
 
 
   // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
-  const drawTracks = (name: string, list: Plan['tracks']) => layer(svg, name)
-    .selectAll<SVGPathElement, Plan['tracks'][number]>('path.tm-track').data(list, (d) => d.id).join('path')
-    .attr('class', 'tm-track').attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
+  const drawTracks = (name: string, list: Plan['tracks'], cls = 'tm-track') => layer(svg, name)
+    .selectAll<SVGPathElement, Plan['tracks'][number]>(`path.${cls}`).data(list, (d) => d.id).join('path')
+    .attr('class', cls).attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
     .attr('stroke', (d) => d.colour)
     .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round')
     // Rule 41: hover (mouse) or tap (touch) highlights the theme; tracks take no clicks.
@@ -298,15 +298,16 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   drawTracks('tracks', p.tracks.filter((t) => !t.top));
   // Each crossing casing is masked to the track it crosses, so it never touches neighbours.
   const defs = svg.selectAll<SVGDefsElement, null>('defs.tm-defs').data([null]).join('defs').attr('class', 'tm-defs');
-  const unders = p.tracks.filter((t) => !t.top);
-  defs.selectAll<SVGMaskElement, Plan['tracks'][number]>('mask').data(unders, (t) => t.id).join('mask')
+  defs.selectAll<SVGMaskElement, Plan['tracks'][number]>('mask').data(p.tracks, (t) => t.id).join('mask')
     .attr('id', (t) => `tm-mask-${t.id}`).attr('maskUnits', 'userSpaceOnUse').attr('x', 0).attr('y', 0).attr('width', W).attr('height', H)
     .selectAll<SVGPathElement, Plan['tracks'][number]>('path').data((t) => [t]).join('path')
     .attr('d', (t) => t.d).attr('fill', 'none').attr('stroke', '#fff').attr('stroke-width', lw).attr('stroke-linejoin', 'round');
-  layer(svg, 'casings').selectAll<SVGLineElement, Casing>('line.tm-casing').data(p.casings, (c) => c.key).join('line')
-    .attr('class', 'tm-casing').attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
-    .attr('mask', (c) => (c.under ? `url(#tm-mask-${c.under})` : null))
+  const casingLines = (name: string, cls: string, list: Casing[]) => layer(svg, name)
+    .selectAll<SVGLineElement, Casing>(`line.${cls}`).data(list, (c) => c.key).join('line')
+    .attr('class', cls).attr('data-themes', (c) => (c.raised ? c.theme : null)).attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
+    .attr('mask', (c) => (c.mask ? `url(#tm-mask-${c.mask})` : null))
     .attr('stroke', CREAM).attr('stroke-width', (c) => c.w).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
+  casingLines('casings', 'tm-casing', p.casings.filter((c) => !c.raised));
   drawTracks('tracks-top', p.tracks.filter((t) => t.top));
 
   const discs = layer(svg, 'discs').selectAll<SVGGElement, Plan['discs'][number]>('g.tm-disc-group').data(p.discs, (d) => d.key).join('g').attr('class', 'tm-disc-group');
