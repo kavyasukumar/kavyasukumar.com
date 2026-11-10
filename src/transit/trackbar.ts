@@ -1,18 +1,40 @@
-// Names the highlighted track (rule 41). Shows an inline bar inside the top edge
-// of the map frame when that edge is on screen, else a toast fixed to the top of
-// the viewport. Driven by the `tm:highlight` event from highlight.ts.
+// Names the highlighted track (rule 41). Fills the strip that sits above the map
+// frame (#transit-trackbar in dataviz.html): an idle hint when nothing is
+// highlighted, else the line, number, short name and description. When the strip
+// is scrolled above the viewport, a toast fixed to the top of the viewport shows
+// the same content. Driven by the `tm:highlight` event from highlight.ts.
 import type { MapData } from './types';
 
+function layer(cls: string): HTMLElement {
+  const el = document.createElement('div');
+  el.className = `tm-trackbar ${cls}`;
+  return el;
+}
+
 export function initTrackbar(mapEl: HTMLElement, data: MapData): void {
-  const live = document.createElement('div');
-  live.className = 'tm-trackbar tm-trackbar-inline';
-  live.setAttribute('aria-live', 'polite');
-  live.setAttribute('aria-atomic', 'true');
-  const toast = document.createElement('div');
-  toast.className = 'tm-trackbar tm-trackbar-toast';
+  let found = document.getElementById('transit-trackbar');
+  if (!found) {
+    found = document.createElement('div');
+    found.id = 'transit-trackbar';
+    found.className = 'tm-strip';
+    mapEl.before(found);
+  }
+  const strip: HTMLElement = found;
+  strip.setAttribute('aria-live', 'polite');
+  strip.setAttribute('aria-atomic', 'true');
+  strip.textContent = '';
+
+  const idle = layer('tm-trackbar-idle is-on');
+  const live = layer('tm-trackbar-strip');
+  strip.append(idle, live);
+  const toast = layer('tm-trackbar-toast');
   toast.setAttribute('aria-hidden', 'true');
-  mapEl.appendChild(live);
   document.body.appendChild(toast);
+
+  const hover = window.matchMedia('(hover: hover)');
+  const setHint = (): void => { idle.textContent = hover.matches ? 'Hover a track' : 'Tap a track'; };
+  setHint();
+  hover.addEventListener('change', setHint);
 
   let current: string | null = null;
 
@@ -43,21 +65,16 @@ export function initTrackbar(mapEl: HTMLElement, data: MapData): void {
     return true;
   };
 
+  // The toast stands in for the strip once the strip's top edge leaves the viewport.
   const place = (): void => {
-    if (current === null) return;
-    const inView = mapEl.getBoundingClientRect().top >= 0;
-    live.classList.toggle('is-on', inView);
-    toast.classList.toggle('is-on', !inView);
+    const inView = strip.getBoundingClientRect().top >= 0;
+    toast.classList.toggle('is-on', current !== null && !inView);
   };
 
   const show = (id: string | null): void => {
-    current = id;
-    if (id === null || !fill(live, id) || !fill(toast, id)) {
-      current = null;
-      live.classList.remove('is-on');
-      toast.classList.remove('is-on');
-      return;
-    }
+    current = id !== null && fill(live, id) && fill(toast, id) ? id : null;
+    live.classList.toggle('is-on', current !== null);
+    idle.classList.toggle('is-on', current === null);
     place();
   };
 
