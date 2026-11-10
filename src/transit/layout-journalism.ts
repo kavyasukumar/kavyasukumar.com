@@ -36,9 +36,9 @@ const P = 1.12; // track pitch (rule 10)
 const R = 1.5; // inner bend radius (rule 14)
 const DIAG = P * Math.SQRT2; // x offset between parallel 45 degree tracks one pitch apart
 const V0 = 5.1; // lane where a fan's inner branch turns from 45 degrees into its leg
-const DOT = 7.8; // lane of every leg-end dot: gigs and Bad Idea Factory share one row
-const BIF = 12.5; // top lane of the Bad Idea Factory bundle along the bottom
-const EDGE = 9.9 * GAP; // ongoing branches are run on to the canvas edge by the renderer
+const DOT = 7.8; // lane of every gig leg-end dot
+const UP_TURN = -3.0; // lane where Bad Idea Factory's left branch turns from 45 degrees to north
+const UP_DOT = -4.5; // lane of the Bad Idea Factory dots, about 0.9 lw of straight leg past the arcs
 
 const LANE: Record<string, number> = { '5': 0, '6': P, '7': 2 * P };
 const pt = (x: number, lane: number): LayoutPoint => ({ slot: x / GAP, lane });
@@ -52,10 +52,9 @@ const trunk = (from: number, to: number, lane: number): TrackLayout => ({
 /**
  * Branches that leave their trunks downward, upper theme first, cross the trunks below
  * at 45 degrees (rule 18) and turn into parallel legs that touch, centred on x. A leg
- * ends at DOT (single-stop J-curve, rule 20) or, for ongoing work, carries on down and
- * turns along the bottom to the edge (rule 27) with its dot on the leg.
+ * ends at DOT (single-stop J-curve, rule 20).
  */
-function fanDown(themes: string[], ids: string[], x: number, station: string, ongoing = false): Record<string, TrackLayout> {
+function fanDown(themes: string[], ids: string[], x: number, station: string): Record<string, TrackLayout> {
   const n = themes.length;
   const out: Record<string, TrackLayout> = {};
   themes.forEach((th, i) => {
@@ -66,14 +65,33 @@ function fanDown(themes: string[], ids: string[], x: number, station: string, on
     const route = [pt(s - 2, lane), pt(s, lane), pt(leg, v)];
     // Concentric departure bend: the lower track is on the inside, so it takes the smaller radius.
     const radii = [R + (n - 1 - i) * P, R + i * P];
-    if (ongoing) {
-      const lane2 = BIF + (n - 1 - i) * P;
-      route.push(pt(leg, lane2), pt(EDGE, lane2));
-      radii.push(R + (n - 1 - i) * P);
-    } else {
-      route.push(pt(leg, DOT));
-    }
+    route.push(pt(leg, DOT));
     out[ids[i]!] = { route, radii, stops: { [station]: pt(leg, DOT) } };
+  });
+  return out;
+}
+
+/**
+ * Ongoing branches that leave their trunks upward (owner decision: Bad Idea Factory is R1, on
+ * top). The upper theme leaves first, so the bundle keeps its order: legs read 5-6-7 left to
+ * right, as on the trunk. Each 45 degree run and north leg is one pitch from its neighbour and
+ * both bends are concentric about one centre per bend, upper theme on the inside (rule 14).
+ * Lower themes cross the trunks above them on the 45 degree run (rules 8, 18). The route ends at
+ * the dot; the renderer runs it on north, dashed, off the top of the canvas (rule 27).
+ */
+function fanUp(themes: string[], ids: string[], x: number, station: string): Record<string, TrackLayout> {
+  const n = themes.length;
+  const out: Record<string, TrackLayout> = {};
+  themes.forEach((th, i) => {
+    const lane = LANE[th]!;
+    const leg = x + (i - (n - 1) / 2) * P;
+    const v = UP_TURN + i * (DIAG - P); // turn lane: diagonals sit one pitch apart
+    const s = leg + (v - lane); // departure point on the trunk lane (x + lane is constant on a NE run)
+    out[ids[i]!] = {
+      route: [pt(s - 2, lane), pt(s, lane), pt(leg, v), pt(leg, UP_DOT)],
+      radii: [R + i * P, R + i * P],
+      stops: { [station]: pt(leg, UP_DOT) },
+    };
   });
   return out;
 }
@@ -108,8 +126,8 @@ const tracks: Record<string, TrackLayout> = {
   [`${J}finding-stories-1`]: trunk(0, 8, LANE['5']!),
   [`${J}storytelling-1`]: trunk(0, 8, LANE['6']!),
   [`${J}tooling-1`]: trunk(1, 8, LANE['7']!),
-  // Bad Idea Factory (ongoing) splits just after Vox Media, stops on the drop, runs along the bottom to TODAY.
-  ...fanDown(['5', '6', '7'], [`${J}finding-stories-2`, `${J}storytelling-2`, `${J}tooling-2`], 4 * GAP + 0.82, 'bad-idea-factory', true),
+  // R1: Bad Idea Factory (ongoing) rises north just after Vox Media and runs off the top edge.
+  ...fanUp(['5', '6', '7'], [`${J}finding-stories-2`, `${J}storytelling-2`, `${J}tooling-2`], 4 * GAP + 0.82, 'bad-idea-factory'),
   // Gigs never chain (rule 37): each is a single-stop J-curve (rule 20).
   ...fanDown(['6', '7'], [`${J}storytelling-3`, `${J}tooling-3`], 6 * GAP, 'all-things-small'),
   ...fanDown(['5', '6', '7'], [`${J}finding-stories-3`, `${J}storytelling-4`, `${J}tooling-4`], 7 * GAP, 'uw-lecturer'),
