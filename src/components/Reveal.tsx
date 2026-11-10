@@ -9,7 +9,7 @@ type RevealProps = {
 };
 
 // Adds the `in` class once the element scrolls into view. Styles live in App.tsx (.reveal).
-export const Reveal = ({ children, delay = 0, className = '', as = 'div', bare = false }: RevealProps) => {
+export const Reveal = ({ children, delay, className = '', as = 'div', bare = false }: RevealProps) => {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -33,11 +33,14 @@ export const Reveal = ({ children, delay = 0, className = '', as = 'div', bare =
   }, []);
 
   const Tag = as as React.ElementType;
+  // Only set --d when a delay is passed explicitly; otherwise let App.tsx stylesheet rules (e.g. clip-grid nth-child stagger) apply.
+  const style =
+    delay === undefined ? undefined : ({ ['--d' as string]: `${delay}ms` } as React.CSSProperties);
   return (
     <Tag
       ref={ref}
       className={bare ? className : `reveal ${className}`}
-      style={{ ['--d' as string]: `${delay}ms` }}
+      style={style}
     >
       {children}
     </Tag>
