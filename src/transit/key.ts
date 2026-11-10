@@ -1,9 +1,10 @@
 import { select, type Selection } from 'd3-selection';
 import { DISC_D, DOT_D } from './geometry';
+import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
 import { hatchId, hatchPatterns, INK, textOn } from './render';
 import type { LineLayout, MapData } from './types';
 
-type Row = { key: string; name: string; draw: (svg: Selection<SVGSVGElement, unknown, null, undefined>, lw: number, colour: string) => void; w: number };
+type Row = { key: string; theme?: string; name: string; draw: (svg: Selection<SVGSVGElement, unknown, null, undefined>, lw: number, colour: string) => void; w: number };
 
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
 
@@ -27,6 +28,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     { key: 'line', name: line.name, w: 3 * lw, draw: (svg) => bar(svg, 3 * lw, colour) },
     ...themes.map((th) => ({
       key: th.id,
+      theme: th.id,
       name: `${th.num} ${th.short} — ${tracks.filter((t) => t.theme === th.id).map((t) => t.label).join(', ')}`,
       w: 0,
       draw: () => undefined,
@@ -70,7 +72,13 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   groups.selectAll<HTMLElement, { heading: string }>('h3.tm-key-heading').data((g) => [g]).join('h3')
     .attr('class', 'tm-key-heading').text((g) => g.heading);
   const rows = groups.selectAll<HTMLDivElement, Row>('div.tm-key-row').data((g) => g.rows, (r) => r.key).join('div')
-    .attr('class', 'tm-key-row').style('display', 'flex').style('align-items', 'center').style('gap', '0.75rem');
+    .attr('class', 'tm-key-row').style('display', 'flex').style('align-items', 'center').style('gap', '0.75rem')
+    // Rule 41: theme rows highlight their theme on hover and keyboard focus.
+    .attr('data-themes', (r) => r.theme ?? null).attr('tabindex', (r) => (r.theme ? 0 : null))
+    .on('pointerenter', (e: PointerEvent, r) => { if (r.theme) hoverIn(e, r.theme); })
+    .on('pointerleave', (e: PointerEvent, r) => { if (r.theme) hoverOut(e); })
+    .on('focus', (_e, r) => { if (r.theme) focusIn(r.theme); })
+    .on('blur', (_e, r) => { if (r.theme) focusOut(); });
   const swatches = rows.selectAll<HTMLSpanElement, Row>('span.tm-key-swatch').data((r) => [r]).join('span')
     .attr('class', 'tm-key-swatch').style('flex', 'none').style('display', 'inline-block')
     .style('width', (r) => `${r.w}px`).style('height', `${Math.max(lw, (DISC_D * lw))}px`)
@@ -86,4 +94,5 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   });
   rows.selectAll<HTMLSpanElement, Row>('span.tm-key-name').data((r) => [r]).join('span')
     .attr('class', 'tm-key-name').text((r) => r.name);
+  registerKey(container);
 }

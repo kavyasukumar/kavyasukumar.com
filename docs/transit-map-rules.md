@@ -97,7 +97,7 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 
 ### Interaction
 
-41. **Hovering or clicking a track highlights its whole theme.** The track and every other track of the same theme stay at full strength, along with their dots. For example, hovering 5a highlights 5a, 5b, 5c and 5d. Everything else dims. The theme's name is highlighted in the key. Hover shows it while the pointer is on the track. A click (or tap, or Enter on keyboard focus) keeps it until the same track is clicked again or the reader clicks empty map. [new, owner decision]
+41. **Track highlights its whole theme.** With a mouse, hovering a track highlights every track of its theme (hovering 5a highlights 5a, 5b, 5c and 5d); moving the pointer off ends it. Mouse clicks never pin a highlight: a click on the map only selects a station, and a click on track away from a station does nothing. On touch, tapping a track toggles its theme on; tapping it again, or tapping anywhere else, clears it. Tapping a station dot still selects the station. While a theme is highlighted, its tracks and their dots stay unchanged; every other track turns flat grey (solid, hatched tracks too) and every other dot turns grey with its ID still readable. Station labels where the theme stops stay Ink and bold; all other labels turn grey. In the key, the theme's row gets a Pink block with Ink text and other rows turn grey. Hovering a theme row in the key, or giving it keyboard focus, highlights the same way; leaving or blurring the row clears it. [new, owner decision]
 
 ## Open decisions
 

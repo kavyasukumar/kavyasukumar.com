@@ -1,4 +1,5 @@
 import { select, type Selection } from 'd3-selection';
+import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale } from './types';
 
@@ -112,11 +113,11 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; d: string; hatched: boolean; colour: string }[];
+  tracks: { id: string; theme: string; d: string; hatched: boolean; colour: string }[];
   stations: {
-    id: string; aria: string; major: boolean;
-    connectors: { key: string; x1: number; y1: number; x2: number; y2: number }[];
-    dots: { key: string; cx: number; cy: number; label: string }[];
+    id: string; aria: string; major: boolean; themes: string;
+    connectors: { key: string; theme: string; x1: number; y1: number; x2: number; y2: number }[];
+    dots: { key: string; theme: string; cx: number; cy: number; label: string }[];
     label: { lines: string[]; x: number; y: number; anchor: string };
   }[];
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
@@ -181,7 +182,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       if (!today || (horiz ? t3.y > today.y : t3.x > today.x)) today = t3;
     }
     const mid = pts.slice(1, -1);
-    return { id: t.id, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), hatched: t.hatched, colour };
+    return { id: t.id, theme: t.theme, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), hatched: t.hatched, colour };
   });
 
   const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
@@ -193,13 +194,13 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const connectors: Plan['stations'][number]['connectors'] = [];
     const dots = sm.dots.map((d) => {
       const [cx, cy] = toXY(sm.slot, d.lane, s);
-      return { key: d.track.id, cx, cy, label: d.track.label };
+      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label };
     });
     for (let i = 1; i < sm.dots.length; i++) {
       const a = sm.dots[i - 1]!; const b = sm.dots[i]!;
       if (b.lane - a.lane > DOT_D * 1.01 + 0.12) {
         const [x1, y1] = toXY(sm.slot, a.lane, s); const [x2, y2] = toXY(sm.slot, b.lane, s);
-        connectors.push({ key: `${a.track.id}|${b.track.id}`, x1, y1, x2, y2 });
+        connectors.push({ key: `${a.track.id}|${b.track.id}`, theme: a.track.theme === b.track.theme ? a.track.theme : '', x1, y1, x2, y2 });
       }
     }
     // Label placement: start just past this station's dots, then step past any
@@ -244,6 +245,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     }
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
+      themes: [...new Set(sm.dots.map((d) => d.track.theme))].join(' '),
       connectors, dots, label: { lines, x: lx, y: ly, anchor },
     };
   });
@@ -292,9 +294,13 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   hatchPatterns(defs, [model.line.colour], lw);
 
   layer(svg, 'tracks').selectAll<SVGPathElement, Plan['tracks'][number]>('path.tm-track').data(p.tracks, (d) => d.id).join('path')
-    .attr('class', 'tm-track').attr('d', (d) => d.d).attr('fill', 'none')
+    .attr('class', 'tm-track').attr('data-themes', (d) => d.theme).attr('d', (d) => d.d).attr('fill', 'none')
     .attr('stroke', (d) => (d.hatched ? `url(#${hatchId(d.colour)})` : d.colour))
-    .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round');
+    .attr('stroke-width', lw).attr('stroke-linecap', 'butt').attr('stroke-linejoin', 'round')
+    // Rule 41: hover (mouse) or tap (touch) highlights the theme; tracks take no clicks.
+    .on('pointerenter', (e: PointerEvent, d) => hoverIn(e, d.theme))
+    .on('pointerleave', (e: PointerEvent) => hoverOut(e))
+    .on('pointerup', (e: PointerEvent, d) => tapTrack(e, d.theme));
 
   const discs = layer(svg, 'discs').selectAll<SVGGElement, Plan['discs'][number]>('g.tm-disc-group').data(p.discs, (d) => d.key).join('g').attr('class', 'tm-disc-group');
   discs.selectAll<SVGCircleElement, Plan['discs'][number]>('circle.tm-disc').data((d) => [d]).join('circle')
@@ -313,7 +319,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   };
   const sts = layer(svg, 'stations').selectAll<SVGGElement, Plan['stations'][number]>('g.tm-station').data(p.stations, (d) => d.id).join('g')
     .attr('class', 'tm-station').attr('tabindex', 0).attr('role', 'button')
-    .attr('aria-label', (d) => d.aria).attr('data-station', (d) => d.id)
+    .attr('aria-label', (d) => d.aria).attr('data-station', (d) => d.id).attr('data-themes', (d) => d.themes)
     .classed('is-selected', (d) => d.id === selected)
     .style('cursor', 'pointer')
     .on('click', (_e, d) => choose(d.id))
@@ -321,10 +327,10 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); choose(d.id); }
     });
   sts.selectAll<SVGLineElement, Plan['stations'][number]['connectors'][number]>('line.tm-connector').data((d) => d.connectors, (c) => c.key).join('line')
-    .attr('class', 'tm-connector').attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
+    .attr('class', 'tm-connector').attr('data-themes', (c) => c.theme).attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
     .attr('stroke', INK).attr('stroke-width', 0.14 * lw);
   sts.selectAll<SVGCircleElement, Plan['stations'][number]['dots'][number]>('circle.tm-dot').data((d) => d.dots, (c) => c.key).join('circle')
-    .attr('class', 'tm-dot').attr('cx', (c) => c.cx).attr('cy', (c) => c.cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
+    .attr('class', 'tm-dot').attr('data-themes', (c) => c.theme).attr('cx', (c) => c.cx).attr('cy', (c) => c.cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')
     .attr('class', 'tm-dot-id').attr('x', (c) => c.cx).attr('y', (c) => c.cy)
     .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('pointer-events', 'none')
@@ -345,5 +351,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-today').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', p.today && scale.orientation === 'vertical' ? 'start' : 'end')
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('font-weight', 700).attr('fill', INK).text('TODAY');
 
+  registerMap(container);
   return { scale, model };
 }
