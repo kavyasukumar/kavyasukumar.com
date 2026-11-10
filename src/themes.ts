@@ -1,4 +1,4 @@
-// Colour theme: Pistachio (the only one kept). Dusty pink accent is Rose Ganache's.
+// Colour theme: Pistachio (the only theme). The dusty pink accent value came from the retired Rose Ganache palette.
 // field: dark-theme background / light-theme text. paper: light-theme background / dark-theme text.
 // fill: solid accent blocks (use `ink` text on it). lineLight / lineDark: thin accents (rules, rings, underlines).
 // Avoid palettes that read as national flags (see DESIGN.md).
@@ -10,10 +10,8 @@ export type Theme = {
   lineLight: string;
   lineDark: string;
   ink: string;
-  // Optional dark-theme overrides for hybrid themes (light uses field/paper/fill).
-  darkField?: string;
+  // Optional dark-theme text colour (light uses paper).
   darkPaper?: string;
-  darkFill?: string;
 };
 
 export const THEMES: Record<string, Theme> = {
@@ -34,4 +32,4 @@ export const hexToRgb = (hex: string): string => {
   return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)).join(',');
 };
 
-export const getTheme = (key: string | null): Theme => THEMES[key || ''] || THEMES.pistachio;
+export const getTheme = (): Theme => THEMES.pistachio;
