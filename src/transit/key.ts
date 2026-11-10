@@ -102,7 +102,9 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     .attr('data-themes', (r) => r.theme ?? null).attr('tabindex', (r) => (r.theme ? 0 : null))
     .on('pointerenter', (e: PointerEvent, r) => { if (r.theme) hoverIn(e, r.theme); })
     .on('pointerleave', (e: PointerEvent, r) => { if (r.theme) hoverOut(e); })
-    .on('focus', (_e, r) => { if (r.theme) focusIn(r.theme); })
+    // Only keyboard focus (:focus-visible) drives the highlight; a mouse click
+    // focuses the row too, but leaving it then clears like a plain hover-leave.
+    .on('focus', function (_e, r) { if (r.theme && this.matches(':focus-visible')) focusIn(r.theme); })
     .on('blur', (_e, r) => { if (r.theme) focusOut(); });
   const swatches = rows.selectAll<HTMLSpanElement, Row>('span.tm-key-swatch').data((r) => [r]).join('span')
     .attr('class', 'tm-key-swatch').style('flex', 'none').style('display', 'inline-block')
