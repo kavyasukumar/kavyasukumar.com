@@ -28,12 +28,12 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .tm-label{font-size:12px;fill:#555;font-weight:400}
 #transit .tm-label.is-major{fill:var(--ink);font-weight:700}
 #transit .tm-axis{font-size:12px;fill:#555}
-#transit .tm-today{font-size:12px;font-weight:700;fill:var(--ink);letter-spacing:.08em}
 #transit .tm-station{cursor:pointer}
 #transit .tm-station:focus{outline:none}
 #transit .tm-station:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
-#transit .tm-station .tm-dot{transition:fill .2s}
-#transit .tm-station:hover .tm-dot,#transit .tm-station.is-selected .tm-dot{fill:var(--pink)}
+/* Station dots and IDs scale around their own centre on hover, focus and select (rule 22) */
+#transit .tm-svg .tm-station .tm-dot,#transit .tm-svg .tm-station .tm-dot-id{transform-box:fill-box;transform-origin:center;transition:fill .15s,transform .15s}
+#transit .tm-svg .tm-station .tm-connector{transition:stroke .15s,stroke-width .15s}
 #transit .key{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px 24px;text-align:left}
 #transit .tm-key-group+.tm-key-group{border-top:1px solid var(--ink);margin-top:16px;padding-top:16px}
 #transit .tm-key-heading{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555;margin:0 0 8px}
@@ -51,6 +51,11 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .tm-svg.has-hl .tm-connector:not(.is-hl){stroke:var(--tm-grey-ink)}
 #transit .tm-svg.has-hl .tm-label{fill:var(--tm-grey-ink);font-weight:400}
 #transit .tm-svg.has-hl .tm-station.is-hl .tm-label{fill:var(--ink);font-weight:700}
+/* Hovered, focused or selected station: Ink dots ~1.2x, ID in the line colour, Ink connector.
+   Placed after the grey-out and more specific, so it wins over it for that station only. */
+#transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-dot.tm-dot{fill:var(--ink);transform:scale(1.18)}
+#transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-dot-id{fill:var(--tm-line,var(--pink));transform:scale(1.18)}
+#transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-connector.tm-connector{stroke:var(--ink);stroke-width:calc(var(--tm-cw,2px)*1.18)}
 #transit .tm-key-row[data-themes]{padding:2px 6px;margin-left:-6px;cursor:default}
 #transit .tm-key-row[data-themes]:focus{outline:none}
 #transit .tm-key-row[data-themes]:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
