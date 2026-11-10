@@ -29,7 +29,7 @@ All sizes are in **lw**, one line width (the width of a single track).
    - **Station**: one track passes through it.
    - **Terminal**: one track stops there. It is the end of that track.
    - **Interchange**: two or more tracks go to it, whether the tracks are the same colour or different colours.
-8. Where tracks overlap or cross, one group stays on top. Which group is an open decision (see Open decisions): the tracks going straight, or the tracks turning. Whichever is chosen, apply it consistently. At a given turn, either every straight-through track is on top of every turning track, or every turning track is on top of every straight-through track. Never mix the two at the same turn.
+8. Where tracks overlap or cross, the tracks going straight stay on top. This applies consistently: at a given turn, every straight-through track is on top of every turning track. The turning tracks are the ones cut by the casing (rule 19).
 
 ## Derived rules
 
@@ -77,13 +77,9 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 31. **Include a key to lines.** One entry per line: a short horizontal swatch drawn at the map's line width, in the line's colour, with the line's name beside it. Keep the entry order the same every time. [LON]
 32. **List the tracks under their line in the key.** Each track gets its own name and its ID (rule 22), so a reader can tell which track is which. London does not do this, so it is an addition of ours. The tracks follow rule 10 and sit touching in the key swatch. [new]
 33. **Include a key to symbols.** Show every kind of stop exactly as it is drawn on the map, with a text label each: station, terminal, interchange, and the linked interchange if one is used. The symbols in the key are the same size as on the map. [LON]
-34. **Use a different swatch style for a different kind of service, and explain it in the key.** London draws a dashed swatch for a limited service (District at weekends and holidays, Thameslink) and a double thin line for non-Tube modes (DLR, Overground), each with a one-line note under the name. If we need this (for example, a side hustle that ran only part-time), use a dashed track and add a note. [LON]
+34. **Draw part-time or extra work as a hatched track.** A hatched track has diagonal white hatching at 45° in the line colour, about 0.25 lw per stripe. It runs beside the main track at the same width and pitch (rules 10 and 11) and follows the same bundle rules. The key shows a hatched swatch with a one-line note, such as "part-time". Use it for the part-time roles, such as the side hustles. [NYC full map, LON]
 35. **Lay out the key as a left-aligned column.** Swatches or symbols sit in one column, and names sit at one fixed offset beside them. Group related entries under a short heading, and separate groups with a hairline rule. The key uses the same typeface as the map labels and sits outside the map frame. [LON]
 
 ## Open decisions
 
-- **Layering at turns (rule 8):** straight-through tracks on top (the rule as first written), or turning tracks on top (what NYC does). Undecided. The Tube avoids layering by drawing bundles side by side.
-- **Linked interchange circles (rule 24):** London also draws a capsule for a short walk between stations. Not adopted.
-- **Telling tracks of one line apart (rules 10, 32):** London tells services apart with line style (single, double, dashed) and NYC with route letters on each track. We rely on order and the hairline, plus names in the key. Whether to add letters on the tracks or a swatch style is undecided.
-- **Dashed tracks (rule 34):** whether any track is drawn dashed for part-time or paused work. Undecided.
 - The name and theme of each track within a line, and which stops each track serves.
