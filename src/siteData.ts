@@ -1,9 +1,9 @@
-import { 
+import {
   Cpu,
   Newspaper,
-  FolderKanban,
-  BadgeDollarSign
-} from 'lucide-react';
+  Kanban,
+  CurrencyCircleDollar
+} from '@phosphor-icons/react';
 
 const SITE_DATA = {
   profile: {
@@ -52,14 +52,14 @@ const SITE_DATA = {
       title: "PRODUCT MANAGEMENT",
       subtitle: "Product Leadership",
       description: "Led product development and strategy for media and media-adjacent platforms such as Hearken, focusing on user-centric design and data-driven decision making.",
-      icon: FolderKanban
+      icon: Kanban
     },
     {
       phase: "04",
       title: "VENTURE CAPITAL",
       subtitle: "Strategic Leadership",
       description: "Building technology for critical decision-making in investment. Providing executive product leadership and advisory services to high-growth startups.",
-      icon: BadgeDollarSign
+      icon: CurrencyCircleDollar
     },
   ],
   clips: [

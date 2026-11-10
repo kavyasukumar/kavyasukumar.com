@@ -8,3 +8,5 @@
 /.env.production
 .DS_Store
 .playwright-mcp/*
+redesign.interview-notes.md
+.claude/*
