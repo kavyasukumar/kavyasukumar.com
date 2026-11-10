@@ -15,12 +15,10 @@ const slots: Record<string, number> = {
 };
 
 /**
- * Full-time stops label above the trunk. Washington Post labels below, because the
- * Lighthouse branches ride above the trunk there. Gigs end in J-curves and label at
- * the tip (rule 20); Bad Idea Factory labels beside its dots.
+ * Full-time stops label above the trunk; nothing runs above it. Gigs end in J-curves and
+ * label at the tip (rule 20); Bad Idea Factory labels beside its dots.
  */
 const sides: Record<string, StationLayout['labelSide']> = {
-  'washington-post': 'after',
   'bad-idea-factory': 'back',
   'all-things-small': 'tip',
   'uw-lecturer': 'tip',
@@ -81,23 +79,24 @@ function fanDown(themes: string[], ids: string[], x: number, station: string, on
 }
 
 /**
- * Branches that leave the trunk upward before it ends, lower theme first, cross the
- * trunks above at 45 degrees, ride above the trunk past its end and drop as concentric
- * J-curves (one 90 degree bend, long leg) to touching dots centred on x.
+ * Branches that leave the trunk downward before it ends, lowest theme first, so the upper
+ * themes cross the trunks below at 45 degrees (rule 18). Each turns east (concentric bends,
+ * rule 14) onto a straight run below the trunk and stops on it, dots touching in a column
+ * centred on DOT. The track ends square 0.6 lw past the dots (rule 26). Owner decision.
  */
-function fanUpThenJ(themes: string[], ids: string[], lastSplit: number, x: number, station: string): Record<string, TrackLayout> {
+function fanDownThenEast(themes: string[], ids: string[], firstSplit: number, x: number, station: string): Record<string, TrackLayout> {
   const n = themes.length;
   const out: Record<string, TrackLayout> = {};
-  themes.forEach((th, k) => {
+  const cLast = firstSplit - LANE[themes[n - 1]!]!; // x - lane along the lowest theme's 45 degree run
+  themes.forEach((th, i) => {
     const lane = LANE[th]!;
-    const ride = -(k + 1) * P; // the upper theme rides lowest: inner track of both bends
-    const s = lastSplit - k * (DIAG + P);
-    const c = s + (lane - ride);
-    const leg = x + (k - (n - 1) / 2) * P;
-    out[ids[k]!] = {
-      route: [pt(s - 2, lane), pt(s, lane), pt(c, ride), pt(leg, ride), pt(leg, DOT)],
-      radii: [R, R + k * P, R + k * P],
-      stops: { [station]: pt(leg, DOT) },
+    const c = cLast + (n - 1 - i) * DIAG;
+    const run = DOT + (i - (n - 1) / 2) * P;
+    out[ids[i]!] = {
+      route: [pt(c + lane - 2, lane), pt(c + lane, lane), pt(c + run, run), pt(x + 0.5, run)],
+      // Departure turns right (lower track inside), arrival turns left (upper track inside).
+      radii: [R + (n - 1 - i) * P, R + i * P],
+      stops: { [station]: pt(x, run) },
     };
   });
   return out;
@@ -114,8 +113,8 @@ const tracks: Record<string, TrackLayout> = {
   // Gigs never chain (rule 37): each is a single-stop J-curve (rule 20).
   ...fanDown(['6', '7'], [`${J}storytelling-3`, `${J}tooling-3`], 6 * GAP, 'all-things-small'),
   ...fanDown(['5', '6', '7'], [`${J}finding-stories-3`, `${J}storytelling-4`, `${J}tooling-4`], 7 * GAP, 'uw-lecturer'),
-  // Lighthouse Reports leaves the trunk before Washington Post, never Bad Idea Factory.
-  ...fanUpThenJ(['5', '6', '7'], [`${J}finding-stories-4`, `${J}storytelling-5`, `${J}tooling-5`], 61.3, 9 * GAP, 'lighthouse-reports'),
+  // Lighthouse Reports leaves the trunk south-east before Washington Post, then runs east to its stop.
+  ...fanDownThenEast(['5', '6', '7'], [`${J}finding-stories-4`, `${J}storytelling-5`, `${J}tooling-5`], 58, 9 * GAP, 'lighthouse-reports'),
 };
 
 export const journalismLayout: LineLayout = {
