@@ -51,7 +51,7 @@ export default function App() {
     : 'bricolage';
   const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey] || DISPLAY_FONTS.bricolage;
 
-  // Palette comes from themes.ts (?theme=watermelon|forest).
+  // Palette comes from themes.ts (Pistachio only).
   const themeKey = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('theme') : null;
   const T = getTheme(themeKey);
   const FIELD = hexToRgb(T.field);

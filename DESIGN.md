@@ -10,7 +10,7 @@ Fixed design element, do not alter: the **solid block word over outlined word** 
 
 ## 2. Color Palette & Roles
 
-**Chosen: Pistachio** (`pistachio`, the default in `src/themes.ts`). Also kept via `?theme=`: `roseGanache` (cocoa / peach / dusty rose, charcoal dark) and `aubice` (aubergine / lilac white / ice cyan). Light and dark themes are both kept; flat colour, no gradients.
+**Chosen: Pistachio** (`pistachio`, the default in `src/themes.ts`). The other themes (Rose Ganache, Aubergine & Ice) were removed; the dusty pink accent comes from Rose Ganache. Light and dark themes are both kept; flat colour, no gradients.
 
 ### Pistachio
 - **Cream** (#F3E2BE) — Light-theme background; dark-theme text and outlines.

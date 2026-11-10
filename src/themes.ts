@@ -1,4 +1,4 @@
-// Colour themes. Default: pistachio (chosen). Others via ?theme=roseGanache | aubice.
+// Colour theme: Pistachio (the only one kept). Dusty pink accent is Rose Ganache's.
 // field: dark-theme background / light-theme text. paper: light-theme background / dark-theme text.
 // fill: solid accent blocks (use `ink` text on it). lineLight / lineDark: thin accents (rules, rings, underlines).
 // Avoid palettes that read as national flags (see DESIGN.md).
@@ -26,27 +26,6 @@ export const THEMES: Record<string, Theme> = {
     lineDark: '#E39BAE',
     ink: '#0A0A0A',
     darkPaper: '#F0DFBC'
-  },
-  aubice: {
-    name: 'Aubergine & Ice',
-    field: '#3A1245',
-    paper: '#F3EAF7',
-    fill: '#6FE7F2',
-    lineLight: '#3A1245',
-    lineDark: '#6FE7F2',
-    ink: '#0A0A0A'
-  },
-  roseGanache: {
-    name: 'Rose Ganache',
-    field: '#3B1F14',
-    paper: '#F7E6D4',
-    fill: '#E39BAE',
-    lineLight: '#B5546D',
-    lineDark: '#E39BAE',
-    ink: '#0A0A0A',
-    darkField: '#1F1A1B',
-    darkPaper: '#F7E6D4',
-    darkFill: '#E39BAE'
   }
 };
 
