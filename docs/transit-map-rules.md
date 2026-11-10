@@ -84,7 +84,7 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 
 ### Themes and concurrent work
 
-37. **A theme gets one track per concurrent role.** When two roles of the same theme overlap in time, each gets its own track in the theme's colour. A track never serves two stations at the same time. Where roles do not overlap, one track passes through them in order. Track assignment is by time, earliest first, and is recorded in `docs/transit-map-data.json`. [new, owner decision]
+37. **A theme gets one track per concurrent role.** When two roles of the same theme overlap in time, each gets its own track in the theme's colour. A track never serves two stations at the same time. Where roles do not overlap, one track passes through them in order. Track assignment is by time, earliest first, and is recorded in `data/transit-map-data.json`. [new, owner decision]
 38. **Tracks of one theme are numbered in the dots.** A theme with one track shows its number (rule 22). A theme with several shows the number plus a letter (for example 8a, 8b, 8c, 8d). The key lists the theme once, with its number, and notes the letters. [new, proposal]
 
 ## Open decisions

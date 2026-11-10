@@ -79,7 +79,7 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 
 Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their tracks are hatched (rule 35) and kept apart from full-time tracks.
 
-Strands: a theme above is drawn as one track per concurrent role (rule 37). Full-time roles share the first track where they don't overlap; hatched tracks follow. 14 themes become 35 tracks, listed with labels (1a, 1b, ...) in `transit-map-data.json` under `tracks`.
+Strands: a theme above is drawn as one track per concurrent role (rule 37). Full-time roles share the first track where they don't overlap; hatched tracks follow. 14 themes become 35 tracks, listed with labels (1a, 1b, ...) in `data/transit-map-data.json` under `tracks`.
 
 ## Interview notes
 
