@@ -27,7 +27,7 @@ All sizes are in **lw**, one line width (the width of a single track).
 6. A track can turn 45° or 90°, in any direction.
 7. A stop is one of three kinds:
    - **Station**: one track passes through it.
-   - **Terminal**: one track stops there. It is the end of that track.
+   - **Terminal**: one track stops there. It is the end of that track. Only work that has ended gets a terminal (rule 27).
    - **Interchange**: two or more tracks go to it, whether the tracks are the same colour or different colours.
 8. Where tracks overlap or cross, the tracks going straight stay on top. This applies consistently: at a given turn, every straight-through track is on top of every turning track. The turning tracks are the ones cut by the casing (rule 19).
 
@@ -62,23 +62,24 @@ All sizes are in **lw**, one line width (the width of a single track).
 24. **An interchange is a set of dots, one per track, joined by a thin dark connector.** The connector is about 0.12–0.15 lw thick and follows 0°, 45° or 90°. Where the dots touch inside one bundle, no connector is needed. It joins separate bundles when the dots cannot touch. [NYC08, NYC72]
 25. **The dots of an interchange do not have to sit on one straight line.** Each dot stays centred on its own track, wherever that track is. The tracks of an interchange may be on different horizontals, verticals or diagonals, and may approach from different directions. The connector bends to follow them, along 0°, 45° or 90°, with rounded corners. It can be straight, L-shaped or U-shaped, and it never crosses a track it does not serve. Dots that touch stay touching. For example, B and D stack vertically with the 4 offset to the side, and the 4 and 5 are joined by a U-shaped connector under the 2. [NYC full map]
 26. **A terminal ends square and carries an ID disc.** The track stops about 0.3–1 lw past its last dot, with no ring, bar or arrow on the track itself. Just past the end sits a large disc in the line colour, about 2 lw across, with the track's ID in white. The disc is offset so it clears the label. Where several tracks end together, their discs stack. If a terminal is also an interchange, it also follows rules 24 and 25. [NYC08, NYC full map]
-27. **Space stops evenly within a straight run.** Do not space by true time. Typical gap about 12 lw, minimum about 8 lw. Within one run, gaps vary by 25% or less. Dense areas may take about 20 lw to leave room for labels. [LON]
+27. **Ongoing work is not a terminal.** A track for work that is still continuing today does not end in a terminal. It keeps running to the edge of the map canvas and leaves it, with no end disc and no stop mark at the edge. The last stop on the track (for example Aspada or Bad Idea Factory) is an ordinary station or interchange, and the track carries on past it. Only tracks for work that has ended get a terminal (rule 26). If every ongoing track runs off the same edge, that edge is "today". [new]
+28. **Space stops evenly within a straight run.** Do not space by true time. Typical gap about 12 lw, minimum about 8 lw. Within one run, gaps vary by 25% or less. Dense areas may take about 20 lw to leave room for labels. [LON]
 
 ### Labels
 
-28. **Labels are horizontal and sit on the same side along a straight run.** They switch side only at a bend or to avoid a collision. A label never crosses a track, a dot or another label. [LON, NYC08]
-29. **A label starts about 0.5–1 lw past the outer edge of the bundle.** It goes on the side away from the nearest parallel line. Long names stack on two or three lines, flush toward the line. [NYC08, LON]
-30. **Weight labels by role.** Interchange and terminal labels are bold and dark. Plain stations are regular weight and a lighter grey. [NYC08, NYC72]
+29. **Labels are horizontal and sit on the same side along a straight run.** They switch side only at a bend or to avoid a collision. A label never crosses a track, a dot or another label. [LON, NYC08]
+30. **A label starts about 0.5–1 lw past the outer edge of the bundle.** It goes on the side away from the nearest parallel line. Long names stack on two or three lines, flush toward the line. [NYC08, LON]
+31. **Weight labels by role.** Interchange and terminal labels are bold and dark. Plain stations are regular weight and a lighter grey. [NYC08, NYC72]
 
 ### Legend
 
 The London map has a "Key to lines" and a "Key to symbols" outside the map frame. These rules come from them.
 
-31. **Include a key to lines.** One entry per line: a short horizontal swatch drawn at the map's line width, in the line's colour, with the line's name beside it. Keep the entry order the same every time. [LON]
-32. **List the tracks under their line in the key.** Each track gets its own name and its ID (rule 22), so a reader can tell which track is which. London does not do this, so it is an addition of ours. The tracks follow rule 10 and sit touching in the key swatch. [new]
-33. **Include a key to symbols.** Show every kind of stop exactly as it is drawn on the map, with a text label each: station, terminal, interchange, and the linked interchange if one is used. The symbols in the key are the same size as on the map. [LON]
-34. **Draw part-time or extra work as a hatched track.** A hatched track has diagonal white hatching at 45° in the line colour, about 0.25 lw per stripe. It runs beside the main track at the same width and pitch (rules 10 and 11) and follows the same bundle rules. The key shows a hatched swatch with a one-line note, such as "part-time". Use it for the part-time roles, such as the side hustles. [NYC full map, LON]
-35. **Lay out the key as a left-aligned column.** Swatches or symbols sit in one column, and names sit at one fixed offset beside them. Group related entries under a short heading, and separate groups with a hairline rule. The key uses the same typeface as the map labels and sits outside the map frame. [LON]
+32. **Include a key to lines.** One entry per line: a short horizontal swatch drawn at the map's line width, in the line's colour, with the line's name beside it. Keep the entry order the same every time. [LON]
+33. **List the tracks under their line in the key.** Each track gets its own name and its ID (rule 22), so a reader can tell which track is which. London does not do this, so it is an addition of ours. The tracks follow rule 10 and sit touching in the key swatch. [new]
+34. **Include a key to symbols.** Show every kind of stop exactly as it is drawn on the map, with a text label each: station, terminal, interchange, and the linked interchange if one is used. The symbols in the key are the same size as on the map. [LON]
+35. **Draw part-time or extra work as a hatched track.** A hatched track has diagonal white hatching at 45° in the line colour, about 0.25 lw per stripe. It runs beside the main track at the same width and pitch (rules 10 and 11) and follows the same bundle rules. The key shows a hatched swatch with a one-line note, such as "part-time". Use it for the part-time roles, such as the side hustles. [NYC full map, LON]
+36. **Lay out the key as a left-aligned column.** Swatches or symbols sit in one column, and names sit at one fixed offset beside them. Group related entries under a short heading, and separate groups with a hairline rule. The key uses the same typeface as the map labels and sits outside the map frame. [LON]
 
 ## Open decisions
 
