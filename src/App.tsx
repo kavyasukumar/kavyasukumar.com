@@ -32,8 +32,19 @@ const DEV_FONT_URLS: Record<string, string> = {
 };
 
 export default function App() {
+  const readStoredTheme = (): 'dark' | 'light' | null => {
+    try {
+      const v = window.localStorage.getItem('theme');
+      return v === 'dark' || v === 'light' ? v : null;
+    } catch {
+      return null;
+    }
+  };
+
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
+      const stored = readStoredTheme();
+      if (stored) return stored === 'dark';
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
@@ -41,12 +52,23 @@ export default function App() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (readStoredTheme()) return;
+      setIsDark(e.matches);
+    };
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const toggleTheme = (): void => setIsDark(!isDark);
+  const toggleTheme = (): void => {
+    const next = !isDark;
+    setIsDark(next);
+    try {
+      window.localStorage.setItem('theme', next ? 'dark' : 'light');
+    } catch {
+      /* storage unavailable */
+    }
+  };
 
   const scrollTo = (id: string): void => {
     const el = document.getElementById(id);
@@ -101,7 +123,7 @@ export default function App() {
     '--stroke': isDark ? '4px' : '3px',
     '--stroke-hover': '6px',
     '--track': `${track}em`,
-    '--hard': isDark ? PAL.ink : PAL.field,
+    '--hard': isDark ? darkText : PAL.field,
     '--o1': `${-off1}em`,
     '--o2': `${-off2}em`,
     '--font-display': displayFamily
