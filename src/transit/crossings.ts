@@ -37,15 +37,17 @@ function near(p: Pt, route: Pt[], tol: number): boolean {
 }
 
 /** Casing segments along each top track wherever a track of another theme crosses it. */
-export function casings(tracks: MapTrack[], layout: LineLayout, s: Scale): Casing[] {
+export function casings(tracks: MapTrack[], layout: LineLayout, s: Scale, low = false): Casing[] {
   const pts = (id: string): Pt[] => layout.tracks[id]!.route.map((p) => toXY(p.slot, p.lane, s));
   const out: Casing[] = [];
-  const tops = tracks.filter((t) => layout.tracks[t.id]?.top);
-  const unders = tracks.filter((t) => !layout.tracks[t.id]?.top);
+  // low: only the crossings of tracks that pass `over` a `low` track (drawn in a layer beneath the rest).
+  const tops = low ? tracks.filter((t) => layout.tracks[t.id]?.over) : tracks.filter((t) => layout.tracks[t.id]?.top);
+  const unders = low ? tracks.filter((t) => layout.tracks[t.id]?.low) : tracks.filter((t) => !layout.tracks[t.id]?.top && !layout.tracks[t.id]?.low);
   for (const top of tops) {
     const tp = pts(top.id);
     for (const under of unders) {
       if (under.theme === top.theme) continue; // branches of one track never cross (rule 5)
+      if (low && !layout.tracks[top.id]!.over!.includes(under.id)) continue;
       const up = pts(under.id);
       for (let i = 0; i < tp.length - 1; i++) {
         for (let j = 0; j < up.length - 1; j++) {
@@ -85,7 +87,7 @@ export function casings(tracks: MapTrack[], layout: LineLayout, s: Scale): Casin
       }
     }
   }
-  return out.concat(hairlines(tops, pts, s));
+  return low ? out.filter((k) => !k.raised) : out.concat(hairlines(tops, pts, s));
 }
 
 /**

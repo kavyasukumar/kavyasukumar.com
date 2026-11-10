@@ -2,12 +2,12 @@ import { select, type Selection } from 'd3-selection';
 import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
-import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
+import { DISC_D, DOT_D, END_OVERRUN, roundedPath, toXY } from './geometry';
 import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
+import { buildModel, yearsOf, type Model } from './model';
 import { stationLabel } from './station-label';
-import { isPureTerminal } from './terminals';
-import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
+import type { LineLayout, MapData, Orientation, Scale } from './types';
 
 export const INK = '#0A0A0A';
 const MUTED = '#555555';
@@ -23,74 +23,12 @@ const PAD = 24;
 const AXIS_ROW = 12;
 const AXIS_COL = PAD;
 const VPAD = 6; // side margin of the vertical (phone) layout
+const FLOOR_LW = 8; // phone lw floor (rule 22, PH1): below it the map frame scrolls sideways instead
 
-export interface StationModel {
-  st: MapStation;
-  slot: number;
-  labelSide: StationLayout['labelSide'];
-  dots: { track: MapTrack; lane: number; slot: number }[];
-  minLane: number;
-  maxLane: number;
-  kind: 'station' | 'interchange' | 'terminal';
-  /** Pure terminal (rule 26): every track ends here, so the dots are squares and the tracks stop at them. */
-  square: boolean;
-  themes: string[];
-}
-export interface Model { line: MapLine; colours: Record<string, string>; tracks: MapTrack[]; stations: StationModel[] }
 export interface RenderResult { scale: Scale; model: Model }
 
-export function yearsOf(st: MapStation): string {
-  if (st.end === null) return `${st.start}–now`;
-  if (st.end === st.start) return `${st.start}`;
-  const same = Math.floor(st.start / 100) === Math.floor(st.end / 100);
-  return `${st.start}–${same ? String(st.end).slice(2) : st.end}`;
-}
-
-export function buildModel(data: MapData, layout: LineLayout): Model {
-  const line = data.lines.find((l) => l.id === layout.lineId);
-  if (!line) throw new Error(`Unknown line ${layout.lineId}`);
-  const lineIds = layout.lineIds ?? [line.id];
-  const colours: Record<string, string> = {};
-  for (const th of data.themes) {
-    const l = data.lines.find((x) => x.id === th.line);
-    if (l && lineIds.includes(l.id)) colours[th.id] = l.colour;
-  }
-  const themeIds = new Set(Object.keys(colours));
-  const tracks = data.tracks.filter((t) => themeIds.has(t.theme) && layout.tracks[t.id]);
-  const stations: StationModel[] = [];
-  for (const st of data.stations) {
-    const sl = layout.stations[st.id];
-    if (!sl || !st.lines.some((l) => lineIds.includes(l))) continue;
-    const dots: StationModel['dots'] = [];
-    for (const track of tracks) {
-      if (!track.stations.includes(st.id)) continue;
-      const tl = layout.tracks[track.id]!;
-      const at = tl.stops?.[st.id];
-      if (at) { dots.push({ track, lane: at.lane, slot: at.slot }); continue; }
-      const lane = laneAt(tl.route, sl.slot);
-      if (lane !== null) dots.push({ track, lane, slot: sl.slot });
-    }
-    if (!dots.length) continue;
-    dots.sort((a, b) => a.lane - b.lane || a.slot - b.slot);
-    const endsHere = dots.some((d) => !d.track.ongoing && d.track.stations[d.track.stations.length - 1] === st.id);
-    const themes: string[] = [];
-    for (const d of dots) {
-      const th = data.themes.find((t) => t.id === d.track.theme);
-      if (th && !themes.includes(th.short)) themes.push(th.short);
-    }
-    stations.push({
-      st, slot: sl.slot, labelSide: sl.labelSide, dots, themes,
-      minLane: dots[0]!.lane, maxLane: dots[dots.length - 1]!.lane,
-      kind: dots.length >= 2 ? 'interchange' : endsHere ? 'terminal' : 'station',
-      square: isPureTerminal(st.id, sl.slot, dots.map((d) => d.track), tracks, layout),
-    });
-  }
-  stations.sort((a, b) => a.slot - b.slot);
-  return { line, colours, tracks, stations };
-}
-
 /** Choose orientation and lw for a container width. Fits content by iterating on measured extent. */
-export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
+export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box; canvasW: number } {
   const tryFit = (o: Orientation): { lw: number; scale: Scale; box: Box } => {
     const slotGap = layout.slotGap[o];
     const slots = Object.values(layout.stations).map((st) => st.slot);
@@ -115,27 +53,29 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
   const used = b.x1 - b.x0;
   const originX = Math.max(PAD, (width - used) / 2) - b.x0;
   const originY = AXIS_ROW - b.y0;
-  return { scale: { ...m.scale, originX, originY }, box: b };
+  return { scale: { ...m.scale, originX, originY }, box: b, canvasW: width };
 }
 
 /**
  * Vertical (phone) layout: the widest lw, up to MAX_LW, whose drawing fits between VPAD margins.
- * It may drop below minLw on a phone so nothing is clipped; the drawing hugs the left margin, so
- * the ribbon sits as far west as the fans and labels allow (rules 22, 40; owner decision).
+ * It may drop below minLw on a phone so nothing is clipped, but not below FLOOR_LW: there the
+ * canvas grows past the frame, which scrolls sideways (rule 22, PH1). The drawing hugs the left
+ * margin, so the ribbon sits as far west as the fans and labels allow (rules 22, 40; owner decision).
  */
-function fitVertical(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
+function fitVertical(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box; canvasW: number } {
   const avail = width - 2 * VPAD;
   const fits = (lw: number): boolean => { const b = measure('vertical', lw, width, model, layout).box; return b.x1 - b.x0 <= avail; };
   let lw = MAX_LW;
   if (!fits(lw)) {
     let lo = 1; let hi = MAX_LW;
     for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
-    lw = lo;
+    lw = Math.max(FLOOR_LW, lo);
   }
   const m = measure('vertical', lw, width, model, layout);
   const b = m.box;
-  const originX = Math.max(VPAD, (width - (b.x1 - b.x0)) / 2) - b.x0;
-  return { scale: { ...m.scale, originX, originY: PAD / 2 - b.y0 }, box: b };
+  const canvasW = Math.max(width, Math.ceil(b.x1 - b.x0 + 2 * VPAD));
+  const originX = Math.max(VPAD, (canvasW - (b.x1 - b.x0)) / 2) - b.x0;
+  return { scale: { ...m.scale, originX, originY: PAD / 2 - b.y0 }, box: b, canvasW };
 }
 
 interface Box { x0: number; y0: number; x1: number; y1: number }
@@ -148,8 +88,9 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; theme: string; d: string; colour: string; top: boolean; dash: string | null }[];
+  tracks: { id: string; theme: string; d: string; colour: string; top: boolean; low: boolean; dash: string | null }[];
   casings: Casing[];
+  lowCasings: Casing[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; d: string; themes: string }[];
@@ -195,7 +136,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     const tl = layout.tracks[t.id]!;
     const colour = model.colours[t.theme] ?? model.line.colour;
-    const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, dash: null,
+    const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, low: !!tl.low, dash: null,
       d: roundedPath([start, ...pts.slice(1, -1), end], (tl.radii ?? [1.5]).map((r) => r * lw)) };
     if (!t.ongoing) return [solid];
     // Ongoing work runs on dashed past its last stop and off the canvas edge (rule 27).
@@ -226,7 +167,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
   // No terminal discs (owner decision; rule 26) and no time axis (rule 39).
   const discs: Plan['discs'] = [];
   const axis: Plan['axis'] = [];
-  return { box, tracks, casings: casings(model.tracks, layout, s), stations, discs, axis };
+  return { box, tracks, casings: casings(model.tracks, layout, s), lowCasings: casings(model.tracks, layout, s, true), stations, discs, axis };
 }
 
 type Sel<E extends Element> = Selection<E, unknown, any, unknown>;
@@ -234,9 +175,16 @@ const layer = (svg: Sel<SVGSVGElement>, name: string): Sel<SVGGElement> =>
   svg.selectAll<SVGGElement, null>(`g.tm-layer-${name}`).data([null]).join('g').attr('class', `tm-layer-${name}`) as Sel<SVGGElement>;
 
 export function renderMap(container: HTMLElement, data: MapData, layout: LineLayout): RenderResult {
-  const W = Math.max(1, Math.round(container.clientWidth || container.getBoundingClientRect().width));
-  const model = buildModel(data, layout);
-  const { scale } = chooseScale(W, model, layout);
+  const frameW = Math.max(1, Math.round(container.clientWidth || container.getBoundingClientRect().width));
+  let model = buildModel(data, layout);
+  let fit = chooseScale(frameW, model, layout);
+  // The vertical (phone) map may have its own spacing (R1, R3 desktop only); refit with it.
+  if (fit.scale.orientation === 'vertical' && layout.vertical) {
+    layout = layout.vertical;
+    model = buildModel(data, layout);
+    fit = fitVertical(frameW, model, layout);
+  }
+  const { scale, canvasW: W } = fit;
   const bbox = plan(model, layout, scale, W, 0).box;
   const H = Math.ceil(bbox.y1 + (scale.orientation === 'horizontal' ? 20 : PAD));
   const p = plan(model, layout, scale, W, H);
@@ -247,9 +195,10 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-svg').attr('width', W).attr('height', H)
     .attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'group')
     .attr('aria-label', `${model.line.name} line`)
+    // Wider than its frame only at the phone lw floor; the frame then scrolls sideways (PH1).
+    .style('min-width', () => (W > frameW ? `${W}px` : null))
     // Line colour for hovered/selected station IDs and connector width for its hover scaling (CSS).
     .style('--tm-line', model.line.colour).style('--tm-cw', `${CONNECTOR_W * lw}px`) as Sel<SVGSVGElement>;
-
 
   // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
   const drawTracks = (name: string, list: Plan['tracks'], cls = 'tm-track') => layer(svg, name)
@@ -262,7 +211,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .on('pointerenter', (e: PointerEvent, d) => hoverIn(e, d.theme))
     .on('pointerleave', (e: PointerEvent) => hoverOut(e))
     .on('pointerup', (e: PointerEvent, d) => tapTrack(e, d.theme));
-  drawTracks('tracks', p.tracks.filter((t) => !t.top));
   // Each crossing casing is masked to the track it crosses, so it never touches neighbours.
   const defs = svg.selectAll<SVGDefsElement, null>('defs.tm-defs').data([null]).join('defs').attr('class', 'tm-defs');
   defs.selectAll<SVGMaskElement, Plan['tracks'][number]>('mask').data(p.tracks, (t) => t.id).join('mask')
@@ -274,6 +222,10 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', cls).attr('data-themes', (c) => (c.raised ? c.theme : null)).attr('x1', (c) => c.x1).attr('y1', (c) => c.y1).attr('x2', (c) => c.x2).attr('y2', (c) => c.y2)
     .attr('mask', (c) => (c.mask ? `url(#tm-mask-${c.mask})` : null))
     .attr('stroke', CREAM).attr('stroke-width', (c) => c.w).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
+  // A `low` track runs beneath everything; the tracks passing over it cut it with a casing first (rule 19).
+  drawTracks('tracks-low', p.tracks.filter((t) => t.low));
+  casingLines('casings-low', 'tm-casing', p.lowCasings);
+  drawTracks('tracks', p.tracks.filter((t) => !t.top && !t.low));
   casingLines('casings', 'tm-casing', p.casings.filter((c) => !c.raised));
   drawTracks('tracks-top', p.tracks.filter((t) => t.top));
   // Highlighted tracks are lifted over the rest (rule 41): casings along them where they pass over
@@ -333,7 +285,6 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   layer(svg, 'axis').selectAll<SVGTextElement, Plan['axis'][number]>('text.tm-axis').data(p.axis, (d) => d.key).join('text')
     .attr('class', 'tm-axis').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', (d) => d.anchor)
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text((d) => d.text);
-
 
   registerMap(container);
   return { scale, model };

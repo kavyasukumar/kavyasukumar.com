@@ -46,7 +46,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   };
   const mid = lw / 2;
 
-  // One group per line (journalism, then code), each track listed once under it (rule 33).
+  // One group per line (journalism, code, product), each track listed once under it (rule 33).
   const lineRows: Row[] = lines.flatMap((ln) => [
     { key: `line-${ln.id}`, name: ln.name, w: BW, h: lw, draw: (svg: Svg) => track(svg, 0, BW, mid, ln.colour) },
     ...data.themes.filter((th) => th.line === ln.id).sort((a, b) => a.num - b.num).map((th) => ({

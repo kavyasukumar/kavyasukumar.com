@@ -10,6 +10,10 @@ export interface TrackLayout {
   radii?: number[];
   /** Straight-through track: drawn on top at crossings, with a casing (rules 8, 19). */
   top?: boolean;
+  /** Drawn beneath everything (own layer) and crossed by the tracks in `over`, which get a casing over it. */
+  low?: boolean;
+  /** Ids of `low` tracks this track passes over, with the usual crossing casing. */
+  over?: string[];
   /** Explicit dot positions by station id, for stops off the slot line (J-curve tips, drops; rule 25). */
   stops?: Record<string, LayoutPoint>;
 }
@@ -45,6 +49,8 @@ export interface LineLayout {
   stations: Record<string, StationLayout>;
   tracks: Record<string, TrackLayout>;
   discs: DiscLayout[];
+  /** Layout used when the map draws vertically (phone), when its spacing differs from the horizontal one. */
+  vertical?: LineLayout;
 }
 
 export interface MapLine { id: string; name: string; order: number; colour: string }
