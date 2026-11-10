@@ -8,6 +8,10 @@ export interface TrackLayout {
   route: LayoutPoint[];
   /** Optional corner radius in lw for each interior route point (concentric bends, rule 14). Default 1.5. */
   radii?: number[];
+  /** Straight-through track: drawn on top at crossings, with a casing (rules 8, 19). */
+  top?: boolean;
+  /** Explicit dot positions by station id, for stops off the slot line (J-curve tips, drops; rule 25). */
+  stops?: Record<string, LayoutPoint>;
 }
 
 export interface DiscLayout {
@@ -20,8 +24,12 @@ export interface DiscLayout {
 
 export interface StationLayout {
   slot: number;
-  /** 'before' = smaller lane side (above in horizontal, left in vertical); 'after' = larger lane side. */
-  labelSide: 'before' | 'after';
+  /**
+   * 'before' = smaller lane side (above in horizontal, left in vertical); 'after' = larger lane side.
+   * 'tip' = past the dots in the direction of travel of a J-curve leg running toward larger lanes (rule 20).
+   * 'back' = beside the dots on the earlier-slot side (left in horizontal, above in vertical).
+   */
+  labelSide: 'before' | 'after' | 'tip' | 'back';
 }
 
 export interface LineLayout {
