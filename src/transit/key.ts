@@ -35,8 +35,10 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
       .attr('width', x1 - x0).attr('height', lw).attr('fill', colour);
   };
-  const dot = (svg: Svg, cy: number, id: string): void => {
-    svg.append('circle').attr('class', 'tm-dot').attr('cx', CX).attr('cy', cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
+  const dot = (svg: Svg, cy: number, id: string, square = false): void => {
+    const d = DOT_D * lw;
+    if (square) svg.append('rect').attr('class', 'tm-dot tm-dot-square').attr('x', CX - d / 2).attr('y', cy - d / 2).attr('width', d).attr('height', d).attr('fill', INK);
+    else svg.append('circle').attr('class', 'tm-dot').attr('cx', CX).attr('cy', cy).attr('r', d / 2).attr('fill', INK);
     svg.append('text').attr('class', 'tm-dot-id').attr('x', CX).attr('y', cy).attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central').attr('font-family', FONT).attr('font-weight', 700)
       .attr('font-size', ID_PX(lw)).attr('fill', '#FFFFFF').text(id);
@@ -56,7 +58,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     })),
   ];
   const symbolRows: Row[] = [
-    // A short track ending square past its dot.
+    // A short track running through its dot.
     { key: 'station', name: 'Station', w: BW, h: lw, draw: (svg) => { track(svg, 0, 3 * lw, mid); dot(svg, mid, idOf(first)); } },
     {
       key: 'interchange', name: 'Interchange', w: BW, h: (1 + PITCH) * lw,
@@ -69,8 +71,8 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
         dot(svg, mid, idOf(first)); dot(svg, y2, idOf(other));
       },
     },
-    // Rule 26: a terminal ends square about 0.6 lw past its last dot, no marker.
-    { key: 'terminal', name: 'Terminal', w: BW, h: lw, draw: (svg) => { track(svg, 0, CX + END_OVERRUN * lw, mid); dot(svg, mid, idOf(first)); } },
+    // Rule 26: a terminal's dot is a square and the track ends at its centre, no overrun.
+    { key: 'terminal', name: 'Terminal', w: BW, h: lw, draw: (svg) => { track(svg, 0, CX, mid); dot(svg, mid, idOf(first), true); } },
     // Rule 27: ongoing work is solid to just past its dot, then dashed (1 lw dash, 0.5 lw gap)
     // off the edge, here cut at the swatch's edge as the map's are at the frame.
     {

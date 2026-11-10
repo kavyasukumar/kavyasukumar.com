@@ -100,7 +100,7 @@ function fanUp(themes: string[], ids: string[], x: number, station: string): Rec
  * Branches that leave the trunk downward before it ends, lowest theme first, so the upper
  * themes cross the trunks below at 45 degrees (rule 18). Each turns east (concentric bends,
  * rule 14) onto a straight run below the trunk and stops on it, dots touching in a column
- * centred on DOT. The track ends square 0.6 lw past the dots (rule 26). Owner decision.
+ * centred on DOT. The stop is a pure terminal: the tracks end at the square dots (rule 26). Owner decision.
  */
 function fanDownThenEast(themes: string[], ids: string[], firstSplit: number, x: number, station: string): Record<string, TrackLayout> {
   const n = themes.length;
@@ -111,7 +111,7 @@ function fanDownThenEast(themes: string[], ids: string[], firstSplit: number, x:
     const c = cLast + (n - 1 - i) * DIAG;
     const run = DOT + (i - (n - 1) / 2) * P;
     out[ids[i]!] = {
-      route: [pt(c + lane - 2, lane), pt(c + lane, lane), pt(c + run, run), pt(x + 0.5, run)],
+      route: [pt(c + lane - 2, lane), pt(c + lane, lane), pt(c + run, run), pt(x, run)],
       // Departure turns right (lower track inside), arrival turns left (upper track inside).
       radii: [R + (n - 1 - i) * P, R + i * P],
       stops: { [station]: pt(x, run) },
