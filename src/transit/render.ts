@@ -200,6 +200,12 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     // Label placement
     const before = sm.labelSide === 'before';
     let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
+    // Clear every track that runs through this slot, not just the ones that stop here.
+    for (const tl of Object.values(layout.tracks)) {
+      const ln = laneAt(tl.route, sm.slot);
+      if (ln === null) continue;
+      edge = before ? Math.min(edge, ln - DOT_D / 2) : Math.max(edge, ln + DOT_D / 2);
+    }
     for (const d of layout.discs) {
       if (d.slot !== sm.slot) continue;
       if (before && d.lane < sm.minLane) edge = Math.min(edge, d.lane - DISC_D / 2);
