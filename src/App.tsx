@@ -343,7 +343,7 @@ export default function App() {
       {/* --- CAREER EVOLUTION --- */}
       <section id="pivot" className="section relative overflow-hidden">
         <div className="wrap">
-          <SectionTitle isDark={isDark} outline="CAREER" solid="EVOLUTION" />
+          <SectionTitle first="CAREER" second="EVOLUTION" />
 
           <Reveal bare className="rail-wrap relative">
             <div
@@ -392,7 +392,7 @@ export default function App() {
       {/* --- MEDIA CLIPS --- */}
       <section id="clips" className="section">
         <div className="wrap">
-          <SectionTitle isDark={isDark} outline="MEDIA" solid="CLIPS" />
+          <SectionTitle first="MEDIA" second="CLIPS" />
           <div className="clip-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {SITE_DATA.clips.map((clip, idx) => (
               <Reveal key={idx} className="flex">
