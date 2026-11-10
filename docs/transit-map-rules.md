@@ -18,6 +18,7 @@ All sizes are in **lw**, one line width (the width of a single track).
 - **Branch**: one arm of a track after it splits (rule 5). Where a theme's work runs in parallel, its track splits and each concurrent role gets its own branch, because a branch cannot be in two places at once. All branches of a track are still that one track: same number, same name.
 - **Bundle (ribbon)**: two or more tracks that run side by side between the same stops.
 - **Stop**: any place on the map where a track stops to let people on or off. A stop is a station, a terminal or an interchange (rule 7).
+- **R1, R2, R3 (rows)**: reference names for the horizontal rows of the journalism layout. R1 holds the full-time trunk, R2 the single-gig stops (All Things Small, UW Lecturer, Lighthouse Reports), and R3 the Bad Idea Factory bundle running on to TODAY. Names for discussion only; not a layout rule.
 
 ## Core rules
 
