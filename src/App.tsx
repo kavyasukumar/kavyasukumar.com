@@ -14,7 +14,7 @@ import { MarqueeDivider } from './components/MarqueeDivider';
 import { Reveal } from './components/Reveal';
 import { getTheme, hexToRgb } from './themes';
 
-// Display font candidates. Preview with ?font=bricolage | dela | unbounded (default: bricolage).
+// Display font candidates. Dev-only preview with ?font=archivo | dela | unbounded (default: bricolage).
 // [family, first-line offset, second-line offset] offsets pull glyph edges onto the grid line (em).
 // Fourth value is letter-spacing in em.
 const DISPLAY_FONTS: Record<string, [string, number, number, number]> = {
@@ -24,9 +24,27 @@ const DISPLAY_FONTS: Record<string, [string, number, number, number]> = {
   unbounded: ["'Unbounded', sans-serif", 0.05, 0.04, -0.03]
 };
 
+// Stylesheets for dev-only ?font= previews (bricolage is loaded from index.html).
+const DEV_FONT_URLS: Record<string, string> = {
+  archivo: 'https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap',
+  dela: 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap',
+  unbounded: 'https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap'
+};
+
 export default function App() {
+  const readStoredTheme = (): 'dark' | 'light' | null => {
+    try {
+      const v = window.localStorage.getItem('theme');
+      return v === 'dark' || v === 'light' ? v : null;
+    } catch {
+      return null;
+    }
+  };
+
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
+      const stored = readStoredTheme();
+      if (stored) return stored === 'dark';
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
@@ -34,37 +52,58 @@ export default function App() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (readStoredTheme()) return;
+      setIsDark(e.matches);
+    };
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const toggleTheme = (): void => setIsDark(!isDark);
+  const toggleTheme = (): void => {
+    const next = !isDark;
+    setIsDark(next);
+    try {
+      window.localStorage.setItem('theme', next ? 'dark' : 'light');
+    } catch {
+      /* storage unavailable */
+    }
+  };
 
   const scrollTo = (id: string): void => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fontKey = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('font') || 'bricolage'
-    : 'bricolage';
-  const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey] || DISPLAY_FONTS.bricolage;
+  // ?font= preview is dev-only; production always uses bricolage (loaded from index.html).
+  const requestedFont = import.meta.env.DEV && typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('font')
+    : null;
+  const fontKey = requestedFont && DISPLAY_FONTS[requestedFont] ? requestedFont : 'bricolage';
+  const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey];
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || fontKey === 'bricolage') return;
+    const href = DEV_FONT_URLS[fontKey];
+    if (!href) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+    return () => { link.remove(); };
+  }, [fontKey]);
 
   // Palette comes from themes.ts (Pistachio only).
-  const themeKey = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('theme') : null;
-  const T = getTheme(themeKey);
+  const T = getTheme();
   const FIELD = hexToRgb(T.field);
-  // Dark theme may override field/paper/fill (hybrid themes); light theme always uses field/paper/fill.
-  const darkBg = T.darkField || T.field;
   const darkText = T.darkPaper || T.paper;
   const PAPER = hexToRgb(darkText);
-  const fillNow = isDark ? (T.darkFill || T.fill) : T.fill;
+  const fillNow = T.fill;
   // Text on accent fills: deeper than the field green for contrast (~8:1 on the pink).
   const ON_FILL = '#04231A';
   const PAL = { field: T.field, paper: T.paper, ink: T.ink };
   const colors = {
-    bg: isDark ? darkBg : PAL.paper,
+    bg: isDark ? T.field : PAL.paper,
     text: isDark ? darkText : PAL.field,
     accent: isDark ? T.lineDark : T.lineLight,
     border: isDark ? `rgba(${PAPER},0.25)` : `rgba(${FIELD},0.18)`
@@ -84,7 +123,7 @@ export default function App() {
     '--stroke': isDark ? '4px' : '3px',
     '--stroke-hover': '6px',
     '--track': `${track}em`,
-    '--hard': isDark ? PAL.ink : PAL.field,
+    '--hard': isDark ? darkText : PAL.field,
     '--o1': `${-off1}em`,
     '--o2': `${-off2}em`,
     '--font-display': displayFamily
@@ -96,8 +135,6 @@ export default function App() {
       style={rootVars}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Unbounded:wght@900&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@700&display=swap');
-
         :root {
           --font-body: 'Space Grotesk', sans-serif;
           --font-mono: 'JetBrains Mono', monospace;
@@ -178,6 +215,17 @@ export default function App() {
         .node { opacity: 0; transform: scale(0.8); transition: transform 400ms var(--ease) 150ms, opacity 400ms var(--ease) 150ms; }
         .reveal.in .node { opacity: 1; transform: none; }
 
+        /* Marquee divider */
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { display: flex; width: fit-content; animation: marquee 24s linear infinite; }
+        .marquee:hover .animate-marquee { animation-play-state: paused; }
+
+        /* Timeline card lift: pointer devices only */
+        .tl-card { transition: transform .5s var(--ease); }
+        @media (hover: hover) and (pointer: fine) {
+          .tl-card:hover { transform: translateY(-8px); }
+        }
+
         /* Hero entrance */
         @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
         @keyframes fade-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
@@ -230,7 +278,7 @@ export default function App() {
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
           .top-link, .top-arrow { transition: none !important; transform: none !important; }
-          .reveal, .enter, .hero-line > span, .animate-marquee, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
+          .reveal, .enter, .hero-line > span, .animate-marquee, .tl-card, .tl-card:hover, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
         }
       `}</style>
 
@@ -290,12 +338,12 @@ export default function App() {
         </div>
       </section>
 
-      <MarqueeDivider isDark={isDark} color={fillNow} textColor={ON_FILL} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
+      <MarqueeDivider color={fillNow} textColor={ON_FILL} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
 
       {/* --- CAREER EVOLUTION --- */}
       <section id="pivot" className="section relative overflow-hidden">
         <div className="wrap">
-          <SectionTitle isDark={isDark} outline="CAREER" solid="EVOLUTION" />
+          <SectionTitle first="CAREER" second="EVOLUTION" />
 
           <Reveal bare className="rail-wrap relative">
             <div
@@ -308,7 +356,7 @@ export default function App() {
                 const Icon = step.icon;
                 return (
                   <Reveal key={idx} className="relative flex flex-col items-start justify-center">
-                    <div className="w-full z-10 transition-transform duration-500 hover:-translate-y-2 pl-16 md:pl-24 py-4">
+                    <div className="w-full z-10 tl-card pl-16 md:pl-24 py-4">
                       <div className="card p-6 md:p-8 relative overflow-hidden">
                         <span className="label block mb-2" style={{ color: colors.text }}>
                           {step.phase} // {step.subtitle}
@@ -344,7 +392,7 @@ export default function App() {
       {/* --- MEDIA CLIPS --- */}
       <section id="clips" className="section">
         <div className="wrap">
-          <SectionTitle isDark={isDark} outline="MEDIA" solid="CLIPS" />
+          <SectionTitle first="MEDIA" second="CLIPS" />
           <div className="clip-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {SITE_DATA.clips.map((clip, idx) => (
               <Reveal key={idx} className="flex">
