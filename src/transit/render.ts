@@ -3,8 +3,9 @@ import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
-import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
+import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
+import { stationLabel } from './station-label';
 import { isPureTerminal } from './terminals';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
 
@@ -13,7 +14,6 @@ const MUTED = '#555555';
 const WHITE = '#FFFFFF';
 const CREAM = '#F4E9D5'; // map background, used for crossing casings (rule 19)
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
-const LABEL_GAP = 0.75;
 // Dots must hold a 12px track ID (rule 22), so a track is at least 16px wide.
 const MIN_LW = 16;
 const MAX_LW = 22;
@@ -35,7 +35,7 @@ export interface StationModel {
   square: boolean;
   themes: string[];
 }
-export interface Model { line: MapLine; tracks: MapTrack[]; stations: StationModel[] }
+export interface Model { line: MapLine; colours: Record<string, string>; tracks: MapTrack[]; stations: StationModel[] }
 export interface RenderResult { scale: Scale; model: Model }
 
 export function yearsOf(st: MapStation): string {
@@ -48,12 +48,18 @@ export function yearsOf(st: MapStation): string {
 export function buildModel(data: MapData, layout: LineLayout): Model {
   const line = data.lines.find((l) => l.id === layout.lineId);
   if (!line) throw new Error(`Unknown line ${layout.lineId}`);
-  const themeIds = new Set(data.themes.filter((t) => t.line === line.id).map((t) => t.id));
+  const lineIds = layout.lineIds ?? [line.id];
+  const colours: Record<string, string> = {};
+  for (const th of data.themes) {
+    const l = data.lines.find((x) => x.id === th.line);
+    if (l && lineIds.includes(l.id)) colours[th.id] = l.colour;
+  }
+  const themeIds = new Set(Object.keys(colours));
   const tracks = data.tracks.filter((t) => themeIds.has(t.theme) && layout.tracks[t.id]);
   const stations: StationModel[] = [];
   for (const st of data.stations) {
     const sl = layout.stations[st.id];
-    if (!sl || !st.lines.includes(line.id)) continue;
+    if (!sl || !st.lines.some((l) => lineIds.includes(l))) continue;
     const dots: StationModel['dots'] = [];
     for (const track of tracks) {
       if (!track.stations.includes(st.id)) continue;
@@ -79,14 +85,16 @@ export function buildModel(data: MapData, layout: LineLayout): Model {
     });
   }
   stations.sort((a, b) => a.slot - b.slot);
-  return { line, tracks, stations };
+  return { line, colours, tracks, stations };
 }
 
 /** Choose orientation and lw for a container width. Fits content by iterating on measured extent. */
 export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
   const tryFit = (o: Orientation): { lw: number; scale: Scale; box: Box } => {
     const slotGap = layout.slotGap[o];
-    let lw = o === 'horizontal' ? (width - 2 * PAD) / (9 * slotGap + 4) : 12;
+    const slots = Object.values(layout.stations).map((st) => st.slot);
+    const span = (Math.max(...slots) - Math.min(...slots)) * slotGap + 4;
+    let lw = o === 'horizontal' ? (width - 2 * PAD) / span : 12;
     let out = measure(o, lw, width, model, layout);
     const avail = width - (o === 'horizontal' ? 2 * PAD : PAD + AXIS_COL);
     for (let i = 0; i < 6; i++) {
@@ -99,8 +107,8 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
     return { lw, ...out };
   };
   const h = tryFit('horizontal');
-  const pick = h.lw < H_SWITCH_LW ? tryFit('vertical') : h;
-  const lw = Math.min(MAX_LW, Math.max(MIN_LW, pick.lw));
+  const pick = h.lw < (layout.minLw ? layout.minLw - 1 : H_SWITCH_LW) ? tryFit('vertical') : h;
+  const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, pick.lw));
   const o = pick.scale.orientation;
   const m = measure(o, lw, width, model, layout);
   const b = m.box;
@@ -150,7 +158,6 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     box.x1 = Math.max(box.x1, x1); box.y1 = Math.max(box.y1, y1);
   };
   const over = END_OVERRUN * lw;
-  const colour = model.line.colour;
   // A track ending at a pure terminal stops at its square's centre, with no overrun (rule 26).
   const endAt = new Map<string, [number, number]>();
   for (const sm of model.stations) if (sm.square) for (const d of sm.dots) endAt.set(d.track.id, toXY(d.slot, d.lane, s));
@@ -169,6 +176,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const end: [number, number] = endAt.get(t.id) ?? [last[0] + l[0] * over, last[1] + l[1] * over];
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     const tl = layout.tracks[t.id]!;
+    const colour = model.colours[t.theme] ?? model.line.colour;
     const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, dash: null,
       d: roundedPath([start, ...pts.slice(1, -1), end], (tl.radii ?? [1.5]).map((r) => r * lw)) };
     if (!t.ongoing) return [solid];
@@ -189,75 +197,11 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
     const themes = [...new Set(sm.dots.map((d) => d.track.theme))].join(' ');
     const connectors = conn ? [{ ...conn, themes }] : [];
-    const lines = wrap(sm.st.name, budget);
-    const n = lines.length;
-    const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
-    const side = sm.labelSide;
-    let ex: number; let ey: number; let dir: ScreenDir;
-    if (side === 'tip' || side === 'back') {
-      const mean = (f: (d: StationModel['dots'][number]) => number): number => sm.dots.reduce((a, d) => a + f(d), 0) / sm.dots.length;
-      const legRoute = layout.tracks[sm.dots[0]!.track.id]!.route;
-      const alongSlot = legRoute.length > 1 && legRoute[legRoute.length - 1]!.lane === legRoute[legRoute.length - 2]!.lane;
-      if (side === 'tip' && alongSlot) {
-        // Leg runs along time (east, or south in vertical): label past the track end, centred (rule 20).
-        // At a pure terminal that is the squares' edge (rule 26).
-        const end = sm.square ? Math.max(...sm.dots.map((d) => d.slot)) + DOT_D / 2 / s.slotGap
-          : Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
-        [ex, ey] = toXY(end, mean((d) => d.lane), s);
-        dir = horiz ? 'right' : 'down';
-      } else if (side === 'tip') {
-        // J-curve tip: past the dot and the track end, in the leg's direction (rule 20).
-        const tip = sm.maxLane + DOT_D / 2 + (sm.square ? 0 : END_OVERRUN);
-        const mid = mean((d) => d.slot);
-        // Vertical layout: the label sits under the dots, so it never crosses a track or runs
-        // off a phone-width canvas past the tip (rules 20, 29).
-        if (!horiz) {
-          const last = Math.max(...sm.dots.map((d) => d.slot));
-          [ex, ey] = toXY(last + DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-          dir = 'down';
-        } else {
-          [ex, ey] = toXY(mid, tip, s);
-          dir = horiz ? 'down' : 'right';
-        }
-      } else {
-        const first = Math.min(...sm.dots.map((d) => d.slot));
-        [ex, ey] = toXY(first - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-        dir = horiz ? 'left' : 'up';
-        // Vertical: flush the label's right edge with the dots, away from the branches' bend (rule 30).
-        if (!horiz) ex -= Math.max(0, wpx / 2 - (DOT_D * lw) / 2);
-      }
-    } else {
-      // Start just past this station's dots, then step past any track or disc in the
-      // way. The label may sit in a gap between bands when it fits there (rules 29, 30).
-      const before = side === 'before';
-      const needPx = horiz ? n * LINE_H + 2 * LABEL_GAP * lw : wpx + 2 * LABEL_GAP * lw;
-      const need = needPx / lw;
-      const obstacles: [number, number][] = [];
-      for (const tl of Object.values(layout.tracks)) {
-        const ln = laneAt(tl.route, sm.slot);
-        if (ln !== null) obstacles.push([ln - DOT_D / 2, ln + DOT_D / 2]);
-      }
-      for (const d of layout.discs) {
-        if (d.slot === sm.slot) obstacles.push([d.lane - DISC_D / 2, d.lane + DISC_D / 2]);
-      }
-      let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
-      for (let moved = true; moved;) {
-        moved = false;
-        for (const [lo, hi] of obstacles) {
-          const blocks = before ? lo < edge && hi > edge - need : hi > edge && lo < edge + need;
-          if (!blocks) continue;
-          const next = before ? Math.min(edge, lo) : Math.max(edge, hi);
-          if (next !== edge) { edge = next; moved = true; }
-        }
-      }
-      [ex, ey] = toXY(sm.slot, edge, s);
-      dir = horiz ? (before ? 'up' : 'down') : (before ? 'left' : 'right');
-    }
-    const placed = placeLabel(dir, ex, ey, LABEL_GAP * lw, lines);
+    const placed = stationLabel(sm, layout, s, budget);
     grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
-      themes, connectors, dots, label: { lines, x: placed.x, y: placed.y, anchor: placed.anchor },
+      themes, connectors, dots, label: { lines: placed.lines, x: placed.x, y: placed.y, anchor: placed.anchor },
     };
   });
 

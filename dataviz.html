@@ -22,7 +22,7 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .map svg{display:block;width:100%;height:auto}
 #transit svg text{font-family:'JetBrains Mono',monospace}
 #transit-map .tm-track{fill:none}
-#transit .tm-dot{fill:#0A0A0A}
+#transit .tm-dot{fill:#0A0A0A;stroke:var(--cream);stroke-width:1.2px;paint-order:stroke} /* cream ring so Ink dots show on Ink tracks */
 #transit .tm-dot-id,#transit .tm-disc-id{font-weight:700;text-anchor:middle;dominant-baseline:central;fill:#fff}
 #transit .tm-disc-id{fill:var(--ink)}
 #transit .tm-label{font-size:12px;fill:#555;font-weight:400}
@@ -127,7 +127,7 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 <nav class="topbar"><a href="/">&larr; Kavya Sukumar</a><span>Dataviz</span></nav>
 <section id="transit"><div class="wrap">
 <div class="eyebrow">/ A &mdash; as a transit map</div><h1>My story<br><span class="o">thus far</span></h1>
-<p class="sub">Built one line at a time. First up: journalism. <b>Tap a station.</b></p>
+<p class="sub">Built one line at a time. Journalism and code so far. <b>Tap a station.</b></p>
 <div class="map" id="transit-map"></div>
 <div class="panel">
  <div class="key" id="transit-key"></div>
