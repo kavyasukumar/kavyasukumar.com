@@ -18,15 +18,17 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const colour = line.colour;
   const themes = data.themes.filter((t) => t.line === line.id).sort((a, b) => a.num - b.num);
   const tracks = data.tracks.filter((t) => themes.some((th) => th.id === t.theme));
-  const ended = tracks.find((t) => !t.ongoing);
-  const ongoing = tracks.find((t) => t.ongoing);
   const first = tracks[0];
   const other = tracks.find((t) => first && t.theme !== first.theme) ?? tracks[1];
+  // Dots show the theme number only, no letters (rules 22, 38).
   const idOf = (t: MapTrack | undefined): string => t?.label ?? '';
 
   // Key symbols are drawn exactly as the map draws them (rule 34): solid tracks
   // 1 lw wide, black dots 1 lw across carrying the track ID in white (rule 22).
-  const SW = 4 * lw; // swatch area width; the ongoing track runs out to its right edge
+  const SW = 4 * lw; // frame width; the ongoing track runs out to its right edge
+  const TAG_PX = 12;
+  const TAG_W = 6 + 5 * 0.6 * TAG_PX + 4 * 0.08 * TAG_PX + 2; // gap + "TODAY" in mono with letter-spacing
+  const BW = SW + TAG_W; // every symbol swatch is this wide so names line up (rule 36)
   const CX = 1.5 * lw; // dot centre, the same in every symbol row
   const track = (svg: Svg, x0: number, x1: number, cy: number): void => {
     svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
@@ -41,20 +43,22 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const mid = lw / 2;
 
   const lineRows: Row[] = [
-    { key: 'line', name: line.name, w: SW, h: lw, draw: (svg) => track(svg, 0, SW, mid) },
+    { key: 'line', name: line.name, w: BW, h: lw, draw: (svg) => track(svg, 0, SW, mid) },
+    // Each track once, number and name; branches are not listed (rule 33).
     ...themes.map((th) => ({
       key: th.id,
       theme: th.id,
-      name: `${th.num} ${th.short} — ${tracks.filter((t) => t.theme === th.id).map((t) => t.label).join(', ')}`,
+      name: `${th.num} ${th.short}`,
       w: 0,
       h: 0,
       draw: () => undefined,
     })),
   ];
   const symbolRows: Row[] = [
-    { key: 'station', name: 'Station', w: SW, h: lw, draw: (svg) => { track(svg, 0, 3 * lw, mid); dot(svg, mid, idOf(first)); } },
+    // A short track ending square past its dot.
+    { key: 'station', name: 'Station', w: BW, h: lw, draw: (svg) => { track(svg, 0, 3 * lw, mid); dot(svg, mid, idOf(first)); } },
     {
-      key: 'interchange', name: 'Interchange', w: SW, h: (1 + PITCH) * lw,
+      key: 'interchange', name: 'Interchange', w: BW, h: (1 + PITCH) * lw,
       draw: (svg) => {
         const y2 = mid + PITCH * lw;
         track(svg, 0, 3 * lw, mid); track(svg, 0, 3 * lw, y2);
@@ -62,9 +66,21 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
       },
     },
     // Rule 26: a terminal ends square about 0.6 lw past its last dot, no marker.
-    { key: 'terminal', name: 'Terminal', w: SW, h: lw, draw: (svg) => { track(svg, 0, CX + END_OVERRUN * lw, mid); dot(svg, mid, idOf(ended)); } },
-    // Rule 27: ongoing work runs off the edge, clipped flat, no end mark.
-    { key: 'ongoing', name: 'Runs on to today', w: SW, h: lw, draw: (svg) => { track(svg, 0, SW, mid); dot(svg, mid, idOf(ongoing)); } },
+    { key: 'terminal', name: 'Terminal', w: BW, h: lw, draw: (svg) => { track(svg, 0, CX + END_OVERRUN * lw, mid); dot(svg, mid, idOf(first)); } },
+    // Rule 27: ongoing work runs off the map's right edge. Drawn like that edge:
+    // the track runs out to the frame, a thin Ink rule marks the cut, TODAY follows.
+    {
+      key: 'ongoing', name: 'Runs on to today', w: BW, h: Math.max(lw, TAG_PX + 4),
+      draw: (svg) => {
+        const cy = Math.max(lw, TAG_PX + 4) / 2;
+        track(svg, 0, SW, cy); dot(svg, cy, idOf(first));
+        svg.append('line').attr('class', 'tm-key-edge').attr('x1', SW).attr('x2', SW).attr('y1', 0)
+          .attr('y2', Math.max(lw, TAG_PX + 4)).attr('stroke', INK).attr('stroke-width', 1);
+        svg.append('text').attr('class', 'tm-key-today').attr('x', SW + 6).attr('y', cy).attr('dominant-baseline', 'central')
+          .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', TAG_PX).attr('letter-spacing', '0.08em')
+          .attr('fill', INK).text('TODAY');
+      },
+    },
   ];
 
   const root = select(container);
