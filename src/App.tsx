@@ -178,6 +178,17 @@ export default function App() {
         .node { opacity: 0; transform: scale(0.8); transition: transform 400ms var(--ease) 150ms, opacity 400ms var(--ease) 150ms; }
         .reveal.in .node { opacity: 1; transform: none; }
 
+        /* Marquee divider */
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { display: flex; width: fit-content; animation: marquee 24s linear infinite; }
+        .marquee:hover .animate-marquee { animation-play-state: paused; }
+
+        /* Timeline card lift: pointer devices only */
+        .tl-card { transition: transform .5s var(--ease); }
+        @media (hover: hover) and (pointer: fine) {
+          .tl-card:hover { transform: translateY(-8px); }
+        }
+
         /* Hero entrance */
         @keyframes rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
         @keyframes fade-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
@@ -230,7 +241,7 @@ export default function App() {
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
           .top-link, .top-arrow { transition: none !important; transform: none !important; }
-          .reveal, .enter, .hero-line > span, .animate-marquee, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
+          .reveal, .enter, .hero-line > span, .animate-marquee, .tl-card, .tl-card:hover, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
         }
       `}</style>
 
@@ -290,7 +301,7 @@ export default function App() {
         </div>
       </section>
 
-      <MarqueeDivider isDark={isDark} color={fillNow} textColor={ON_FILL} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
+      <MarqueeDivider color={fillNow} textColor={ON_FILL} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
 
       {/* --- CAREER EVOLUTION --- */}
       <section id="pivot" className="section relative overflow-hidden">
@@ -308,7 +319,7 @@ export default function App() {
                 const Icon = step.icon;
                 return (
                   <Reveal key={idx} className="relative flex flex-col items-start justify-center">
-                    <div className="w-full z-10 transition-transform duration-500 hover:-translate-y-2 pl-16 md:pl-24 py-4">
+                    <div className="w-full z-10 tl-card pl-16 md:pl-24 py-4">
                       <div className="card p-6 md:p-8 relative overflow-hidden">
                         <span className="label block mb-2" style={{ color: colors.text }}>
                           {step.phase} // {step.subtitle}
