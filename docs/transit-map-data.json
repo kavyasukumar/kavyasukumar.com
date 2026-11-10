@@ -1,0 +1,471 @@
+{
+  "_note": "Working names. Generated from docs/transit-map-tracks.md. A track belongs to exactly one line; track ongoing=true means it runs off the map (rule 27). Track ongoing=false means it ends as a terminal at its last station.",
+  "lines": [
+    {
+      "id": "code",
+      "name": "code",
+      "order": 1
+    },
+    {
+      "id": "journalism",
+      "name": "journalism",
+      "order": 2
+    },
+    {
+      "id": "product",
+      "name": "product",
+      "order": 3
+    },
+    {
+      "id": "investing",
+      "name": "investing",
+      "order": 4
+    },
+    {
+      "id": "leadership",
+      "name": "leadership and outreach",
+      "order": 5
+    }
+  ],
+  "tracks": [
+    {
+      "id": "code-love-of-code",
+      "line": "code",
+      "name": "for the love of code",
+      "short": "Love of code",
+      "theme": "Coding out of love and curiosity for all things coding",
+      "ongoing": true
+    },
+    {
+      "id": "code-sjw-coder",
+      "line": "code",
+      "name": "code as a tool for social justice",
+      "short": "SJW coder",
+      "theme": "Civic tech and advocacy tools; code that exposes or fixes injustice",
+      "ongoing": true
+    },
+    {
+      "id": "code-data-science",
+      "line": "code",
+      "name": "Data science",
+      "short": "Data science",
+      "theme": "Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling",
+      "ongoing": true
+    },
+    {
+      "id": "code-open-source",
+      "line": "code",
+      "name": "opensource coding",
+      "short": "Open source",
+      "theme": "Contributing to others' open source plus creating and releasing my own",
+      "ongoing": true
+    },
+    {
+      "id": "journalism-finding-stories",
+      "line": "journalism",
+      "name": "Finding stories",
+      "short": "Finding stories",
+      "theme": "Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting)",
+      "ongoing": false
+    },
+    {
+      "id": "journalism-storytelling",
+      "line": "journalism",
+      "name": "Storytelling and presentation",
+      "short": "Storytelling",
+      "theme": "Craft of the story plus how it reaches the audience, including data and visualization as storytelling",
+      "ongoing": false
+    },
+    {
+      "id": "journalism-tooling",
+      "line": "journalism",
+      "name": "Editorial tooling",
+      "short": "Tooling",
+      "theme": "Newsroom workflow tools plus story-finding and verification tools",
+      "ongoing": true
+    },
+    {
+      "id": "leadership-team",
+      "line": "leadership",
+      "name": "Team leadership and management",
+      "short": "Leadership",
+      "theme": "Leading newsrooms, product and tech teams, and boards",
+      "ongoing": true
+    },
+    {
+      "id": "leadership-evangelism",
+      "line": "leadership",
+      "name": "Teaching and evangelism of tech in media",
+      "short": "Evangelism",
+      "theme": "Teaching and evangelising tech in media",
+      "ongoing": true
+    },
+    {
+      "id": "product-product-mgmt",
+      "line": "product",
+      "name": "product management",
+      "short": "Product mgmt",
+      "theme": "Product strategy plus day-to-day delivery",
+      "ongoing": true
+    },
+    {
+      "id": "product-economics",
+      "line": "product",
+      "name": "Product economics",
+      "short": "Economics",
+      "theme": "Understanding the business of products and the realities of funding",
+      "ongoing": true
+    },
+    {
+      "id": "product-fundraising",
+      "line": "product",
+      "name": "Fundraising and investor relations",
+      "short": "Fundraising",
+      "theme": "Investor relations and fundraising, seen from the product side (owner wore a product manager hat)",
+      "ongoing": true
+    },
+    {
+      "id": "investing-diligence",
+      "line": "investing",
+      "name": "Investment diligence",
+      "short": "Diligence",
+      "theme": "Evaluating and diligencing investments, on the tech front",
+      "ongoing": true
+    },
+    {
+      "id": "investing-advisory",
+      "line": "investing",
+      "name": "Portfolio advisory",
+      "short": "Advisory",
+      "theme": "Advising and supporting portfolio companies on product and tech; helping hire tech leaders",
+      "ongoing": true
+    }
+  ],
+  "stations": [
+    {
+      "id": "nit-trichy",
+      "order": 1,
+      "name": "NIT Trichy",
+      "detail": "undergrad, 2002-06",
+      "start": 2002,
+      "end": 2006,
+      "ongoing": false,
+      "lines": [
+        "code"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-open-source"
+      ]
+    },
+    {
+      "id": "microsoft",
+      "order": 2,
+      "name": "Microsoft",
+      "detail": "Win Gaming 2006, MSN Games 2006-09, Bing Video 2009-12",
+      "start": 2006,
+      "end": 2012,
+      "ongoing": false,
+      "lines": [
+        "code"
+      ],
+      "tracks": [
+        "code-love-of-code"
+      ]
+    },
+    {
+      "id": "medill",
+      "order": 3,
+      "name": "Medill",
+      "detail": "grad school, 2012-13",
+      "start": 2012,
+      "end": 2013,
+      "ongoing": false,
+      "lines": [
+        "journalism"
+      ],
+      "tracks": [
+        "journalism-finding-stories",
+        "journalism-storytelling"
+      ]
+    },
+    {
+      "id": "palm-beach-post",
+      "order": 4,
+      "name": "Palm Beach Post",
+      "detail": "data & interactives, 2014-15",
+      "start": 2014,
+      "end": 2015,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "leadership"
+      ],
+      "tracks": [
+        "code-data-science",
+        "journalism-finding-stories",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "leadership-team"
+      ]
+    },
+    {
+      "id": "opennews-fellow",
+      "order": 5,
+      "name": "OpenNews Fellow",
+      "detail": "at Vox Media, 2015-16",
+      "start": 2015,
+      "end": 2016,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "vox-media",
+      "order": 6,
+      "name": "Vox Media",
+      "detail": "full-stack +, 2016-18",
+      "start": 2016,
+      "end": 2018,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "journalism-finding-stories"
+      ]
+    },
+    {
+      "id": "bad-idea-factory",
+      "order": 7,
+      "name": "Bad Idea Factory",
+      "detail": "since 2018",
+      "start": 2018,
+      "end": null,
+      "ongoing": true,
+      "lines": [
+        "code",
+        "journalism",
+        "product",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-finding-stories",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "product-product-mgmt",
+        "leadership-team",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "hearken",
+      "order": 8,
+      "name": "Hearken",
+      "detail": "full-stack to product, 2018-20",
+      "start": 2018,
+      "end": 2020,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "product",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-tooling",
+        "product-product-mgmt",
+        "product-economics",
+        "product-fundraising",
+        "leadership-team",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "seattle-globalist",
+      "order": 9,
+      "name": "Seattle Globalist",
+      "detail": "board, 2019",
+      "start": 2019,
+      "end": 2019,
+      "ongoing": false,
+      "lines": [
+        "product",
+        "leadership"
+      ],
+      "tracks": [
+        "leadership-team",
+        "product-fundraising",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "all-things-small",
+      "order": 10,
+      "name": "All Things Small",
+      "detail": "consulting, 2019-20",
+      "start": 2019,
+      "end": 2020,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "product",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-data-science",
+        "journalism-tooling",
+        "journalism-storytelling",
+        "product-product-mgmt",
+        "product-economics",
+        "leadership-team"
+      ]
+    },
+    {
+      "id": "uw-lecturer",
+      "order": 11,
+      "name": "UW Lecturer",
+      "detail": "teaching, 2020",
+      "start": 2020,
+      "end": 2020,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "leadership"
+      ],
+      "tracks": [
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-finding-stories",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "washington-post",
+      "order": 12,
+      "name": "Washington Post",
+      "detail": "sr engineer, 2020-22",
+      "start": 2020,
+      "end": 2022,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-finding-stories",
+        "journalism-storytelling",
+        "journalism-tooling"
+      ]
+    },
+    {
+      "id": "lightrock-india",
+      "order": 13,
+      "name": "LightRock India",
+      "detail": "principal & CTO, 2022-25",
+      "start": 2022,
+      "end": 2025,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "product",
+        "investing",
+        "leadership"
+      ],
+      "tracks": [
+        "code-sjw-coder",
+        "code-data-science",
+        "investing-diligence",
+        "investing-advisory",
+        "product-fundraising",
+        "leadership-team"
+      ]
+    },
+    {
+      "id": "lighthouse-reports",
+      "order": 14,
+      "name": "Lighthouse Reports",
+      "detail": "data specialist, 2024-25",
+      "start": 2024,
+      "end": 2025,
+      "ongoing": false,
+      "lines": [
+        "code",
+        "journalism",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-sjw-coder",
+        "code-data-science",
+        "code-open-source",
+        "journalism-finding-stories",
+        "journalism-storytelling",
+        "journalism-tooling",
+        "leadership-evangelism"
+      ]
+    },
+    {
+      "id": "aspada",
+      "order": 15,
+      "name": "Aspada",
+      "detail": "CTO, 2025-",
+      "start": 2025,
+      "end": null,
+      "ongoing": true,
+      "lines": [
+        "code",
+        "product",
+        "investing",
+        "leadership"
+      ],
+      "tracks": [
+        "code-love-of-code",
+        "code-data-science",
+        "product-product-mgmt",
+        "product-economics",
+        "investing-advisory",
+        "product-fundraising",
+        "leadership-team"
+      ]
+    }
+  ]
+}
