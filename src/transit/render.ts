@@ -309,6 +309,10 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('stroke', CREAM).attr('stroke-width', (c) => c.w).attr('stroke-linecap', 'butt').attr('pointer-events', 'none');
   casingLines('casings', 'tm-casing', p.casings.filter((c) => !c.raised));
   drawTracks('tracks-top', p.tracks.filter((t) => t.top));
+  // Highlighted tracks are lifted over the rest (rule 41): casings along them where they pass over
+  // another track, then copies of every track. CSS shows only the ones of the active theme.
+  casingLines('hl', 'tm-hl-casing', p.casings.filter((c) => c.raised));
+  drawTracks('hl', p.tracks, 'tm-hl-track');
 
   const discs = layer(svg, 'discs').selectAll<SVGGElement, Plan['discs'][number]>('g.tm-disc-group').data(p.discs, (d) => d.key).join('g').attr('class', 'tm-disc-group');
   discs.selectAll<SVGCircleElement, Plan['discs'][number]>('circle.tm-disc').data((d) => [d]).join('circle')

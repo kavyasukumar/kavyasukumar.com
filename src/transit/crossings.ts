@@ -76,6 +76,11 @@ export function casings(tracks: MapTrack[], layout: LineLayout, s: Scale): Casin
             x1: x[0] + td[0] * a1 + nrm[0] * shift, y1: x[1] + td[1] * a1 + nrm[1] * shift,
             x2: x[0] + td[0] * a2 + nrm[0] * shift, y2: x[1] + td[1] * a2 + nrm[1] * shift,
           });
+          const ud: Pt = [(c[0] - d[0]) / ul, (c[1] - d[1]) / ul];
+          out.push({
+            key: `raised|${top.id}|${under.id}|${i}|${j}`, mask: top.id, w: (1 + 2 * HAIR) * s.lw, raised: true, theme: under.theme,
+            x1: x[0] - ud[0] * half, y1: x[1] - ud[1] * half, x2: x[0] + ud[0] * half, y2: x[1] + ud[1] * half,
+          });
         }
       }
     }

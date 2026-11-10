@@ -45,6 +45,8 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .tm-svg .tm-track,#transit .tm-svg .tm-connector{transition:stroke .15s}
 #transit .tm-svg .tm-label,#transit .tm-svg .tm-dot{transition:fill .15s}
 #transit .tm-svg.has-hl .tm-track:not(.is-hl){stroke:var(--tm-grey)}
+#transit .tm-svg .tm-hl-track,#transit .tm-svg .tm-hl-casing{display:none}
+#transit .tm-svg.has-hl .tm-hl-track.is-hl,#transit .tm-svg.has-hl .tm-hl-casing.is-hl{display:inline}
 #transit .tm-svg.has-hl .tm-dot:not(.is-hl){fill:var(--tm-grey-ink)}
 #transit .tm-svg.has-hl .tm-connector:not(.is-hl){stroke:var(--tm-grey-ink)}
 #transit .tm-svg.has-hl .tm-label{fill:var(--tm-grey-ink);font-weight:400}
