@@ -1,12 +1,15 @@
 import { select, type Selection } from 'd3-selection';
-import { DISC_D, DOT_D } from './geometry';
+import { DOT_D, END_OVERRUN, PITCH } from './geometry';
 import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
-import { INK, textOn } from './render';
-import type { LineLayout, MapData } from './types';
+import { INK } from './render';
+import type { LineLayout, MapData, MapTrack } from './types';
 
-type Row = { key: string; theme?: string; name: string; draw: (svg: Selection<SVGSVGElement, unknown, null, undefined>, lw: number, colour: string) => void; w: number };
+type Svg = Selection<SVGSVGElement, unknown, null, undefined>;
+type Row = { key: string; theme?: string; name: string; draw: (svg: Svg) => void; w: number; h: number };
 
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
+// Same ID size as the map's dots (render.ts: max(LABEL_PX, 0.62 lw)).
+const ID_PX = (lw: number): number => Math.max(12, 0.62 * lw);
 
 /** Render the key into `container` at the current map lw (rules 32-34, 36, 38). Idempotent. */
 export function renderKey(container: HTMLElement, data: MapData, layout: LineLayout, lw: number): void {
@@ -15,45 +18,53 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const colour = line.colour;
   const themes = data.themes.filter((t) => t.line === line.id).sort((a, b) => a.num - b.num);
   const tracks = data.tracks.filter((t) => themes.some((th) => th.id === t.theme));
-  const endedLabel = tracks.find((t) => !t.ongoing)?.label ?? '';
+  const ended = tracks.find((t) => !t.ongoing);
+  const ongoing = tracks.find((t) => t.ongoing);
+  const first = tracks[0];
+  const other = tracks.find((t) => first && t.theme !== first.theme) ?? tracks[1];
+  const idOf = (t: MapTrack | undefined): string => t?.label ?? '';
 
-  const dot = (svg: Selection<SVGSVGElement, unknown, null, undefined>, cx: number, cy: number): void => {
-    svg.append('circle').attr('class', 'tm-dot').attr('cx', cx).attr('cy', cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
+  // Key symbols are drawn exactly as the map draws them (rule 34): solid tracks
+  // 1 lw wide, black dots 1 lw across carrying the track ID in white (rule 22).
+  const SW = 4 * lw; // swatch area width; the ongoing track runs out to its right edge
+  const CX = 1.5 * lw; // dot centre, the same in every symbol row
+  const track = (svg: Svg, x0: number, x1: number, cy: number): void => {
+    svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
+      .attr('width', x1 - x0).attr('height', lw).attr('fill', colour);
   };
-  const bar = (svg: Selection<SVGSVGElement, unknown, null, undefined>, w: number, fill: string): void => {
-    svg.append('rect').attr('class', 'tm-track').attr('x', 0).attr('y', 0).attr('width', w).attr('height', lw).attr('fill', fill);
+  const dot = (svg: Svg, cy: number, id: string): void => {
+    svg.append('circle').attr('class', 'tm-dot').attr('cx', CX).attr('cy', cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
+    svg.append('text').attr('class', 'tm-dot-id').attr('x', CX).attr('y', cy).attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central').attr('font-family', FONT).attr('font-weight', 700)
+      .attr('font-size', ID_PX(lw)).attr('fill', '#FFFFFF').text(id);
   };
+  const mid = lw / 2;
 
   const lineRows: Row[] = [
-    { key: 'line', name: line.name, w: 3 * lw, draw: (svg) => bar(svg, 3 * lw, colour) },
+    { key: 'line', name: line.name, w: SW, h: lw, draw: (svg) => track(svg, 0, SW, mid) },
     ...themes.map((th) => ({
       key: th.id,
       theme: th.id,
       name: `${th.num} ${th.short} — ${tracks.filter((t) => t.theme === th.id).map((t) => t.label).join(', ')}`,
       w: 0,
+      h: 0,
       draw: () => undefined,
     })),
   ];
   const symbolRows: Row[] = [
-    { key: 'station', name: 'Station', w: 3 * lw, draw: (svg) => dot(svg, 1.5 * lw, lw / 2) },
-    { key: 'interchange', name: 'Interchange', w: 3 * lw, draw: (svg) => { dot(svg, 1.5 * lw - DOT_D * lw / 2, lw / 2); dot(svg, 1.5 * lw + DOT_D * lw / 2, lw / 2); } },
+    { key: 'station', name: 'Station', w: SW, h: lw, draw: (svg) => { track(svg, 0, 3 * lw, mid); dot(svg, mid, idOf(first)); } },
     {
-      key: 'terminal', name: 'Terminal', w: 3 * lw,
+      key: 'interchange', name: 'Interchange', w: SW, h: (1 + PITCH) * lw,
       draw: (svg) => {
-        svg.append('circle').attr('class', 'tm-disc').attr('cx', 1.5 * lw).attr('cy', lw / 2).attr('r', (DISC_D * lw) / 2).attr('fill', colour);
-        svg.append('text').attr('class', 'tm-disc-id').attr('x', 1.5 * lw).attr('y', lw / 2).attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'central').attr('font-family', FONT).attr('font-weight', 700).attr('font-size', 0.7 * lw)
-          .attr('fill', textOn(colour)).text(endedLabel);
+        const y2 = mid + PITCH * lw;
+        track(svg, 0, 3 * lw, mid); track(svg, 0, 3 * lw, y2);
+        dot(svg, mid, idOf(first)); dot(svg, y2, idOf(other));
       },
     },
-    {
-      key: 'ongoing', name: 'Runs on to today', w: 3 * lw,
-      draw: (svg) => {
-        bar(svg, 2.4 * lw, colour);
-        svg.append('path').attr('d', `M${2.2 * lw} ${0.1 * lw}L${2.9 * lw} ${lw / 2}L${2.2 * lw} ${0.9 * lw}`)
-          .attr('fill', 'none').attr('stroke', INK).attr('stroke-width', 0.14 * lw);
-      },
-    },
+    // Rule 26: a terminal ends square about 0.6 lw past its last dot, no marker.
+    { key: 'terminal', name: 'Terminal', w: SW, h: lw, draw: (svg) => { track(svg, 0, CX + END_OVERRUN * lw, mid); dot(svg, mid, idOf(ended)); } },
+    // Rule 27: ongoing work runs off the edge, clipped flat, no end mark.
+    { key: 'ongoing', name: 'Runs on to today', w: SW, h: lw, draw: (svg) => { track(svg, 0, SW, mid); dot(svg, mid, idOf(ongoing)); } },
   ];
 
   const root = select(container);
@@ -74,16 +85,15 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     .on('blur', (_e, r) => { if (r.theme) focusOut(); });
   const swatches = rows.selectAll<HTMLSpanElement, Row>('span.tm-key-swatch').data((r) => [r]).join('span')
     .attr('class', 'tm-key-swatch').style('flex', 'none').style('display', 'inline-block')
-    .style('width', (r) => `${r.w}px`).style('height', `${Math.max(lw, (DISC_D * lw))}px`)
+    .style('width', (r) => `${r.w}px`).style('height', (r) => `${r.h}px`)
     .style('display', (r) => (r.w ? 'inline-flex' : 'none')).style('align-items', 'center');
   swatches.each(function (r) {
     const sel = select(this);
     sel.selectAll('svg').remove();
     if (!r.w) return;
-    const h = DISC_D * lw;
-    const svg = sel.append('svg').attr('width', r.w).attr('height', h).attr('viewBox', `0 ${-(h - lw) / 2} ${r.w} ${h}`)
-      .attr('aria-hidden', 'true').style('overflow', 'visible') as Selection<SVGSVGElement, unknown, null, undefined>;
-    r.draw(svg, lw, colour);
+    const svg = sel.append('svg').attr('width', r.w).attr('height', r.h).attr('viewBox', `0 0 ${r.w} ${r.h}`)
+      .attr('aria-hidden', 'true').style('display', 'block').style('overflow', 'hidden') as Svg;
+    r.draw(svg);
   });
   rows.selectAll<HTMLSpanElement, Row>('span.tm-key-name').data((r) => [r]).join('span')
     .attr('class', 'tm-key-name').text((r) => r.name);
