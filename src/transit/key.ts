@@ -18,6 +18,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const line = data.lines.find((l) => l.id === layout.lineId);
   if (!line) return;
   const colour = line.colour;
+  const lines = (layout.lineIds ?? [line.id]).map((id) => data.lines.find((l) => l.id === id)).filter((l): l is NonNullable<typeof l> => !!l);
   const themes = data.themes.filter((t) => t.line === line.id).sort((a, b) => a.num - b.num);
   const tracks = data.tracks.filter((t) => themes.some((th) => th.id === t.theme));
   const first = tracks[0];
@@ -31,9 +32,9 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   // are cut at its right edge, as the map's are at the frame.
   const BW = 5 * lw;
   const CX = 1.5 * lw; // dot centre, the same in every symbol row
-  const track = (svg: Svg, x0: number, x1: number, cy: number): void => {
+  const track = (svg: Svg, x0: number, x1: number, cy: number, fill = colour): void => {
     svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
-      .attr('width', x1 - x0).attr('height', lw).attr('fill', colour);
+      .attr('width', x1 - x0).attr('height', lw).attr('fill', fill);
   };
   const dot = (svg: Svg, cy: number, id: string, square = false): void => {
     const d = DOT_D * lw;
@@ -45,18 +46,13 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   };
   const mid = lw / 2;
 
-  const lineRows: Row[] = [
-    { key: 'line', name: line.name, w: BW, h: lw, draw: (svg) => track(svg, 0, BW, mid) },
-    // Each track once, number and name; branches are not listed (rule 33).
-    ...themes.map((th) => ({
-      key: th.id,
-      theme: th.id,
-      name: `${th.num} ${th.short}`,
-      w: 0,
-      h: 0,
-      draw: () => undefined,
+  // One group per line (journalism, then code), each track listed once under it (rule 33).
+  const lineRows: Row[] = lines.flatMap((ln) => [
+    { key: `line-${ln.id}`, name: ln.name, w: BW, h: lw, draw: (svg: Svg) => track(svg, 0, BW, mid, ln.colour) },
+    ...data.themes.filter((th) => th.line === ln.id).sort((a, b) => a.num - b.num).map((th) => ({
+      key: th.id, theme: th.id, name: `${th.num} ${th.short}`, w: 0, h: 0, draw: () => undefined,
     })),
-  ];
+  ]);
   const symbolRows: Row[] = [
     // A short track running through its dot.
     { key: 'station', name: 'Station', w: BW, h: lw, draw: (svg) => { track(svg, 0, 3 * lw, mid); dot(svg, mid, idOf(first)); } },

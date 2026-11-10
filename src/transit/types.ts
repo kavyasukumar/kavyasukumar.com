@@ -34,6 +34,10 @@ export interface StationLayout {
 
 export interface LineLayout {
   lineId: string;
+  /** All lines drawn by this layout (default: just lineId). Track colour comes from its theme's line. */
+  lineIds?: string[];
+  /** Smallest lw in px (default 16, rule 22). Below it the map would switch to vertical. */
+  minLw?: number;
   /** lw between adjacent slots, per orientation. */
   slotGap: Record<Orientation, number>;
   stations: Record<string, StationLayout>;

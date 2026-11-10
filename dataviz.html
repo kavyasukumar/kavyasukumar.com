@@ -22,7 +22,7 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .map svg{display:block;width:100%;height:auto}
 #transit svg text{font-family:'JetBrains Mono',monospace}
 #transit-map .tm-track{fill:none}
-#transit .tm-dot{fill:#0A0A0A}
+#transit .tm-dot{fill:#0A0A0A;stroke:var(--cream);stroke-width:1.2px;paint-order:stroke} /* cream ring so Ink dots show on Ink tracks */
 #transit .tm-dot-id,#transit .tm-disc-id{font-weight:700;text-anchor:middle;dominant-baseline:central;fill:#fff}
 #transit .tm-disc-id{fill:var(--ink)}
 #transit .tm-label{font-size:12px;fill:#555;font-weight:400}

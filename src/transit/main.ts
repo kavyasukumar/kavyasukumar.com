@@ -1,6 +1,6 @@
 import rawData from '../../data/transit-map-data.json';
 import { renderKey } from './key';
-import { journalismLayout } from './layout-journalism';
+import { careerLayout } from './layout-code';
 import { renderMap, yearsOf, type RenderResult } from './render';
 import { initTrackbar } from './trackbar';
 import type { MapData } from './types';
@@ -17,11 +17,11 @@ let lastWidth = -1;
 let lastKeyLw = -1;
 
 function draw(el: HTMLElement): void {
-  last = renderMap(el, data, journalismLayout);
+  last = renderMap(el, data, careerLayout);
   lastWidth = el.clientWidth;
   if (keyEl) {
     const lw = Math.round(last.scale.lw * 100) / 100;
-    if (lw !== lastKeyLw) { renderKey(keyEl, data, journalismLayout, last.scale.lw); lastKeyLw = lw; }
+    if (lw !== lastKeyLw) { renderKey(keyEl, data, careerLayout, last.scale.lw); lastKeyLw = lw; }
   }
 }
 

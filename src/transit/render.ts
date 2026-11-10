@@ -35,7 +35,7 @@ export interface StationModel {
   square: boolean;
   themes: string[];
 }
-export interface Model { line: MapLine; tracks: MapTrack[]; stations: StationModel[] }
+export interface Model { line: MapLine; colours: Record<string, string>; tracks: MapTrack[]; stations: StationModel[] }
 export interface RenderResult { scale: Scale; model: Model }
 
 export function yearsOf(st: MapStation): string {
@@ -48,12 +48,18 @@ export function yearsOf(st: MapStation): string {
 export function buildModel(data: MapData, layout: LineLayout): Model {
   const line = data.lines.find((l) => l.id === layout.lineId);
   if (!line) throw new Error(`Unknown line ${layout.lineId}`);
-  const themeIds = new Set(data.themes.filter((t) => t.line === line.id).map((t) => t.id));
+  const lineIds = layout.lineIds ?? [line.id];
+  const colours: Record<string, string> = {};
+  for (const th of data.themes) {
+    const l = data.lines.find((x) => x.id === th.line);
+    if (l && lineIds.includes(l.id)) colours[th.id] = l.colour;
+  }
+  const themeIds = new Set(Object.keys(colours));
   const tracks = data.tracks.filter((t) => themeIds.has(t.theme) && layout.tracks[t.id]);
   const stations: StationModel[] = [];
   for (const st of data.stations) {
     const sl = layout.stations[st.id];
-    if (!sl || !st.lines.includes(line.id)) continue;
+    if (!sl || !st.lines.some((l) => lineIds.includes(l))) continue;
     const dots: StationModel['dots'] = [];
     for (const track of tracks) {
       if (!track.stations.includes(st.id)) continue;
@@ -79,14 +85,16 @@ export function buildModel(data: MapData, layout: LineLayout): Model {
     });
   }
   stations.sort((a, b) => a.slot - b.slot);
-  return { line, tracks, stations };
+  return { line, colours, tracks, stations };
 }
 
 /** Choose orientation and lw for a container width. Fits content by iterating on measured extent. */
 export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
   const tryFit = (o: Orientation): { lw: number; scale: Scale; box: Box } => {
     const slotGap = layout.slotGap[o];
-    let lw = o === 'horizontal' ? (width - 2 * PAD) / (9 * slotGap + 4) : 12;
+    const slots = Object.values(layout.stations).map((st) => st.slot);
+    const span = (Math.max(...slots) - Math.min(...slots)) * slotGap + 4;
+    let lw = o === 'horizontal' ? (width - 2 * PAD) / span : 12;
     let out = measure(o, lw, width, model, layout);
     const avail = width - (o === 'horizontal' ? 2 * PAD : PAD + AXIS_COL);
     for (let i = 0; i < 6; i++) {
@@ -99,8 +107,8 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
     return { lw, ...out };
   };
   const h = tryFit('horizontal');
-  const pick = h.lw < H_SWITCH_LW ? tryFit('vertical') : h;
-  const lw = Math.min(MAX_LW, Math.max(MIN_LW, pick.lw));
+  const pick = h.lw < (layout.minLw ? layout.minLw - 1 : H_SWITCH_LW) ? tryFit('vertical') : h;
+  const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, pick.lw));
   const o = pick.scale.orientation;
   const m = measure(o, lw, width, model, layout);
   const b = m.box;
@@ -150,7 +158,6 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     box.x1 = Math.max(box.x1, x1); box.y1 = Math.max(box.y1, y1);
   };
   const over = END_OVERRUN * lw;
-  const colour = model.line.colour;
   // A track ending at a pure terminal stops at its square's centre, with no overrun (rule 26).
   const endAt = new Map<string, [number, number]>();
   for (const sm of model.stations) if (sm.square) for (const d of sm.dots) endAt.set(d.track.id, toXY(d.slot, d.lane, s));
@@ -169,6 +176,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const end: [number, number] = endAt.get(t.id) ?? [last[0] + l[0] * over, last[1] + l[1] * over];
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     const tl = layout.tracks[t.id]!;
+    const colour = model.colours[t.theme] ?? model.line.colour;
     const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, dash: null,
       d: roundedPath([start, ...pts.slice(1, -1), end], (tl.radii ?? [1.5]).map((r) => r * lw)) };
     if (!t.ongoing) return [solid];
@@ -205,6 +213,11 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
           : Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
         [ex, ey] = toXY(end, mean((d) => d.lane), s);
         dir = horiz ? 'right' : 'down';
+      } else if (side === 'tip' && legRoute[legRoute.length - 1]!.lane < legRoute[legRoute.length - 2]!.lane) {
+        // North leg: label past the squares' edge, above the dots (rule 20).
+        const top = sm.minLane - DOT_D / 2 - (sm.square ? 0 : END_OVERRUN);
+        [ex, ey] = toXY(mean((d) => d.slot), top, s);
+        dir = horiz ? 'up' : 'left';
       } else if (side === 'tip') {
         // J-curve tip: past the dot and the track end, in the leg's direction (rule 20).
         const tip = sm.maxLane + DOT_D / 2 + (sm.square ? 0 : END_OVERRUN);
