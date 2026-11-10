@@ -39,9 +39,24 @@ function showStation(id: string): void {
   if (infoEl) infoEl.textContent = `${yearsOf(sm.st)} · ${sm.themes.join(', ')}`;
 }
 
+function clearStation(): void {
+  if (!mapEl || !mapEl.dataset.selected) return;
+  delete mapEl.dataset.selected;
+  mapEl.querySelectorAll('g.tm-station.is-selected').forEach((g) => g.classList.remove('is-selected'));
+  showPrompt();
+}
+
 if (mapEl) {
   showPrompt();
   draw(mapEl);
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t instanceof Element && (t.closest('.tm-station') || t.closest('.card'))) return;
+    clearStation();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') clearStation();
+  });
   mapEl.addEventListener('tm:select', (e) => showStation((e as CustomEvent<string>).detail));
   let frame = 0;
   new ResizeObserver(() => {
