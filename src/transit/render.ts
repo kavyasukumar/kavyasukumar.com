@@ -5,6 +5,7 @@ import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
 import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
 import { dashedRun } from './ongoing';
+import { isPureTerminal } from './terminals';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
 
 export const INK = '#0A0A0A';
@@ -30,6 +31,8 @@ export interface StationModel {
   minLane: number;
   maxLane: number;
   kind: 'station' | 'interchange' | 'terminal';
+  /** Pure terminal (rule 26): every track ends here, so the dots are squares and the tracks stop at them. */
+  square: boolean;
   themes: string[];
 }
 export interface Model { line: MapLine; tracks: MapTrack[]; stations: StationModel[] }
@@ -72,6 +75,7 @@ export function buildModel(data: MapData, layout: LineLayout): Model {
       st, slot: sl.slot, labelSide: sl.labelSide, dots, themes,
       minLane: dots[0]!.lane, maxLane: dots[dots.length - 1]!.lane,
       kind: dots.length >= 2 ? 'interchange' : endsHere ? 'terminal' : 'station',
+      square: isPureTerminal(st.id, sl.slot, dots.map((d) => d.track), tracks, layout),
     });
   }
   stations.sort((a, b) => a.slot - b.slot);
@@ -123,7 +127,7 @@ interface Plan {
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; d: string; themes: string }[];
-    dots: { key: string; theme: string; cx: number; cy: number; label: string }[];
+    dots: { key: string; theme: string; cx: number; cy: number; label: string; square: boolean }[];
     label: { lines: string[]; x: number; y: number; anchor: string };
   }[];
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
@@ -147,6 +151,9 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
   };
   const over = END_OVERRUN * lw;
   const colour = model.line.colour;
+  // A track ending at a pure terminal stops at its square's centre, with no overrun (rule 26).
+  const endAt = new Map<string, [number, number]>();
+  for (const sm of model.stations) if (sm.square) for (const d of sm.dots) endAt.set(d.track.id, toXY(d.slot, d.lane, s));
 
   const tracks: Plan['tracks'] = model.tracks.flatMap((t) => {
     const pts = layout.tracks[t.id]!.route.map((p) => toXY(p.slot, p.lane, s));
@@ -159,7 +166,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const f = dir(first, pts[1] ?? [first[0] + (horiz ? 1 : 0), first[1] + (horiz ? 0 : 1)]);
     const l = dir(pts[pts.length - 2] ?? first, last);
     const start: [number, number] = [first[0] - f[0] * over, first[1] - f[1] * over];
-    const end: [number, number] = [last[0] + l[0] * over, last[1] + l[1] * over];
+    const end: [number, number] = endAt.get(t.id) ?? [last[0] + l[0] * over, last[1] + l[1] * over];
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     const tl = layout.tracks[t.id]!;
     const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, dash: null,
@@ -176,7 +183,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const dots = sm.dots.map((d) => {
       const [cx, cy] = toXY(d.slot, d.lane, s);
       grow(cx - lw / 2, cy - lw / 2, cx + lw / 2, cy + lw / 2);
-      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label };
+      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label, square: sm.square };
     });
     // Every interchange's dots are joined by a thin connector, even where they touch (rules 24, 25).
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
@@ -192,13 +199,15 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       const legRoute = layout.tracks[sm.dots[0]!.track.id]!.route;
       const alongSlot = legRoute.length > 1 && legRoute[legRoute.length - 1]!.lane === legRoute[legRoute.length - 2]!.lane;
       if (side === 'tip' && alongSlot) {
-        // Leg runs along time (east, or south in vertical): label past the square end, centred (rule 20).
-        const end = Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
+        // Leg runs along time (east, or south in vertical): label past the track end, centred (rule 20).
+        // At a pure terminal that is the squares' edge (rule 26).
+        const end = sm.square ? Math.max(...sm.dots.map((d) => d.slot)) + DOT_D / 2 / s.slotGap
+          : Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
         [ex, ey] = toXY(end, mean((d) => d.lane), s);
         dir = horiz ? 'right' : 'down';
       } else if (side === 'tip') {
-        // J-curve tip: past the dot and the square end, in the leg's direction (rule 20).
-        const tip = sm.maxLane + DOT_D / 2 + END_OVERRUN;
+        // J-curve tip: past the dot and the track end, in the leg's direction (rule 20).
+        const tip = sm.maxLane + DOT_D / 2 + (sm.square ? 0 : END_OVERRUN);
         const mid = mean((d) => d.slot);
         // Vertical layout: the label sits under the dots, so it never crosses a track or runs
         // off a phone-width canvas past the tip (rules 20, 29).
@@ -340,8 +349,13 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-connector').attr('data-themes', (c) => c.themes)
     .attr('d', (c) => c.d).attr('fill', 'none').attr('stroke', INK).attr('stroke-width', CONNECTOR_W * lw)
     .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('pointer-events', 'none');
-  sts.selectAll<SVGCircleElement, Plan['stations'][number]['dots'][number]>('circle.tm-dot').data((d) => d.dots, (c) => c.key).join('circle')
+  sts.selectAll<SVGCircleElement, Plan['stations'][number]['dots'][number]>('circle.tm-dot').data((d) => d.dots.filter((c) => !c.square), (c) => c.key).join('circle')
     .attr('class', 'tm-dot').attr('data-themes', (c) => c.theme).attr('cx', (c) => c.cx).attr('cy', (c) => c.cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
+  // Pure terminals: sharp-cornered squares, same size, fill and hover state as the dots (rule 26).
+  sts.selectAll<SVGRectElement, Plan['stations'][number]['dots'][number]>('rect.tm-dot').data((d) => d.dots.filter((c) => c.square), (c) => c.key).join('rect')
+    .attr('class', 'tm-dot tm-dot-square').attr('data-themes', (c) => c.theme)
+    .attr('x', (c) => c.cx - (DOT_D * lw) / 2).attr('y', (c) => c.cy - (DOT_D * lw) / 2)
+    .attr('width', DOT_D * lw).attr('height', DOT_D * lw).attr('fill', INK);
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')
     .attr('class', 'tm-dot-id').attr('x', (c) => c.cx).attr('y', (c) => c.cy)
     .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('pointer-events', 'none')
