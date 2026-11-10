@@ -14,6 +14,7 @@ All sizes are in **lw**, one line width (the width of a single track).
 
 - **Line**: one colour. A line is a facet of the career, such as code, journalism or investing.
 - **Track**: one strand of a line. A line can have more than one track, each with its own theme. For example, the code line has "for the love of code" and "code as a tool for social justice".
+- **Theme**: a named thread of the career, such as "Leadership". It is the entry in the key (rule 33). A theme is carried by one or more tracks, because a track cannot be in two places at once. Names of themes are working names.
 - **Bundle (ribbon)**: two or more tracks that run side by side between the same stops.
 - **Stop**: any place on the map where a track stops to let people on or off. A stop is a station, a terminal or an interchange (rule 7).
 
@@ -80,6 +81,11 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 34. **Include a key to symbols.** Show every kind of stop exactly as it is drawn on the map, with a text label each: station, terminal, interchange, and the linked interchange if one is used. The symbols in the key are the same size as on the map. [LON]
 35. **Draw part-time or extra work as a hatched track.** A hatched track has diagonal white hatching at 45° in the line colour, about 0.25 lw per stripe. It runs beside the main track at the same width and pitch (rules 10 and 11) and follows the same bundle rules. The key shows a hatched swatch with a one-line note, such as "part-time". Use it for the part-time roles, such as the side hustles. [NYC full map, LON]
 36. **Lay out the key as a left-aligned column.** Swatches or symbols sit in one column, and names sit at one fixed offset beside them. Group related entries under a short heading, and separate groups with a hairline rule. The key uses the same typeface as the map labels and sits outside the map frame. [LON]
+
+### Themes and concurrent work
+
+37. **A theme gets one track per concurrent role.** When two roles of the same theme overlap in time, each gets its own track in the theme's colour. A track never serves two stations at the same time. Where roles do not overlap, one track passes through them in order. Track assignment is by time, earliest first, and is recorded in `docs/transit-map-data.json`. [new, owner decision]
+38. **Tracks of one theme are numbered in the dots.** A theme with one track shows its number (rule 22). A theme with several shows the number plus a letter (for example 8a, 8b, 8c, 8d). The key lists the theme once, with its number, and notes the letters. [new, proposal]
 
 ## Open decisions
 

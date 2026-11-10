@@ -1,5 +1,5 @@
 {
-  "_note": "Working names. Generated from docs/transit-map-tracks.md. A track belongs to exactly one line; track ongoing=true means it runs off the map (rule 27). Track ongoing=false means it ends as a terminal at its last station.",
+  "_note": "Working names. Generated from docs/transit-map-tracks.md. A THEME is a named career thread (a key entry). A TRACK is one physical strand of a line (rules vocabulary); a theme gets one track per concurrent role so no track ever has to be in two places at once. Strands are assigned greedily by time; a station is served by one track per theme. A track is ongoing (runs off the map, rule 27) only if its last station is current (Bad Idea Factory or Aspada). Part-time stations (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their strands are hatched (rule 35) and kept apart from full-time strands.",
   "lines": [
     {
       "id": "code",
@@ -27,14 +27,16 @@
       "order": 5
     }
   ],
-  "tracks": [
+  "themes": [
     {
       "id": "code-love-of-code",
       "line": "code",
       "name": "for the love of code",
       "short": "Love of code",
       "theme": "Coding out of love and curiosity for all things coding",
-      "ongoing": true
+      "ongoing": true,
+      "num": 1,
+      "strand_count": 3
     },
     {
       "id": "code-sjw-coder",
@@ -42,7 +44,9 @@
       "name": "code as a tool for social justice",
       "short": "SJW coder",
       "theme": "Civic tech and advocacy tools; code that exposes or fixes injustice",
-      "ongoing": true
+      "ongoing": true,
+      "num": 2,
+      "strand_count": 3
     },
     {
       "id": "code-data-science",
@@ -50,7 +54,9 @@
       "name": "Data science",
       "short": "Data science",
       "theme": "Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling",
-      "ongoing": true
+      "ongoing": true,
+      "num": 3,
+      "strand_count": 3
     },
     {
       "id": "code-open-source",
@@ -58,7 +64,9 @@
       "name": "opensource coding",
       "short": "Open source",
       "theme": "Contributing to others' open source plus creating and releasing my own",
-      "ongoing": true
+      "ongoing": true,
+      "num": 4,
+      "strand_count": 3
     },
     {
       "id": "journalism-finding-stories",
@@ -66,7 +74,9 @@
       "name": "Finding stories",
       "short": "Finding stories",
       "theme": "Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting)",
-      "ongoing": false
+      "ongoing": false,
+      "num": 5,
+      "strand_count": 2
     },
     {
       "id": "journalism-storytelling",
@@ -74,7 +84,9 @@
       "name": "Storytelling and presentation",
       "short": "Storytelling",
       "theme": "Craft of the story plus how it reaches the audience, including data and visualization as storytelling",
-      "ongoing": false
+      "ongoing": false,
+      "num": 6,
+      "strand_count": 2
     },
     {
       "id": "journalism-tooling",
@@ -82,7 +94,9 @@
       "name": "Editorial tooling",
       "short": "Tooling",
       "theme": "Newsroom workflow tools plus story-finding and verification tools",
-      "ongoing": true
+      "ongoing": true,
+      "num": 7,
+      "strand_count": 3
     },
     {
       "id": "leadership-team",
@@ -90,7 +104,9 @@
       "name": "Team leadership and management",
       "short": "Leadership",
       "theme": "Leading newsrooms, product and tech teams, and boards",
-      "ongoing": true
+      "ongoing": true,
+      "num": 8,
+      "strand_count": 4
     },
     {
       "id": "leadership-evangelism",
@@ -98,7 +114,9 @@
       "name": "Teaching and evangelism of tech in media",
       "short": "Evangelism",
       "theme": "Teaching and evangelising tech in media",
-      "ongoing": true
+      "ongoing": true,
+      "num": 9,
+      "strand_count": 3
     },
     {
       "id": "product-product-mgmt",
@@ -106,7 +124,9 @@
       "name": "product management",
       "short": "Product mgmt",
       "theme": "Product strategy plus day-to-day delivery",
-      "ongoing": true
+      "ongoing": true,
+      "num": 10,
+      "strand_count": 3
     },
     {
       "id": "product-economics",
@@ -114,7 +134,9 @@
       "name": "Product economics",
       "short": "Economics",
       "theme": "Understanding the business of products and the realities of funding",
-      "ongoing": true
+      "ongoing": true,
+      "num": 11,
+      "strand_count": 2
     },
     {
       "id": "product-fundraising",
@@ -122,7 +144,9 @@
       "name": "Fundraising and investor relations",
       "short": "Fundraising",
       "theme": "Investor relations and fundraising, seen from the product side (owner wore a product manager hat)",
-      "ongoing": true
+      "ongoing": true,
+      "num": 12,
+      "strand_count": 2
     },
     {
       "id": "investing-diligence",
@@ -130,7 +154,9 @@
       "name": "Investment diligence",
       "short": "Diligence",
       "theme": "Evaluating and diligencing investments, on the tech front",
-      "ongoing": true
+      "ongoing": false,
+      "num": 13,
+      "strand_count": 1
     },
     {
       "id": "investing-advisory",
@@ -138,6 +164,412 @@
       "name": "Portfolio advisory",
       "short": "Advisory",
       "theme": "Advising and supporting portfolio companies on product and tech; helping hire tech leaders",
+      "ongoing": true,
+      "num": 14,
+      "strand_count": 1
+    }
+  ],
+  "tracks": [
+    {
+      "id": "code-love-of-code-1",
+      "theme": "code-love-of-code",
+      "label": "1a",
+      "hatched": false,
+      "stations": [
+        "nit-trichy",
+        "microsoft",
+        "opennews-fellow",
+        "vox-media",
+        "hearken",
+        "washington-post",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-love-of-code-2",
+      "theme": "code-love-of-code",
+      "label": "1b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-love-of-code-3",
+      "theme": "code-love-of-code",
+      "label": "1c",
+      "hatched": true,
+      "stations": [
+        "all-things-small",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "code-sjw-coder-1",
+      "theme": "code-sjw-coder",
+      "label": "2a",
+      "hatched": false,
+      "stations": [
+        "opennews-fellow",
+        "vox-media",
+        "hearken",
+        "washington-post",
+        "lightrock-india"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "code-sjw-coder-2",
+      "theme": "code-sjw-coder",
+      "label": "2b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-sjw-coder-3",
+      "theme": "code-sjw-coder",
+      "label": "2c",
+      "hatched": true,
+      "stations": [
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "code-data-science-1",
+      "theme": "code-data-science",
+      "label": "3a",
+      "hatched": false,
+      "stations": [
+        "palm-beach-post",
+        "opennews-fellow",
+        "vox-media",
+        "hearken",
+        "washington-post",
+        "lightrock-india",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-data-science-2",
+      "theme": "code-data-science",
+      "label": "3b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-data-science-3",
+      "theme": "code-data-science",
+      "label": "3c",
+      "hatched": true,
+      "stations": [
+        "all-things-small",
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "code-open-source-1",
+      "theme": "code-open-source",
+      "label": "4a",
+      "hatched": false,
+      "stations": [
+        "nit-trichy",
+        "opennews-fellow",
+        "vox-media",
+        "hearken",
+        "washington-post"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "code-open-source-2",
+      "theme": "code-open-source",
+      "label": "4b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "code-open-source-3",
+      "theme": "code-open-source",
+      "label": "4c",
+      "hatched": true,
+      "stations": [
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-finding-stories-1",
+      "theme": "journalism-finding-stories",
+      "label": "5a",
+      "hatched": false,
+      "stations": [
+        "medill",
+        "palm-beach-post",
+        "vox-media",
+        "washington-post"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-finding-stories-2",
+      "theme": "journalism-finding-stories",
+      "label": "5b",
+      "hatched": true,
+      "stations": [
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-storytelling-1",
+      "theme": "journalism-storytelling",
+      "label": "6a",
+      "hatched": false,
+      "stations": [
+        "medill",
+        "palm-beach-post",
+        "opennews-fellow",
+        "vox-media",
+        "washington-post"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-storytelling-2",
+      "theme": "journalism-storytelling",
+      "label": "6b",
+      "hatched": true,
+      "stations": [
+        "all-things-small",
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-tooling-1",
+      "theme": "journalism-tooling",
+      "label": "7a",
+      "hatched": false,
+      "stations": [
+        "palm-beach-post",
+        "opennews-fellow",
+        "vox-media",
+        "hearken",
+        "washington-post"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "journalism-tooling-2",
+      "theme": "journalism-tooling",
+      "label": "7b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "journalism-tooling-3",
+      "theme": "journalism-tooling",
+      "label": "7c",
+      "hatched": true,
+      "stations": [
+        "all-things-small",
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "leadership-team-1",
+      "theme": "leadership-team",
+      "label": "8a",
+      "hatched": false,
+      "stations": [
+        "palm-beach-post",
+        "hearken",
+        "lightrock-india",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "leadership-team-2",
+      "theme": "leadership-team",
+      "label": "8b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "leadership-team-3",
+      "theme": "leadership-team",
+      "label": "8c",
+      "hatched": true,
+      "stations": [
+        "seattle-globalist"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "leadership-team-4",
+      "theme": "leadership-team",
+      "label": "8d",
+      "hatched": true,
+      "stations": [
+        "all-things-small"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "leadership-evangelism-1",
+      "theme": "leadership-evangelism",
+      "label": "9a",
+      "hatched": false,
+      "stations": [
+        "opennews-fellow",
+        "hearken"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "leadership-evangelism-2",
+      "theme": "leadership-evangelism",
+      "label": "9b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "leadership-evangelism-3",
+      "theme": "leadership-evangelism",
+      "label": "9c",
+      "hatched": true,
+      "stations": [
+        "seattle-globalist",
+        "uw-lecturer",
+        "lighthouse-reports"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "product-product-mgmt-1",
+      "theme": "product-product-mgmt",
+      "label": "10a",
+      "hatched": false,
+      "stations": [
+        "hearken",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "product-product-mgmt-2",
+      "theme": "product-product-mgmt",
+      "label": "10b",
+      "hatched": true,
+      "stations": [
+        "bad-idea-factory"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "product-product-mgmt-3",
+      "theme": "product-product-mgmt",
+      "label": "10c",
+      "hatched": true,
+      "stations": [
+        "all-things-small"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "product-economics-1",
+      "theme": "product-economics",
+      "label": "11a",
+      "hatched": false,
+      "stations": [
+        "hearken",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "product-economics-2",
+      "theme": "product-economics",
+      "label": "11b",
+      "hatched": true,
+      "stations": [
+        "all-things-small"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "product-fundraising-1",
+      "theme": "product-fundraising",
+      "label": "12a",
+      "hatched": false,
+      "stations": [
+        "hearken",
+        "lightrock-india",
+        "aspada"
+      ],
+      "ongoing": true
+    },
+    {
+      "id": "product-fundraising-2",
+      "theme": "product-fundraising",
+      "label": "12b",
+      "hatched": true,
+      "stations": [
+        "seattle-globalist"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "investing-diligence-1",
+      "theme": "investing-diligence",
+      "label": "13",
+      "hatched": false,
+      "stations": [
+        "lightrock-india"
+      ],
+      "ongoing": false
+    },
+    {
+      "id": "investing-advisory-1",
+      "theme": "investing-advisory",
+      "label": "14",
+      "hatched": false,
+      "stations": [
+        "lightrock-india",
+        "aspada"
+      ],
       "ongoing": true
     }
   ],
@@ -153,10 +585,15 @@
       "lines": [
         "code"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-open-source"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-open-source-1"
+      ],
+      "part_time": false
     },
     {
       "id": "microsoft",
@@ -169,9 +606,13 @@
       "lines": [
         "code"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1"
+      ],
+      "part_time": false
     },
     {
       "id": "medill",
@@ -184,10 +625,15 @@
       "lines": [
         "journalism"
       ],
-      "tracks": [
+      "themes": [
         "journalism-finding-stories",
         "journalism-storytelling"
-      ]
+      ],
+      "tracks": [
+        "journalism-finding-stories-1",
+        "journalism-storytelling-1"
+      ],
+      "part_time": false
     },
     {
       "id": "palm-beach-post",
@@ -202,13 +648,21 @@
         "journalism",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-data-science",
         "journalism-finding-stories",
         "journalism-storytelling",
         "journalism-tooling",
         "leadership-team"
-      ]
+      ],
+      "tracks": [
+        "code-data-science-1",
+        "journalism-finding-stories-1",
+        "journalism-storytelling-1",
+        "journalism-tooling-1",
+        "leadership-team-1"
+      ],
+      "part_time": false
     },
     {
       "id": "opennews-fellow",
@@ -223,7 +677,7 @@
         "journalism",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
@@ -231,7 +685,17 @@
         "journalism-storytelling",
         "journalism-tooling",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-sjw-coder-1",
+        "code-data-science-1",
+        "code-open-source-1",
+        "journalism-storytelling-1",
+        "journalism-tooling-1",
+        "leadership-evangelism-1"
+      ],
+      "part_time": false
     },
     {
       "id": "vox-media",
@@ -245,7 +709,7 @@
         "code",
         "journalism"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
@@ -253,7 +717,17 @@
         "journalism-storytelling",
         "journalism-tooling",
         "journalism-finding-stories"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-sjw-coder-1",
+        "code-data-science-1",
+        "code-open-source-1",
+        "journalism-storytelling-1",
+        "journalism-tooling-1",
+        "journalism-finding-stories-1"
+      ],
+      "part_time": false
     },
     {
       "id": "bad-idea-factory",
@@ -269,18 +743,27 @@
         "product",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
         "code-open-source",
-        "journalism-finding-stories",
-        "journalism-storytelling",
         "journalism-tooling",
         "product-product-mgmt",
         "leadership-team",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-2",
+        "code-sjw-coder-2",
+        "code-data-science-2",
+        "code-open-source-2",
+        "journalism-tooling-2",
+        "product-product-mgmt-2",
+        "leadership-team-2",
+        "leadership-evangelism-2"
+      ],
+      "part_time": true
     },
     {
       "id": "hearken",
@@ -296,7 +779,7 @@
         "product",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
@@ -307,7 +790,20 @@
         "product-fundraising",
         "leadership-team",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-sjw-coder-1",
+        "code-data-science-1",
+        "code-open-source-1",
+        "journalism-tooling-1",
+        "product-product-mgmt-1",
+        "product-economics-1",
+        "product-fundraising-1",
+        "leadership-team-1",
+        "leadership-evangelism-1"
+      ],
+      "part_time": false
     },
     {
       "id": "seattle-globalist",
@@ -321,11 +817,17 @@
         "product",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "leadership-team",
         "product-fundraising",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "leadership-team-3",
+        "product-fundraising-2",
+        "leadership-evangelism-3"
+      ],
+      "part_time": true
     },
     {
       "id": "all-things-small",
@@ -341,7 +843,7 @@
         "product",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-data-science",
         "journalism-tooling",
@@ -349,7 +851,17 @@
         "product-product-mgmt",
         "product-economics",
         "leadership-team"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-3",
+        "code-data-science-3",
+        "journalism-tooling-3",
+        "journalism-storytelling-2",
+        "product-product-mgmt-3",
+        "product-economics-2",
+        "leadership-team-4"
+      ],
+      "part_time": true
     },
     {
       "id": "uw-lecturer",
@@ -364,7 +876,7 @@
         "journalism",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-sjw-coder",
         "code-data-science",
         "code-open-source",
@@ -372,7 +884,17 @@
         "journalism-storytelling",
         "journalism-tooling",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "code-sjw-coder-3",
+        "code-data-science-3",
+        "code-open-source-3",
+        "journalism-finding-stories-2",
+        "journalism-storytelling-2",
+        "journalism-tooling-3",
+        "leadership-evangelism-3"
+      ],
+      "part_time": true
     },
     {
       "id": "washington-post",
@@ -386,7 +908,7 @@
         "code",
         "journalism"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
@@ -394,7 +916,17 @@
         "journalism-finding-stories",
         "journalism-storytelling",
         "journalism-tooling"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-sjw-coder-1",
+        "code-data-science-1",
+        "code-open-source-1",
+        "journalism-finding-stories-1",
+        "journalism-storytelling-1",
+        "journalism-tooling-1"
+      ],
+      "part_time": false
     },
     {
       "id": "lightrock-india",
@@ -410,14 +942,23 @@
         "investing",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-sjw-coder",
         "code-data-science",
         "investing-diligence",
         "investing-advisory",
         "product-fundraising",
         "leadership-team"
-      ]
+      ],
+      "tracks": [
+        "code-sjw-coder-1",
+        "code-data-science-1",
+        "investing-diligence-1",
+        "investing-advisory-1",
+        "product-fundraising-1",
+        "leadership-team-1"
+      ],
+      "part_time": false
     },
     {
       "id": "lighthouse-reports",
@@ -432,7 +973,7 @@
         "journalism",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-sjw-coder",
         "code-data-science",
@@ -441,7 +982,18 @@
         "journalism-storytelling",
         "journalism-tooling",
         "leadership-evangelism"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-3",
+        "code-sjw-coder-3",
+        "code-data-science-3",
+        "code-open-source-3",
+        "journalism-finding-stories-2",
+        "journalism-storytelling-2",
+        "journalism-tooling-3",
+        "leadership-evangelism-3"
+      ],
+      "part_time": true
     },
     {
       "id": "aspada",
@@ -457,7 +1009,7 @@
         "investing",
         "leadership"
       ],
-      "tracks": [
+      "themes": [
         "code-love-of-code",
         "code-data-science",
         "product-product-mgmt",
@@ -465,7 +1017,17 @@
         "investing-advisory",
         "product-fundraising",
         "leadership-team"
-      ]
+      ],
+      "tracks": [
+        "code-love-of-code-1",
+        "code-data-science-1",
+        "product-product-mgmt-1",
+        "product-economics-1",
+        "investing-advisory-1",
+        "product-fundraising-1",
+        "leadership-team-1"
+      ],
+      "part_time": false
     }
   ]
 }
