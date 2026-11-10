@@ -20,11 +20,12 @@ export const THEMES: Record<string, Theme> = {
   pistachio: {
     name: 'Pistachio',
     field: '#0B3D2E',
-    paper: '#F3E2BE',
-    fill: '#FF7AB8',
-    lineLight: '#FF7AB8',
-    lineDark: '#FF7AB8',
-    ink: '#0A0A0A'
+    paper: '#F4E9D5',
+    fill: '#E39BAE',
+    lineLight: '#E39BAE',
+    lineDark: '#E39BAE',
+    ink: '#0A0A0A',
+    darkPaper: '#F0DFBC'
   },
   aubice: {
     name: 'Aubergine & Ice',

@@ -60,6 +60,8 @@ export default function App() {
   const darkText = T.darkPaper || T.paper;
   const PAPER = hexToRgb(darkText);
   const fillNow = isDark ? (T.darkFill || T.fill) : T.fill;
+  // Text on accent fills: deeper than the field green for contrast (~8:1 on the pink).
+  const ON_FILL = '#04231A';
   const PAL = { field: T.field, paper: T.paper, ink: T.ink };
   const colors = {
     bg: isDark ? darkBg : PAL.paper,
@@ -75,6 +77,7 @@ export default function App() {
     '--bg': colors.bg,
     '--accent': colors.accent,
     '--fill': fillNow,
+    '--on-fill': ON_FILL,
     '--hairline': colors.border,
     // Outline words stroke at 2x and paint the fill over the inner half (paint-order),
     // which hides overlapping contours in variable fonts.
@@ -113,7 +116,7 @@ export default function App() {
         ::-webkit-scrollbar-track { background: ${colors.bg}; }
         ::-webkit-scrollbar-thumb { background: ${isDark ? darkText : PAL.field}; }
 
-        ::selection { background: var(--fill); color: #0a0a0a; }
+        ::selection { background: var(--fill); color: var(--on-fill); }
         :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
         /* One container, one grid edge, used by every section including nav and footer */
@@ -143,6 +146,11 @@ export default function App() {
         .title-solid { color: var(--fg); margin-left: var(--o1); }
         .title-outline { color: var(--bg); paint-order: stroke fill; -webkit-text-stroke: var(--stroke) var(--fg); margin-left: var(--o2); }
 
+        /* Outline words thicken on hover (same as the hero surname). Shrink-wrap so only the glyph row triggers it. */
+        .title-outline { width: fit-content; max-width: 100%; }
+        .title-outline.reveal { transition: opacity .8s var(--ease), transform .8s var(--ease), -webkit-text-stroke-width .3s var(--ease); transition-delay: var(--d, 0ms), var(--d, 0ms), 0ms; }
+        @media (hover: hover) and (pointer: fine) { .title-outline:hover { -webkit-text-stroke-width: var(--stroke-hover); } }
+
         .theme-toggle { --knob: 24px; }
         @media (min-width: 640px) { .theme-toggle { --knob: 32px; } }
 
@@ -154,7 +162,7 @@ export default function App() {
         @media (max-width: 480px) { .nav-link { letter-spacing: 0.08em; } }
 
         /* CTA: hard offset shadow, tactile press */
-        .cta { background: var(--fill); color: #0a0a0a; box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+        .cta { background: var(--fill); color: var(--on-fill); box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
         .cta:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--hard); }
         .cta:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--hard); }
         .cta svg { transition: transform 200ms var(--ease); }
@@ -188,7 +196,7 @@ export default function App() {
           .clip:hover { transform: translate(-4px, -6px); box-shadow: 8px 10px 0 var(--accent); border-color: var(--accent); }
           .clip:hover .badge { transform: rotate(-12deg) scale(1.1); }
           .clip:hover .ext { transform: translate(3px, -3px) scale(1.2); }
-          .clip:hover .tag { background: var(--fill); color: #0a0a0a; }
+          .clip:hover .tag { background: var(--fill); color: var(--on-fill); }
           .clip:hover .clip-title { color: ${isDark ? darkText : 'inherit'}; }
         }
         .clip:active { transform: translate(-2px, -3px); box-shadow: 5px 6px 0 var(--accent); border-color: var(--accent); }
@@ -197,21 +205,31 @@ export default function App() {
         .clip-grid > .reveal:nth-child(4n+4) { --d: 240ms; }
 
         .social { transition: background .25s, color .25s, transform .3s var(--ease); min-height: 44px; }
-        @media (hover: hover) { .social:hover { background: var(--fill); color: #0a0a0a !important; transform: translateY(-4px); } }
+        @media (hover: hover) { .social:hover { background: var(--fill); color: var(--on-fill) !important; transform: translateY(-4px); } }
         .social:active { transform: translateY(-2px) scale(0.97); transition-duration: .12s; }
 
         /* Email link: fill sweeps in behind the text */
         .mail-link { position: relative; isolation: isolate; transition: color 300ms var(--ease); }
         .mail-link::after { content: ''; position: absolute; inset: -0.04em -0.12em; background: var(--fill); transform: scaleX(0); transform-origin: left; transition: transform 300ms var(--ease); z-index: -1; }
-        .mail-link:focus-visible { color: #0a0a0a !important; }
+        .mail-link:focus-visible { color: var(--on-fill) !important; }
         .mail-link:focus-visible::after { transform: scaleX(1); }
         @media (hover: hover) and (pointer: fine) {
-          .mail-link:hover { color: #0a0a0a !important; }
+          .mail-link:hover { color: var(--on-fill) !important; }
           .mail-link:hover::after { transform: scaleX(1); }
+        }
+
+        /* Back to top: arrow lifts on hover, whole link presses on click */
+        .top-link { transition: transform 160ms var(--ease), opacity 200ms ease; }
+        .top-arrow { display: inline-block; transition: transform 250ms var(--ease); }
+        .top-link:active { transform: scale(0.97); }
+        .top-link:active .top-arrow { transform: translateY(-5px); transition-duration: 120ms; }
+        @media (hover: hover) and (pointer: fine) {
+          .top-link:hover .top-arrow { transform: translateY(-4px); }
         }
 
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
+          .top-link, .top-arrow { transition: none !important; transform: none !important; }
           .reveal, .enter, .hero-line > span, .animate-marquee, .clip, .clip *, .cta, .cta svg, .rail, .node, .social, .mail-link, .mail-link::after { animation: none !important; transition: none !important; opacity: 1; transform: none; }
         }
       `}</style>
@@ -272,7 +290,7 @@ export default function App() {
         </div>
       </section>
 
-      <MarqueeDivider isDark={isDark} color={fillNow} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
+      <MarqueeDivider isDark={isDark} color={fillNow} textColor={ON_FILL} text={`Current Role: ${SITE_DATA.currentPursuit.role} @ ${SITE_DATA.currentPursuit.company}`} />
 
       {/* --- CAREER EVOLUTION --- */}
       <section id="pivot" className="section relative overflow-hidden">
@@ -333,7 +351,7 @@ export default function App() {
                 <a href={clip.url} target="_blank" rel="noreferrer" className="clip group w-full">
                   <div className="flex justify-between items-start mb-6">
                     <div className="badge">
-                      <Quote size={16} fill="#0a0a0a" stroke="#0a0a0a" />
+                      <Quote size={16} fill={ON_FILL} stroke={ON_FILL} />
                     </div>
                     <ExternalLink size={18} className="ext" style={{ color: colors.text }} />
                   </div>
@@ -406,9 +424,9 @@ export default function App() {
           <p className="label opacity-70">© 2026 {SITE_DATA.profile.name}</p>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="label hover:opacity-50 transition-opacity min-h-[44px]"
+            className="label top-link min-h-[44px] inline-flex items-center gap-2"
           >
-            BACK TO TOP ↑
+            BACK TO TOP <span className="top-arrow" aria-hidden="true">↑</span>
           </button>
         </div>
       </footer>
