@@ -15,7 +15,7 @@ export function toXY(slot: number, lane: number, s: Scale): [number, number] {
 
 const fmt = (n: number): string => String(Math.round(n * 1000) / 1000);
 
-export function roundedPath(points: [number, number][], radius: number): string {
+export function roundedPath(points: [number, number][], radius: number | number[]): string {
   const first = points[0];
   if (!first) return '';
   let d = `M${fmt(first[0])},${fmt(first[1])}`;
@@ -45,11 +45,12 @@ export function roundedPath(points: [number, number][], radius: number): string 
       continue;
     }
     const theta = Math.acos(dot); // interior angle between segments
-    let t = radius / Math.tan(theta / 2); // tangent length
+    const rad = Array.isArray(radius) ? (radius[i - 1] ?? radius[radius.length - 1] ?? 0) : radius;
+    let t = rad / Math.tan(theta / 2); // tangent length
     const maxT = Math.min(l1, l2) / (i > 1 ? 2 : 1) ;
-    let r = radius;
+    let r = rad;
     if (t > maxT) {
-      r = radius * (maxT / t);
+      r = rad * (maxT / t);
       t = maxT;
     }
     const a: [number, number] = [cur[0] + u1[0] * t, cur[1] + u1[1] * t];

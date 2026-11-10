@@ -6,6 +6,8 @@ export interface LayoutPoint { slot: number; lane: number }
 export interface TrackLayout {
   /** Centreline. First and last points are the track's first and last stop. For ongoing tracks the renderer extends the last segment to the canvas edge. */
   route: LayoutPoint[];
+  /** Optional corner radius in lw for each interior route point (concentric bends, rule 14). Default 1.5. */
+  radii?: number[];
 }
 
 export interface DiscLayout {

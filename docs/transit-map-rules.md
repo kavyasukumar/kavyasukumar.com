@@ -53,18 +53,18 @@ All sizes are in **lw**, one line width (the width of a single track).
 
 18. **Tracks cross at 90° or 45° only.** A crossing never sits on, or within about 2.5 lw of, a stop that the crossing track does not serve. The layering follows rule 8. [LON, NYC08]
 19. **Show a crossing plainly.** There is no bridge symbol and no dot. The top track gets a casing of background colour about 0.25 lw wide on each side. [NYC08, LON]
-20. **Show a branch as separate tracks that join and leave a bundle.** Each branch is its own track. It rides in the bundle while the path is shared, then peels off with a 45° bend. Put it on the side of the bundle it leaves toward, so it never crosses its sibling. The bend sits at least about 2 lw from the nearest stop. This keeps rule 5. [LON]
+20. **Show a branch as separate tracks that join and leave a bundle.** Each branch is its own track. It rides in the bundle while the path is shared, then peels off with a 45° bend. Put it on the side of the bundle it leaves toward, so it never crosses its sibling. The bend sits at least about 2 lw from the nearest stop. This keeps rule 5. [LON] **Owner decision:** part-time tracks branch off a bundle this way instead of starting abruptly: they ride beside the bundle, then peel off with concentric bends. A gig with no full-time bundle beside it at that point branches off an ongoing part-time bundle instead (for journalism, Lighthouse Reports branches off Bad Idea Factory).
 21. **Wedge a new track into a bundle at an interchange.** The joining track arrives with a concentric turn (rule 14), takes its place next to its neighbours with the same-colour hairline (rule 10), and the stop where it joins is an interchange with a dot for every track in the bundle. The bundle keeps its track order, so the new track goes on the side it came from. The same applies in reverse when a track leaves. Tracks of one colour may also arrive from different directions and merge into one bundle, as the 4 and 5 do at 149 St. [NYC08, NYC full map]
 
 ### Stops
 
-22. **Every track that stops gets its own dot, centred on that track.** The dot is black and about 1 lw across, the same as the track width, and never wider than the track. It carries the track's ID in white: a short letter or number that is unique to that track. Same-colour tracks are told apart by their dots. [NYC08, NYC full map]
+22. **Every track that stops gets its own dot, centred on that track.** The dot is black and about 1 lw across, the same as the track width, and never wider than the track. It carries the track's ID in white: a short letter or number that is unique to that track. Same-colour tracks are told apart by their dots. [NYC08, NYC full map] **Owner decision:** the track width (lw) is set so the ID in a dot is at least 12px; on screen a track is never narrower than 16px.
 23. **A track that skips a stop passes with no mark** (no dot, no gap, no change of width). Only the tracks that stop get dots. [NYC08, LON]
 24. **An interchange is a set of dots, one per track, joined by a thin dark connector.** The connector is about 0.12–0.15 lw thick and follows 0°, 45° or 90°. Where the dots touch inside one bundle, no connector is needed. It joins separate bundles when the dots cannot touch. [NYC08, NYC72]
 25. **The dots of an interchange do not have to sit on one straight line.** Each dot stays centred on its own track, wherever that track is. The tracks of an interchange may be on different horizontals, verticals or diagonals, and may approach from different directions. The connector bends to follow them, along 0°, 45° or 90°, with rounded corners. It can be straight, L-shaped or U-shaped, and it never crosses a track it does not serve. Dots that touch stay touching. For example, B and D stack vertically with the 4 offset to the side, and the 4 and 5 are joined by a U-shaped connector under the 2. [NYC full map]
-26. **A terminal ends square and carries an ID disc.** The track stops about 0.3–1 lw past its last dot, with no ring, bar or arrow on the track itself. Just past the end sits a large disc in the line colour, about 2 lw across, with the track's ID in white. The disc is offset so it clears the label. Where several tracks end together, their discs stack. If a terminal is also an interchange, it also follows rules 24 and 25. [NYC08, NYC full map]
+26. **A terminal ends square, with no marker.** The track stops about 0.3–1 lw past its last dot, with no ring, bar, arrow or ID disc. The dot at the last stop already shows the track's ID. If a terminal is also an interchange, it also follows rules 24 and 25. [owner decision; replaces the NYC ID disc]
 27. **Ongoing work is not a terminal.** A track for work that is still continuing today does not end in a terminal. It keeps running to the edge of the map canvas and leaves it, with no end disc and no stop mark at the edge. The last stop on the track (for example Aspada or Bad Idea Factory) is an ordinary station or interchange, and the track carries on past it. Only tracks for work that has ended get a terminal (rule 26). If every ongoing track runs off the same edge, that edge is "today". [new]
-28. **Space stops evenly within a straight run.** Do not space by true time. Typical gap about 12 lw, minimum about 8 lw. Within one run, gaps vary by 25% or less. Dense areas may take about 20 lw to leave room for labels. [LON]
+28. **Space stops evenly within a straight run.** Do not space by true time. Typical gap about 12 lw, minimum about 8 lw. Within one run, gaps vary by 25% or less. Dense areas may take about 20 lw to leave room for labels. [LON] **Owner decision:** only order matters, not timing, so every station gets the same slot in career order.
 
 ### Labels
 
@@ -89,7 +89,7 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 
 ### Label content
 
-39. **A station label is the station name only.** No subtitle, role, or years under or beside the name. Years live on the shared time axis, not in labels. Rules 29–31 still set placement and weight. [new, owner decision]
+39. **A station label is the station name only.** No subtitle, role, or years under or beside the name. The map shows no years or time axis at all: only the order of stations matters. Years appear only in the station card. Rules 29–31 still set placement and weight. [new, owner decision]
 
 ### Screen sizes
 
@@ -97,7 +97,7 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 
 ### Interaction
 
-41. **Hovering or clicking a track highlights its whole theme.** The track and every other track of the same theme stay at full strength, along with their dots and discs. For example, hovering 5a highlights 5a, 5b and 5c. Everything else dims. The theme's name is highlighted in the key. Hover shows it while the pointer is on the track. A click (or tap, or Enter on keyboard focus) keeps it until the same track is clicked again or the reader clicks empty map. [new, owner decision]
+41. **Hovering or clicking a track highlights its whole theme.** The track and every other track of the same theme stay at full strength, along with their dots. For example, hovering 5a highlights 5a, 5b, 5c and 5d. Everything else dims. The theme's name is highlighted in the key. Hover shows it while the pointer is on the track. A click (or tap, or Enter on keyboard focus) keeps it until the same track is clicked again or the reader clicks empty map. [new, owner decision]
 
 ## Open decisions
 

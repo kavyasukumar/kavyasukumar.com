@@ -10,12 +10,14 @@ const LABEL_PX = 12;
 const CHAR_W = 0.6 * LABEL_PX;
 const LINE_H = 15;
 const LABEL_GAP = 0.75;
-const MIN_LW = 8;
-const MAX_LW = 16;
-const H_SWITCH_LW = 9;
+// Dots must hold a 12px track ID (rule 22), so a track is at least 16px wide.
+const MIN_LW = 16;
+const MAX_LW = 22;
+const H_SWITCH_LW = 15;
 const PAD = 24;
-const AXIS_ROW = 30;
-const AXIS_COL = 44;
+// No time axis (rule 39): only order matters.
+const AXIS_ROW = 12;
+const AXIS_COL = PAD;
 
 export interface StationModel {
   st: MapStation;
@@ -168,15 +170,18 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const l = dir(pts[pts.length - 2] ?? first, last);
     const start: [number, number] = [first[0] - f[0] * over, first[1] - f[1] * over];
     let end: [number, number] = [last[0] + l[0] * over, last[1] + l[1] * over];
-    grow(Math.min(start[0], end[0]) - lw / 2, Math.min(start[1], end[1]) - lw / 2, Math.max(start[0], end[0]) + lw / 2, Math.max(start[1], end[1]) + lw / 2);
+    for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     if (t.ongoing) {
       const k = horiz ? l[0] : l[1];
-      const t2 = k > 0.001 ? ((horiz ? W - last[0] : H - last[1]) / k) : 0;
+      // While measuring (H === 0) reserve a short run; the final pass runs to the canvas edge.
+      const t2 = H === 0 ? 3 * lw : k > 0.001 ? ((horiz ? W - last[0] : H - last[1]) / k) : 0;
       end = [last[0] + l[0] * Math.max(0, t2), last[1] + l[1] * Math.max(0, t2)];
-      today = horiz ? { x: W - 6, y: end[1] - LABEL_GAP * lw } : { x: end[0] - LABEL_GAP * lw, y: H - 6 };
+      // TODAY sits just outside the outermost ongoing track, never on a track (rule 29).
+      const t3 = horiz ? { x: end[0] - 6, y: end[1] + lw / 2 + LABEL_GAP * lw + 10 } : { x: end[0] + lw / 2 + LABEL_GAP * lw, y: end[1] - 6 };
+      if (!today || (horiz ? t3.y > today.y : t3.x > today.x)) today = t3;
     }
     const mid = pts.slice(1, -1);
-    return { id: t.id, d: roundedPath([start, ...mid, end], 1.5 * lw), hatched: t.hatched, colour };
+    return { id: t.id, d: roundedPath([start, ...mid, end], (layout.tracks[t.id]!.radii ?? [1.5]).map((r) => r * lw)), hatched: t.hatched, colour };
   });
 
   const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
@@ -243,21 +248,11 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     };
   });
 
+  // No terminal discs (owner decision; rule 26) and no time axis (rule 39).
   const discs: Plan['discs'] = [];
-  for (const d of layout.discs) {
-    const t = model.tracks.find((x) => x.id === d.trackId);
-    if (!t) continue;
-    const [cx, cy] = toXY(d.slot + d.dt / s.slotGap, d.lane, s);
-    grow(cx - lw, cy - lw, cx + lw, cy + lw);
-    discs.push({ key: t.id, cx, cy, label: t.label, text: textOn(colour) });
-  }
-
-  const axis: Plan['axis'] = model.stations.map((sm) => {
-    const [ax, ay] = toXY(sm.slot, 0, s);
-    return horiz
-      ? { key: sm.st.id, x: ax, y: 16, anchor: 'middle', text: String(sm.st.start) }
-      : { key: sm.st.id, x: 4, y: ay + 4, anchor: 'start', text: String(sm.st.start) };
-  });
+  const axis: Plan['axis'] = [];
+  const td = today as Plan['today'];
+  if (td) grow(td.x - (horiz ? 50 : 0), td.y - 12, td.x + (horiz ? 0 : 50), td.y + 4);
   return { box, tracks, stations, discs, axis, today };
 }
 
@@ -333,7 +328,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')
     .attr('class', 'tm-dot-id').attr('x', (c) => c.cx).attr('y', (c) => c.cy)
     .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('pointer-events', 'none')
-    .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', 0.55 * lw).attr('fill', WHITE).text((c) => c.label);
+    .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', Math.max(LABEL_PX, 0.62 * lw)).attr('fill', WHITE).text((c) => c.label);
   const labels = sts.selectAll<SVGTextElement, Plan['stations'][number]>('text.tm-label').data((d) => [d]).join('text')
     .attr('class', (d) => (d.major ? 'tm-label is-major' : 'tm-label'))
     .attr('text-anchor', (d) => d.label.anchor).attr('font-family', FONT).attr('font-size', LABEL_PX)
@@ -347,7 +342,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text((d) => d.text);
 
   layer(svg, 'today').selectAll<SVGTextElement, NonNullable<Plan['today']>>('text.tm-today').data(p.today ? [p.today] : []).join('text')
-    .attr('class', 'tm-today').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', 'end')
+    .attr('class', 'tm-today').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', p.today && scale.orientation === 'vertical' ? 'start' : 'end')
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('font-weight', 700).attr('fill', INK).text('TODAY');
 
   return { scale, model };

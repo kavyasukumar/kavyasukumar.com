@@ -1,5 +1,6 @@
 import type { LineLayout, StationLayout, TrackLayout } from './types';
 
+/** Slots follow career order only, evenly spaced (rule 28). No time axis (rule 39). */
 const slots: Record<string, number> = {
   'medill': 0,
   'palm-beach-post': 1,
@@ -13,62 +14,66 @@ const slots: Record<string, number> = {
   'lighthouse-reports': 9,
 };
 
-/** Gig labels sit above their stubs, in the gap under the full-time bundle;
- *  Bad Idea Factory's label goes below its bundle at the bottom. */
-const after = new Set(['bad-idea-factory']);
+/** Part-time stations (all hatched) label below their tracks; full-time ones above. */
+const below = new Set(['bad-idea-factory', 'all-things-small', 'uw-lecturer']);
 
 const stations: Record<string, StationLayout> = {};
 for (const [id, slot] of Object.entries(slots)) {
-  stations[id] = { slot, labelSide: after.has(id) ? 'after' : 'before' };
+  stations[id] = { slot, labelSide: below.has(id) ? 'after' : 'before' };
 }
+
+const GAP = 8; // lw per slot, both orientations
+const LW = 1 / GAP; // one lw in slot units
+const P = 1.12; // track pitch (rule 10)
+const R = 1.5; // inner bend radius (rule 14)
+
+const RIDE = 3.36; // first lane under the full-time bundle (5a, 6a, 7a at 0, 1.12, 2.24)
+const GIG = 10.2; // first lane of the gig stubs
+const BIF = 20.5; // first lane of the Bad Idea Factory bundle
 
 const straight = (from: number, to: number, lane: number): TrackLayout => ({
   route: [{ slot: from, lane }, { slot: to, lane }],
 });
 
-/** A one-station track: a short stub centred on the station slot. */
-const STUB_HALF = 0.25;
-const stub = (slot: number, lane: number): TrackLayout => ({
-  route: [{ slot: slot - STUB_HALF, lane }, { slot: slot + STUB_HALF, lane }],
-});
-
-/** Discs for tracks ending at one slot, stacked down from the gig stubs, above the Bad Idea Factory bundle. */
-const DISC_DT = 4.2;
-const stack = (slot: number, ids: string[]) =>
-  ids.map((trackId, i) => ({ trackId, slot, dt: DISC_DT, lane: 7.5 + i * 2.2 }));
+/**
+ * Tracks that ride beside a bundle from `from`, peel off at `drop` with concentric
+ * 90 degree bends (rules 14, 20), and run on at `toLane` to `to`. `dir` 1 = peel
+ * down off the bundle above them, -1 = peel up off the bundle below them.
+ */
+function branch(ids: string[], from: number, drop: number, rideLane: number, toLane: number, to: number, dir: 1 | -1): Record<string, TrackLayout> {
+  const n = ids.length;
+  const out: Record<string, TrackLayout> = {};
+  ids.forEach((id, k) => {
+    const ride = dir === 1 ? rideLane + k * P : rideLane - (n - k) * P;
+    const lane = toLane + k * P;
+    const outer = dir === 1 ? n - 1 - k : k; // steps from the inside of the first bend
+    const x = drop + outer * P * LW;
+    out[id] = {
+      route: [{ slot: from, lane: ride }, { slot: x, lane: ride }, { slot: x, lane }, { slot: to, lane }],
+      radii: [R + outer * P, R + (n - 1 - outer) * P],
+    };
+  });
+  return out;
+}
 
 const tracks: Record<string, TrackLayout> = {
   // Full-time bundle
   'journalism-finding-stories-1': straight(0, 8, 0),
   'journalism-storytelling-1': straight(0, 8, 1.12),
   'journalism-tooling-1': straight(1, 8, 2.24),
-  // Part-time. Gig stubs (lanes 7.5-9.74) sit under the full-time bundle; gigs
-  // never chain (rule 37). Bad Idea Factory's ongoing 5b, 6b, 7b run below them
-  // (lanes 15-17.24), clear of the gigs' discs, to the edge.
-  'journalism-finding-stories-2': straight(4, 9, 15),
-  'journalism-storytelling-2': straight(4, 9, 16.12),
-  'journalism-tooling-2': straight(4, 9, 17.24),
-  'journalism-storytelling-3': stub(6, 7.5),
-  'journalism-tooling-3': stub(6, 8.62),
-  'journalism-finding-stories-3': stub(7, 7.5),
-  'journalism-storytelling-4': stub(7, 8.62),
-  'journalism-tooling-4': stub(7, 9.74),
-  'journalism-finding-stories-4': stub(9, 7.5),
-  'journalism-storytelling-5': stub(9, 8.62),
-  'journalism-tooling-5': stub(9, 9.74),
+  // Bad Idea Factory (ongoing): peels off under the full-time bundle, runs along the bottom to the edge.
+  ...branch(['journalism-finding-stories-2', 'journalism-storytelling-2', 'journalism-tooling-2'], 2.95, 3.34, RIDE, BIF, 9, 1),
+  // Gigs never chain (rule 37); each peels off, stops at its station and ends there.
+  ...branch(['journalism-storytelling-3', 'journalism-tooling-3'], 5.07, 5.45, RIDE, GIG, 6, 1),
+  ...branch(['journalism-finding-stories-3', 'journalism-storytelling-4', 'journalism-tooling-4'], 5.965, 6.34, RIDE, GIG, 7, 1),
+  // Lighthouse Reports comes after the full-time bundle ends, so it peels up off Bad Idea Factory.
+  ...branch(['journalism-finding-stories-4', 'journalism-storytelling-5', 'journalism-tooling-5'], 7.875, 8.25, BIF, GIG, 9, -1),
 };
 
 export const journalismLayout: LineLayout = {
   lineId: 'journalism',
-  slotGap: { horizontal: 10, vertical: 8 },
+  slotGap: { horizontal: GAP, vertical: GAP },
   stations,
   tracks,
-  discs: [
-    { trackId: 'journalism-finding-stories-1', slot: 8, dt: 2.2, lane: -1.08 },
-    { trackId: 'journalism-storytelling-1', slot: 8, dt: 2.2, lane: 1.12 },
-    { trackId: 'journalism-tooling-1', slot: 8, dt: 2.2, lane: 3.32 },
-    ...stack(6, ['journalism-storytelling-3', 'journalism-tooling-3']),
-    ...stack(7, ['journalism-finding-stories-3', 'journalism-storytelling-4', 'journalism-tooling-4']),
-    ...stack(9, ['journalism-finding-stories-4', 'journalism-storytelling-5', 'journalism-tooling-5']),
-  ],
+  discs: [], // No terminal discs (rule 26, owner decision)
 };
