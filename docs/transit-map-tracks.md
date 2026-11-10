@@ -1,6 +1,6 @@
 # Transit map: lines and tracks
 
-Inputs for the redraw in `transit-map-rules.md`. Vocabulary: line = colour/facet, track = one strand of a line, stop = station / terminal / interchange.
+Inputs for the redraw in `transit-map-rules.md`. Vocabulary: line = colour/facet, track = one theme of a line (split into branches where its work runs in parallel), stop = station / terminal / interchange.
 
 **All names are working names.** The owner is naming lines and tracks as they come to mind and expects to refine and rename them later.
 
@@ -79,9 +79,9 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 | 14 | Lighthouse Reports | data specialist, 2024-25 | code, journalism, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
 | 15 | Aspada | CTO, 2025- | code, product, investing, leadership and outreach | for the love of code; Data science; product management; Product economics; Portfolio advisory; Fundraising and investor relations; Team leadership and management |
 
-Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their tracks are hatched (rule 35) and kept apart from full-time tracks.
+Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their branches are drawn solid like full-time ones (rule 35); the station card says "part-time".
 
-Strands: a theme above is drawn as one track per concurrent role (rule 37). Full-time roles share the first track where they don't overlap; hatched tracks follow. Part-time gigs never chain (owner, rule 37): each part-time station gets its own track per theme that starts and ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals; only Bad Idea Factory's tracks run on. 14 themes become 47 tracks, listed with labels (1a, 1b, ...) in `data/transit-map-data.json` under `tracks`.
+Branches: each theme above is one track, labelled by its number only (rule 38). Where its work runs in parallel, the track splits just after the latest stop before the parallel work starts, and each concurrent role gets its own branch (rules 5, 37). Full-time roles share one branch where they don't overlap. Part-time gigs never chain (owner, rule 37): each part-time station gets its own branch per theme that ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals (single-stop J-curves, rule 20); only Bad Idea Factory's branches run on. 14 themes (tracks) have 47 branches, listed in `data/transit-map-data.json` under `tracks` (one entry per branch; `label` is the theme number).
 
 ## Interview notes
 
