@@ -18,24 +18,34 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit h1 .o{color:transparent;-webkit-text-stroke:3px var(--cream)}
 #transit .sub{font-family:'JetBrains Mono',monospace;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 8px;max-width:760px;line-height:1.6}
 #transit .sub b{background:var(--pink);color:var(--ink);padding:1px 6px}
-#transit .legend{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}
-#transit .chip{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;padding:8px 12px;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);color:var(--ink)}
-#transit .chip.dash{background:var(--forest);color:var(--cream);border-color:var(--cream);box-shadow:5px 5px 0 var(--cream)}
-#transit .map{background:var(--cream);border:4px solid var(--ink);box-shadow:12px 12px 0 var(--pink);overflow-x:auto}
-#transit .map svg{display:block;min-width:1000px;width:100%;height:auto}
+#transit .map{background:var(--cream);border:4px solid var(--ink);box-shadow:12px 12px 0 var(--pink);overflow:hidden;margin-top:24px}
+#transit .map svg{display:block;width:100%;height:auto}
 #transit svg text{font-family:'JetBrains Mono',monospace}
-#transit .st{cursor:pointer}
-#transit .st:hover circle,#transit .st:focus circle{fill:var(--pink)}
-#transit .st text.n{font-size:13px;font-weight:700;fill:var(--ink);text-transform:uppercase}
-#transit .st text.d{font-size:11px;fill:#444}
-#transit .lbl{font-size:12px;font-weight:700;letter-spacing:.1em}
+#transit .tm-track{fill:none}
+#transit .tm-dot{fill:#0A0A0A}
+#transit .tm-dot-id,#transit .tm-disc-id{font-weight:700;text-anchor:middle;dominant-baseline:central;fill:#fff}
+#transit .tm-disc-id{fill:var(--ink)}
+#transit .tm-label{font-size:12px;fill:#555;font-weight:400}
+#transit .tm-label.is-major{fill:var(--ink);font-weight:700}
+#transit .tm-axis{font-size:12px;fill:#555}
+#transit .tm-today{font-size:12px;font-weight:700;fill:var(--ink);letter-spacing:.08em}
+#transit .tm-station{cursor:pointer}
+#transit .tm-station:focus{outline:none}
+#transit .tm-station:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+#transit .tm-station .tm-dot{transition:fill .2s}
+#transit .tm-station:hover .tm-dot,#transit .tm-station.is-selected .tm-dot{fill:var(--pink)}
+#transit .key{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px 24px;text-align:left}
+#transit .tm-key-group+.tm-key-group{border-top:1px solid var(--ink);margin-top:16px;padding-top:16px}
+#transit .tm-key-heading{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555;margin:0 0 8px}
+#transit .tm-key-row{display:flex;align-items:center;gap:12px;margin:6px 0}
+#transit .tm-key-swatch{flex:none}
+#transit .tm-key-name{font:500 13px 'JetBrains Mono',monospace}
+@media(prefers-reduced-motion:reduce){#transit *{transition:none!important}}
 #transit .panel{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
 #transit .card{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px 24px;min-height:150px}
 #transit .card h3{font:800 28px/1 'Bricolage Grotesque',sans-serif;text-transform:uppercase;margin:0 0 8px}
 #transit .card .k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555}
 #transit .card p{margin:8px 0 0;line-height:1.5}
-#transit .card.alt{background:var(--pink)}
-#transit .ph{font:700 10px 'JetBrains Mono',monospace;background:var(--ink);color:var(--cream);padding:2px 5px;margin-left:6px;vertical-align:middle}
 @media(max-width:700px){
 #transit .wrap{padding:24px 16px}
 #transit .panel{grid-template-columns:1fr}
@@ -72,59 +82,15 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #braided .wrap{padding:40px 16px}
 #braided .strip{grid-template-columns:1fr 1fr}
 }
-#transit svg .trk{transition:opacity .2s;cursor:pointer}
-#transit svg .st{transition:opacity .2s}
-#transit svg.hl .trk:not(.on){opacity:.15}
-#transit svg.hl .st:not(.on){opacity:.2}
-#transit .st:hover rect,#transit .st:focus rect{fill:var(--pink)}
-#transit .st:focus{outline:none}
 </style></head><body>
 <nav class="topbar"><a href="/">&larr; Kavya Sukumar</a><span>Dataviz</span></nav>
 <section id="transit"><div class="wrap">
 <div class="eyebrow">/ A &mdash; as a transit map</div><h1>My story<br><span class="o">thus far</span></h1>
-<p class="sub">Not a ladder. A network: four lines, many transfers. Code never stopped. <b>Tap a station.</b></p>
-<div class="legend">
- <span class="chip" style="background:var(--cream)">Code</span>
- <span class="chip" style="background:var(--pink)">Journalism</span>
- <span class="chip" style="background:var(--gold)">Product</span>
- <span class="chip" style="background:var(--mint)">Investing</span>
-</div>
-<div class="map">
-<svg viewBox="0 0 1760 770" role="img" aria-label="My story as a transit map: Code, Journalism, Product and Investing lines, 2006 to now, plus side hustles as stops">
- <path d="M1490.0 164.0 L1500.9 164.0 A22.0 22.0 0 0 1 1516.4 170.4 L1517.6 171.6 A22.0 22.0 0 0 0 1533.1 178.0 L1616.9 178.0 A22.0 22.0 0 0 0 1632.4 171.6 L1633.6 170.4 A22.0 22.0 0 0 1 1649.1 164.0 L1670.0 164.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 254.0 L776.0 254.0 A54.0 54.0 0 0 1 830.0 308.0 L830.0 610.0 A30.0 30.0 0 0 0 860.0 640.0 L890.0 640.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 236.0 L1040.9 236.0 A22.0 22.0 0 0 0 1056.4 229.6 L1061.6 224.4 A22.0 22.0 0 0 1 1077.1 218.0 L1190.9 218.0 A22.0 22.0 0 0 0 1206.4 211.6 L1265.6 152.4 A22.0 22.0 0 0 1 1281.1 146.0 L1330.9 146.0 A22.0 22.0 0 0 1 1346.4 152.4 L1347.6 153.6 A22.0 22.0 0 0 0 1363.1 160.0 L1416.9 160.0 A22.0 22.0 0 0 0 1432.4 153.6 L1433.6 152.4 A22.0 22.0 0 0 1 1449.1 146.0 L1500.9 146.0 A22.0 22.0 0 0 1 1516.4 152.4 L1517.6 153.6 A22.0 22.0 0 0 0 1533.1 160.0 L1616.9 160.0 A22.0 22.0 0 0 0 1632.4 153.6 L1633.6 152.4 A22.0 22.0 0 0 1 1649.1 146.0 L1670.0 146.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M490.0 384.0 L796.0 384.0 A16.0 16.0 0 0 1 812.0 400.0 L812.0 619.0 A39.0 39.0 0 0 0 851.0 658.0 L890.0 658.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M490.0 366.0 L549.0 366.0 A16.0 16.0 0 0 0 565.0 350.0 L565.0 144.0 A16.0 16.0 0 0 1 581.0 128.0 L644.9 128.0 A22.0 22.0 0 0 1 660.4 134.4 L683.6 157.6 A22.0 22.0 0 0 0 699.1 164.0 L1190.9 164.0 A22.0 22.0 0 0 0 1206.4 157.6 L1229.6 134.4 A22.0 22.0 0 0 1 1245.1 128.0 L1670.0 128.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M60.0 128.0 L524.0 128.0 A16.0 16.0 0 0 1 540.0 144.0 L540.0 332.0 A16.0 16.0 0 0 0 556.0 348.0 L832.0 348.0 A16.0 16.0 0 0 1 848.0 364.0 L848.0 606.0 A16.0 16.0 0 0 0 864.0 622.0 L890.0 622.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M60.0 110.0 L1670.0 110.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 218.0 L1004.0 218.0 A16.0 16.0 0 0 1 1020.0 234.0 L1020.0 285.0 A35.0 35.0 0 0 0 1055.0 320.0 L1090.0 320.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 128.0 L1121.0 128.0 A61.0 61.0 0 0 1 1182.0 189.0 L1182.0 304.0 A16.0 16.0 0 0 0 1198.0 320.0 L1290.0 320.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 146.0 L1121.0 146.0 A43.0 43.0 0 0 1 1164.0 189.0 L1164.0 325.0 A13.0 13.0 0 0 0 1177.0 338.0 L1190.0 338.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 182.0 L1130.0 182.0 A16.0 16.0 0 0 1 1146.0 198.0 L1146.0 304.0 A52.0 52.0 0 0 0 1198.0 356.0 L1290.0 356.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M690.0 200.0 L1049.0 200.0 A79.0 79.0 0 0 1 1128.0 279.0 L1128.0 358.0 A16.0 16.0 0 0 0 1144.0 374.0 L1190.0 374.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <path d="M1110.0 218.0 L1110.0 358.0 A34.0 34.0 0 0 0 1144.0 392.0 L1190.0 392.0" stroke="#F4E9D5" stroke-width="18" fill="none" stroke-linejoin="round"/>
- <g class="trk" data-id="0" data-line="investing"><path d="M1490.0 164.0 L1500.9 164.0 A22.0 22.0 0 0 1 1516.4 170.4 L1517.6 171.6 A22.0 22.0 0 0 0 1533.1 178.0 L1616.9 178.0 A22.0 22.0 0 0 0 1632.4 171.6 L1633.6 170.4 A22.0 22.0 0 0 1 1649.1 164.0 L1670.0 164.0" stroke="#3DAE76" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="1" data-line="product"><path d="M690.0 254.0 L776.0 254.0 A54.0 54.0 0 0 1 830.0 308.0 L830.0 610.0 A30.0 30.0 0 0 0 860.0 640.0 L890.0 640.0" stroke="#E0A81A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="2" data-line="product"><path d="M690.0 236.0 L1040.9 236.0 A22.0 22.0 0 0 0 1056.4 229.6 L1061.6 224.4 A22.0 22.0 0 0 1 1077.1 218.0 L1190.9 218.0 A22.0 22.0 0 0 0 1206.4 211.6 L1265.6 152.4 A22.0 22.0 0 0 1 1281.1 146.0 L1330.9 146.0 A22.0 22.0 0 0 1 1346.4 152.4 L1347.6 153.6 A22.0 22.0 0 0 0 1363.1 160.0 L1416.9 160.0 A22.0 22.0 0 0 0 1432.4 153.6 L1433.6 152.4 A22.0 22.0 0 0 1 1449.1 146.0 L1500.9 146.0 A22.0 22.0 0 0 1 1516.4 152.4 L1517.6 153.6 A22.0 22.0 0 0 0 1533.1 160.0 L1616.9 160.0 A22.0 22.0 0 0 0 1632.4 153.6 L1633.6 152.4 A22.0 22.0 0 0 1 1649.1 146.0 L1670.0 146.0" stroke="#E0A81A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="3" data-line="journalism"><path d="M490.0 384.0 L796.0 384.0 A16.0 16.0 0 0 1 812.0 400.0 L812.0 619.0 A39.0 39.0 0 0 0 851.0 658.0 L890.0 658.0" stroke="#E39BAE" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="4" data-line="journalism"><path d="M490.0 366.0 L549.0 366.0 A16.0 16.0 0 0 0 565.0 350.0 L565.0 144.0 A16.0 16.0 0 0 1 581.0 128.0 L644.9 128.0 A22.0 22.0 0 0 1 660.4 134.4 L683.6 157.6 A22.0 22.0 0 0 0 699.1 164.0 L1190.9 164.0 A22.0 22.0 0 0 0 1206.4 157.6 L1229.6 134.4 A22.0 22.0 0 0 1 1245.1 128.0 L1670.0 128.0" stroke="#E39BAE" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="5" data-line="code"><path d="M60.0 128.0 L524.0 128.0 A16.0 16.0 0 0 1 540.0 144.0 L540.0 332.0 A16.0 16.0 0 0 0 556.0 348.0 L832.0 348.0 A16.0 16.0 0 0 1 848.0 364.0 L848.0 606.0 A16.0 16.0 0 0 0 864.0 622.0 L890.0 622.0" stroke="#0A0A0A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="6" data-line="code"><path d="M60.0 110.0 L1670.0 110.0" stroke="#0A0A0A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="7" data-line="journalism"><path d="M690.0 218.0 L1004.0 218.0 A16.0 16.0 0 0 1 1020.0 234.0 L1020.0 285.0 A35.0 35.0 0 0 0 1055.0 320.0 L1090.0 320.0" stroke="#E39BAE" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="8" data-line="code"><path d="M690.0 128.0 L1121.0 128.0 A61.0 61.0 0 0 1 1182.0 189.0 L1182.0 304.0 A16.0 16.0 0 0 0 1198.0 320.0 L1290.0 320.0" stroke="#0A0A0A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="9" data-line="code"><path d="M690.0 146.0 L1121.0 146.0 A43.0 43.0 0 0 1 1164.0 189.0 L1164.0 325.0 A13.0 13.0 0 0 0 1177.0 338.0 L1190.0 338.0" stroke="#0A0A0A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="10" data-line="journalism"><path d="M690.0 182.0 L1130.0 182.0 A16.0 16.0 0 0 1 1146.0 198.0 L1146.0 304.0 A52.0 52.0 0 0 0 1198.0 356.0 L1290.0 356.0" stroke="#E39BAE" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="11" data-line="journalism"><path d="M690.0 200.0 L1049.0 200.0 A79.0 79.0 0 0 1 1128.0 279.0 L1128.0 358.0 A16.0 16.0 0 0 0 1144.0 374.0 L1190.0 374.0" stroke="#E39BAE" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <g class="trk" data-id="12" data-line="product"><path d="M1110.0 218.0 L1110.0 358.0 A34.0 34.0 0 0 0 1144.0 392.0 L1190.0 392.0" stroke="#E0A81A" stroke-width="14" fill="none" stroke-linejoin="round"/></g>
- <text class="lbl" x="60" y="90" fill="#0A0A0A">CODE LINES</text>
- <g class="st" tabindex="0" data-k="nit" data-lines="5 6"><path d="M90 110 L90 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="90" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="90" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="90" y="36" text-anchor="middle">NIT TRICHY</text><text class="d" x="90" y="51" text-anchor="middle">undergrad · 2002–06</text></g><g class="st" tabindex="0" data-k="ms1" data-lines="5 6"><path d="M190 110 L190 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="190" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="190" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><path d="M190 140 V185" stroke="#0A0A0A" stroke-width="2"/><text class="n" x="190" y="202" text-anchor="middle">WIN GAMING</text><text class="d" x="190" y="217" text-anchor="middle">Microsoft '06</text></g><g class="st" tabindex="0" data-k="ms2" data-lines="5 6"><path d="M290 110 L290 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="290" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="290" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="290" y="36" text-anchor="middle">MSN GAMES</text><text class="d" x="290" y="51" text-anchor="middle">'06–09</text></g><g class="st" tabindex="0" data-k="ms3" data-lines="5 6"><path d="M390 110 L390 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="390" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="390" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><path d="M390 140 V185" stroke="#0A0A0A" stroke-width="2"/><text class="n" x="390" y="202" text-anchor="middle">BING VIDEO</text><text class="d" x="390" y="217" text-anchor="middle">MSN · '09–12</text></g><g class="st" tabindex="0" data-k="medill" data-lines="3 4"><path d="M490 366 L490 384" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="490" cy="366" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="490" cy="384" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="500" y="336" text-anchor="end">MEDILL</text><text class="d" x="500" y="351" text-anchor="end">grad school · 2012–13</text></g><g class="st" tabindex="0" data-k="pbp" data-lines="4 6"><path d="M590 110 L590 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="590" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="590" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="600" y="36" text-anchor="end">PALM BEACH POST</text><text class="d" x="600" y="51" text-anchor="end">data &amp; interactives</text><text class="d" x="600" y="66" text-anchor="end">editor · 2014–15</text></g><g class="st" tabindex="0" data-k="fellow" data-lines="1 2 4 6 7 8 9 10 11"><path d="M690 110 L690 254" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="690" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="146" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="164" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="182" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="200" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="218" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="236" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="690" cy="254" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="690" y="36" text-anchor="middle">OPENNEWS FELLOW</text><text class="d" x="690" y="51" text-anchor="middle">at Vox Media</text><text class="d" x="690" y="66" text-anchor="middle">2015–16</text></g><g class="st" tabindex="0" data-k="vox" data-lines="2 4 6 7"><path d="M790 110 L790 236" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="790" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="790" cy="164" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="790" cy="218" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="790" cy="236" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="780" y="36" text-anchor="start">VOX MEDIA</text><text class="d" x="780" y="51" text-anchor="start">full-stack +</text><text class="d" x="780" y="66" text-anchor="start">editorial eng</text><text class="d" x="780" y="81" text-anchor="start">2016–19</text></g><g class="st" tabindex="0" data-k="bif" data-lines="1 3 5"><path d="M890 622 L890 658" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="890" cy="622" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="890" cy="658" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="890" cy="640" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><path d="M890 670 V698" stroke="#0A0A0A" stroke-width="2"/><text class="n" x="890" y="715" text-anchor="middle">BAD IDEA FACTORY</text><text class="d" x="890" y="730" text-anchor="middle">since 2018</text></g><g class="st" tabindex="0" data-k="hearken" data-lines="2 4 6 7"><path d="M990 110 L990 236" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="990" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="990" cy="164" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="990" cy="218" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="990" cy="236" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="990" y="36" text-anchor="middle">HEARKEN</text><text class="d" x="990" y="51" text-anchor="middle">full-stack →</text><text class="d" x="990" y="66" text-anchor="middle">VP products</text><text class="d" x="990" y="81" text-anchor="middle">2019–21</text></g><g class="st" tabindex="0" data-k="globalist" data-lines="7"><circle cx="1090" cy="320" r="11" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="5"/><text class="n" x="1100" y="424" text-anchor="end">SEATTLE GLOBALIST</text><text class="d" x="1100" y="439" text-anchor="end">board · 2019</text></g><g class="st" tabindex="0" data-k="ats" data-lines="9 11 12"><path d="M1190 338 L1190 392" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1190" cy="338" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1190" cy="374" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1190" cy="392" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="1190" y="424" text-anchor="middle">ALL THINGS SMALL</text><text class="d" x="1190" y="439" text-anchor="middle">consulting · 2019–20</text></g><g class="st" tabindex="0" data-k="uw" data-lines="8 10"><path d="M1290 320 L1290 356" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1290" cy="320" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1290" cy="356" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="1280" y="424" text-anchor="start">UW LECTURER</text><text class="d" x="1280" y="439" text-anchor="start">teaching · 2020</text></g><g class="st" tabindex="0" data-k="wapo" data-lines="4 6"><path d="M1390 110 L1390 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1390" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1390" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><path d="M1390 140 V226" stroke="#0A0A0A" stroke-width="2"/><text class="n" x="1390" y="243" text-anchor="middle">WASHINGTON POST</text><text class="d" x="1390" y="258" text-anchor="middle">sr engineer · 2020–22</text></g><g class="st" tabindex="0" data-k="lightrock" data-lines="0 2 4 6"><path d="M1490 110 L1490 164" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1490" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1490" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1490" cy="146" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1490" cy="164" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><text class="n" x="1490" y="36" text-anchor="middle">LIGHTROCK INDIA</text><text class="d" x="1490" y="51" text-anchor="middle">principal &amp; CTO · 2022–25</text></g><g class="st" tabindex="0" data-k="lhr" data-lines="4 6"><path d="M1590 110 L1590 128" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1590" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1590" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><path d="M1590 140 V226" stroke="#0A0A0A" stroke-width="2"/><text class="n" x="1590" y="243" text-anchor="middle">LIGHTHOUSE REPORTS</text><text class="d" x="1590" y="258" text-anchor="middle">data specialist · 2025–</text></g><g class="st" tabindex="0" data-k="aspada" data-lines="0 2 4 6"><path d="M1670 110 L1670 164" stroke="#0A0A0A" stroke-width="6" fill="none"/><circle cx="1670" cy="110" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1670" cy="128" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1670" cy="146" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="1670" cy="164" r="5" fill="#F4E9D5" stroke="#0A0A0A" stroke-width="2.5"/></g>
- <rect x="1610" y="28" width="130" height="38" fill="#E39BAE" stroke="#0A0A0A" stroke-width="4"/><text x="1675" y="44" text-anchor="middle" font-size="10" font-weight="700" fill="#0A0A0A">★ YOU ARE HERE</text><text x="1675" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#0A0A0A">ASPADA · CTO</text>
-</svg>
-</div>
+<p class="sub">Built one line at a time. First up: journalism. <b>Tap a station.</b></p>
+<div class="map" id="transit-map"></div>
 <div class="panel">
- <div class="card"><div class="k" id="ck">Current stop / terminal</div><h3 id="ch">Aspada</h3><p id="cp">CTO since April 2025. All four lines arrive here. Lines: Code · Product · Investing.</p></div>
- <div class="card alt"><div class="k">How to read it</div><h3>Transfers</h3><p>Each colour is a thread. A square stop on a vertical connector means that job was on several lines at once. Stops are evenly spaced in order, not drawn to scale. Station copy is a draft.</p></div>
+ <div class="key" id="transit-key"></div>
+ <div class="card"><div class="k" id="ck">Station</div><h3 id="ch">Tap a station.</h3><p id="cp"></p></div>
 </div>
 </div></section>
 <section id="braided" hidden>
@@ -154,30 +120,6 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 <div><b>Storytelling</b><p>Make the finding legible to someone who has 30 seconds.</p></div>
 </div></div>
 </section>
-<script>(function(){
-const D={
-nit:['Code','NIT Trichy','Undergraduate, 2002–06.','Code'],
-ms1:['Code','Windows Gaming','Software Development Engineer, 2006–09. Windows Gaming Experience, Windows 7 inbox games, Windows Live Messenger Games. Started in Hyderabad, moved to Bellevue.','Code'],
-ms2:['Code','MSN Games','Software Development Engineer, 2006–09. The MSN Games website.','Code'],
-ms3:['Code','Bing / MSN Video','Software Development Engineer II, 2009–12. Bing/MSN Video, plus MSN entertainment, movies and music.','Code'],
-medill:['Journalism','Medill School of Journalism','Grad school, 2012–13. The pivot into journalism. The Journalism line starts here.','Journalism'],
-pbp:['Transfer','The Palm Beach Post','Data & Interactives Editor, 2014–15.','Code · Journalism'],
-fellow:['Transfer','Knight-Mozilla / OpenNews Fellow','Fellow embedded at Vox Media, Mar 2015 to Jan 2016. The product line starts here.','Code · Journalism · Product'],
-vox:['Transfer','Vox Media','Sr. Full-Stack Engineer from Mar 2016 and Sr. Editorial Engineer from Jul 2017, until Feb 2019.','Code · Journalism · Product'],
-bif:['Transfer','Bad Idea Factory','Corporate Overlord, Jun 2018 to now. Runs alongside everything since.','Code · Journalism · Product'],
-hearken:['Transfer','Hearken','Feb 2019 to Jun 2021. Full Stack Engineer, then Product Development Lead, Director of Engineering and VP of Products.','Code · Journalism · Product'],
-wapo:['Transfer','The Washington Post','Senior Software Engineer, Dec 2020 to Apr 2022.','Code · Journalism'],
-lightrock:['Transfer: the investing line starts','Lightrock India','Principal & CTO – India, Feb 2022 to Mar 2025.','Code · Journalism · Product · Investing'],
-globalist:['Side hustle','The Seattle Globalist','Management board member, Mar–Sep 2019.','Journalism'],
-ats:['Side hustle','All Things Small','Product consultant, Nov 2019–May 2020.','Code · Journalism · Product'],
-uw:['Side hustle','University of Washington','Lecturer, Mar–Jun 2020.','Code · Journalism'],
-lhr:['Side hustle','Lighthouse Reports','Part-time data specialist, Apr 2025 to now.','Code · Journalism'],
-aspada:['Current stop / terminal','Aspada','CTO since April 2025. All four lines arrive here.','Code · Product · Investing']};
-document.querySelectorAll('#transit .st').forEach(s=>{const f=()=>{const d=D[s.dataset.k];if(!d)return;ck.textContent=d[0];ch.textContent=d[1];cp.textContent=d[2]+' Lines: '+d[3]+'.'};s.addEventListener('click',f);s.addEventListener('keydown',e=>{if(e.key==='Enter')f()})});
-const svgEl=document.querySelector('#transit .map svg');
-function hl(id){svgEl.classList.toggle('hl',id!==null);svgEl.querySelectorAll('.trk').forEach(t=>t.classList.toggle('on',t.dataset.id===id));svgEl.querySelectorAll('.st').forEach(t=>t.classList.toggle('on',id!==null&&(t.dataset.lines||'').split(' ').includes(id)))}
-let lk=null;svgEl.querySelectorAll('.trk').forEach(t=>{t.addEventListener('mouseenter',()=>hl(t.dataset.id));t.addEventListener('mouseleave',()=>hl(lk));t.addEventListener('click',()=>{lk=lk===t.dataset.id?null:t.dataset.id;hl(lk)});});
-})();</script>
 <script>(function(){const R=document.getElementById('braided');
 // placeholders: era years are rough; swap real dates
 const eras=[
@@ -215,4 +157,4 @@ function sel(id){R.querySelectorAll('.rib').forEach(p=>p.classList.toggle('dim',
  const r=T.find(t=>t.id===id);
  R.querySelectorAll('.era').forEach((d,i)=>{d.classList.toggle('hl',!!r);if(r)d.querySelector('.thr').innerHTML='<b style="font-size:12px;font-family:JetBrains Mono">'+r.name.toUpperCase()+' &rarr;</b> '+r.eras[i]})}
 })();</script>
-</body></html>
+<script type="module" src="/src/transit/main.ts"></script></body></html>
