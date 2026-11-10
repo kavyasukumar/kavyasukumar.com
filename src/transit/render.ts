@@ -3,8 +3,9 @@ import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
 import { DISC_D, DOT_D, END_OVERRUN, laneAt, roundedPath, toXY } from './geometry';
-import { CHAR_W, LABEL_PX, LINE_H, placeLabel, wrap, type ScreenDir } from './labels';
+import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
+import { stationLabel } from './station-label';
 import { isPureTerminal } from './terminals';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, Orientation, Scale, StationLayout } from './types';
 
@@ -13,7 +14,6 @@ const MUTED = '#555555';
 const WHITE = '#FFFFFF';
 const CREAM = '#F4E9D5'; // map background, used for crossing casings (rule 19)
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
-const LABEL_GAP = 0.75;
 // Dots must hold a 12px track ID (rule 22), so a track is at least 16px wide.
 const MIN_LW = 16;
 const MAX_LW = 22;
@@ -197,80 +197,11 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
     const themes = [...new Set(sm.dots.map((d) => d.track.theme))].join(' ');
     const connectors = conn ? [{ ...conn, themes }] : [];
-    const lines = wrap(sm.st.name, budget);
-    const n = lines.length;
-    const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
-    const side = sm.labelSide;
-    let ex: number; let ey: number; let dir: ScreenDir;
-    if (side === 'tip' || side === 'back') {
-      const mean = (f: (d: StationModel['dots'][number]) => number): number => sm.dots.reduce((a, d) => a + f(d), 0) / sm.dots.length;
-      const legRoute = layout.tracks[sm.dots[0]!.track.id]!.route;
-      const alongSlot = legRoute.length > 1 && legRoute[legRoute.length - 1]!.lane === legRoute[legRoute.length - 2]!.lane;
-      if (side === 'tip' && alongSlot) {
-        // Leg runs along time (east, or south in vertical): label past the track end, centred (rule 20).
-        // At a pure terminal that is the squares' edge (rule 26).
-        const end = sm.square ? Math.max(...sm.dots.map((d) => d.slot)) + DOT_D / 2 / s.slotGap
-          : Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
-        [ex, ey] = toXY(end, mean((d) => d.lane), s);
-        dir = horiz ? 'right' : 'down';
-      } else if (side === 'tip' && legRoute[legRoute.length - 1]!.lane < legRoute[legRoute.length - 2]!.lane) {
-        // North leg: label past the squares' edge, above the dots (rule 20).
-        const top = sm.minLane - DOT_D / 2 - (sm.square ? 0 : END_OVERRUN);
-        [ex, ey] = toXY(mean((d) => d.slot), top, s);
-        dir = horiz ? 'up' : 'left';
-      } else if (side === 'tip') {
-        // J-curve tip: past the dot and the track end, in the leg's direction (rule 20).
-        const tip = sm.maxLane + DOT_D / 2 + (sm.square ? 0 : END_OVERRUN);
-        const mid = mean((d) => d.slot);
-        // Vertical layout: the label sits under the dots, so it never crosses a track or runs
-        // off a phone-width canvas past the tip (rules 20, 29).
-        if (!horiz) {
-          const last = Math.max(...sm.dots.map((d) => d.slot));
-          [ex, ey] = toXY(last + DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-          dir = 'down';
-        } else {
-          [ex, ey] = toXY(mid, tip, s);
-          dir = horiz ? 'down' : 'right';
-        }
-      } else {
-        const first = Math.min(...sm.dots.map((d) => d.slot));
-        [ex, ey] = toXY(first - DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-        dir = horiz ? 'left' : 'up';
-        // Vertical: flush the label's right edge with the dots, away from the branches' bend (rule 30).
-        if (!horiz) ex -= Math.max(0, wpx / 2 - (DOT_D * lw) / 2);
-      }
-    } else {
-      // Start just past this station's dots, then step past any track or disc in the
-      // way. The label may sit in a gap between bands when it fits there (rules 29, 30).
-      const before = side === 'before';
-      const needPx = horiz ? n * LINE_H + 2 * LABEL_GAP * lw : wpx + 2 * LABEL_GAP * lw;
-      const need = needPx / lw;
-      const obstacles: [number, number][] = [];
-      for (const tl of Object.values(layout.tracks)) {
-        const ln = laneAt(tl.route, sm.slot);
-        if (ln !== null) obstacles.push([ln - DOT_D / 2, ln + DOT_D / 2]);
-      }
-      for (const d of layout.discs) {
-        if (d.slot === sm.slot) obstacles.push([d.lane - DISC_D / 2, d.lane + DISC_D / 2]);
-      }
-      let edge = before ? sm.minLane - DOT_D / 2 : sm.maxLane + DOT_D / 2;
-      for (let moved = true; moved;) {
-        moved = false;
-        for (const [lo, hi] of obstacles) {
-          const blocks = before ? lo < edge && hi > edge - need : hi > edge && lo < edge + need;
-          if (!blocks) continue;
-          const next = before ? Math.min(edge, lo) : Math.max(edge, hi);
-          if (next !== edge) { edge = next; moved = true; }
-        }
-      }
-      [ex, ey] = toXY(sm.slot, edge, s);
-      dir = horiz ? (before ? 'up' : 'down') : (before ? 'left' : 'right');
-    }
-    const placed = placeLabel(dir, ex, ey, LABEL_GAP * lw, lines);
+    const placed = stationLabel(sm, layout, s, budget);
     grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
-      themes, connectors, dots, label: { lines, x: placed.x, y: placed.y, anchor: placed.anchor },
+      themes, connectors, dots, label: { lines: placed.lines, x: placed.x, y: placed.y, anchor: placed.anchor },
     };
   });
 
