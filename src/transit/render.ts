@@ -197,7 +197,14 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     let ex: number; let ey: number; let dir: ScreenDir;
     if (side === 'tip' || side === 'back') {
       const mean = (f: (d: StationModel['dots'][number]) => number): number => sm.dots.reduce((a, d) => a + f(d), 0) / sm.dots.length;
-      if (side === 'tip') {
+      const legRoute = layout.tracks[sm.dots[0]!.track.id]!.route;
+      const alongSlot = legRoute.length > 1 && legRoute[legRoute.length - 1]!.lane === legRoute[legRoute.length - 2]!.lane;
+      if (side === 'tip' && alongSlot) {
+        // Leg runs along time (east, or south in vertical): label past the square end, centred (rule 20).
+        const end = Math.max(...legRoute.map((p) => p.slot)) + END_OVERRUN / s.slotGap;
+        [ex, ey] = toXY(end, mean((d) => d.lane), s);
+        dir = horiz ? 'right' : 'down';
+      } else if (side === 'tip') {
         // J-curve tip: past the dot and the square end, in the leg's direction (rule 20).
         const tip = sm.maxLane + DOT_D / 2 + END_OVERRUN;
         const mid = mean((d) => d.slot);
