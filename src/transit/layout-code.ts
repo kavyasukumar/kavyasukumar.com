@@ -162,6 +162,8 @@ const sides: Record<string, StationLayout['labelSide']> = {
 X['bad-idea-factory'] = K0 - UP_TURN + P; // slot only: label and order; dots are placed explicitly
 const stations: Record<string, StationLayout> = {};
 for (const [id, x] of Object.entries(X)) stations[id] = { slot: x / GAP, labelSide: sides[id] ?? 'before' };
+// Phone: the All Things Small label goes under its dots, clear of the fan's bends above them.
+stations['all-things-small']!.vUnder = true;
 
 export const careerLayout: LineLayout = {
   lineId: 'journalism',

@@ -30,6 +30,8 @@ export interface StationLayout {
    * 'back' = beside the dots on the earlier-slot side (left in horizontal, above in vertical).
    */
   labelSide: 'before' | 'after' | 'tip' | 'back';
+  /** Vertical layout only: a 'back' label goes under the dots instead of above them, clear of the fan's bends. */
+  vUnder?: boolean;
 }
 
 export interface LineLayout {

@@ -22,6 +22,7 @@ const PAD = 24;
 // No time axis (rule 39): only order matters.
 const AXIS_ROW = 12;
 const AXIS_COL = PAD;
+const VPAD = 6; // side margin of the vertical (phone) layout
 
 export interface StationModel {
   st: MapStation;
@@ -107,17 +108,34 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
     return { lw, ...out };
   };
   const h = tryFit('horizontal');
-  const pick = h.lw < (layout.minLw ? layout.minLw - 1 : H_SWITCH_LW) ? tryFit('vertical') : h;
-  const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, pick.lw));
-  const o = pick.scale.orientation;
-  const m = measure(o, lw, width, model, layout);
+  if (h.lw < (layout.minLw ? layout.minLw - 1 : H_SWITCH_LW)) return fitVertical(width, model, layout);
+  const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, h.lw));
+  const m = measure('horizontal', lw, width, model, layout);
   const b = m.box;
   const used = b.x1 - b.x0;
-  const originX = o === 'horizontal'
-    ? Math.max(PAD, (width - used) / 2) - b.x0
-    : AXIS_COL - b.x0;
-  const originY = o === 'horizontal' ? AXIS_ROW - b.y0 : PAD / 2 - b.y0;
+  const originX = Math.max(PAD, (width - used) / 2) - b.x0;
+  const originY = AXIS_ROW - b.y0;
   return { scale: { ...m.scale, originX, originY }, box: b };
+}
+
+/**
+ * Vertical (phone) layout: the widest lw, up to MAX_LW, whose drawing fits between VPAD margins.
+ * It may drop below minLw on a phone so nothing is clipped; the drawing hugs the left margin, so
+ * the ribbon sits as far west as the fans and labels allow (rules 22, 40; owner decision).
+ */
+function fitVertical(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box } {
+  const avail = width - 2 * VPAD;
+  const fits = (lw: number): boolean => { const b = measure('vertical', lw, width, model, layout).box; return b.x1 - b.x0 <= avail; };
+  let lw = MAX_LW;
+  if (!fits(lw)) {
+    let lo = 1; let hi = MAX_LW;
+    for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+    lw = lo;
+  }
+  const m = measure('vertical', lw, width, model, layout);
+  const b = m.box;
+  const originX = Math.max(VPAD, (width - (b.x1 - b.x0)) / 2) - b.x0;
+  return { scale: { ...m.scale, originX, originY: PAD / 2 - b.y0 }, box: b };
 }
 
 interface Box { x0: number; y0: number; x1: number; y1: number }
