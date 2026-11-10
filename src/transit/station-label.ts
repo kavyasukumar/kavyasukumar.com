@@ -4,6 +4,7 @@ import type { StationModel } from './model';
 import type { LineLayout, Scale } from './types';
 
 const LABEL_GAP = 0.75;
+const LABEL_GAP_H = 1.2; // horizontal (desktop) only: 20% more room between the ribbon and its label band (R2)
 
 /** Where a station's name goes: its wrapped lines, anchor point and bounding box (rules 20, 29, 30). */
 export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, budget: number):
@@ -86,5 +87,5 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
     [ex, ey] = toXY(sm.slot, edge, s);
     dir = horiz ? (before ? 'up' : 'down') : (before ? 'left' : 'right');
   }
-  return { lines, ...placeLabel(dir, ex, ey, LABEL_GAP * lw, lines) };
+  return { lines, ...placeLabel(dir, ex, ey, LABEL_GAP * (horiz ? LABEL_GAP_H : 1) * lw, lines) };
 }

@@ -5,7 +5,7 @@
       "id": "code",
       "name": "code",
       "order": 1,
-      "colour": "#0A0A0A"
+      "colour": "#0B3D2E"
     },
     {
       "id": "journalism",
@@ -17,13 +17,13 @@
       "id": "product",
       "name": "product",
       "order": 3,
-      "colour": "#F2C14E"
+      "colour": "#9AD9B0"
     },
     {
       "id": "investing",
       "name": "investing",
       "order": 4,
-      "colour": "#9AD9B0"
+      "colour": "#0A0A0A"
     },
     {
       "id": "leadership",
@@ -110,7 +110,7 @@
       "short": "Leadership",
       "theme": "Leading newsrooms, product and tech teams, and boards",
       "ongoing": true,
-      "num": 8,
+      "num": 11,
       "strand_count": 3
     },
     {
@@ -120,7 +120,7 @@
       "short": "Evangelism",
       "theme": "Teaching and evangelising tech in media",
       "ongoing": false,
-      "num": 9,
+      "num": 12,
       "strand_count": 4
     },
     {
@@ -130,7 +130,7 @@
       "short": "Product mgmt",
       "theme": "Product strategy plus day-to-day delivery",
       "ongoing": true,
-      "num": 10,
+      "num": 8,
       "strand_count": 3
     },
     {
@@ -140,7 +140,7 @@
       "short": "Economics",
       "theme": "Understanding the business of products and the realities of funding",
       "ongoing": true,
-      "num": 11,
+      "num": 9,
       "strand_count": 2
     },
     {
@@ -150,7 +150,7 @@
       "short": "Fundraising",
       "theme": "Investor relations and fundraising, seen from the product side (owner wore a product manager hat)",
       "ongoing": true,
-      "num": 12,
+      "num": 10,
       "strand_count": 2
     },
     {
@@ -519,7 +519,7 @@
     {
       "id": "leadership-team-1",
       "theme": "leadership-team",
-      "label": "8",
+      "label": "11",
       "hatched": false,
       "stations": [
         "palm-beach-post",
@@ -532,7 +532,7 @@
     {
       "id": "leadership-team-2",
       "theme": "leadership-team",
-      "label": "8",
+      "label": "11",
       "hatched": true,
       "stations": [
         "seattle-globalist"
@@ -542,7 +542,7 @@
     {
       "id": "leadership-team-3",
       "theme": "leadership-team",
-      "label": "8",
+      "label": "11",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -552,7 +552,7 @@
     {
       "id": "leadership-evangelism-1",
       "theme": "leadership-evangelism",
-      "label": "9",
+      "label": "12",
       "hatched": false,
       "stations": [
         "opennews-fellow",
@@ -563,7 +563,7 @@
     {
       "id": "leadership-evangelism-2",
       "theme": "leadership-evangelism",
-      "label": "9",
+      "label": "12",
       "hatched": true,
       "stations": [
         "seattle-globalist"
@@ -573,7 +573,7 @@
     {
       "id": "leadership-evangelism-3",
       "theme": "leadership-evangelism",
-      "label": "9",
+      "label": "12",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -583,7 +583,7 @@
     {
       "id": "leadership-evangelism-4",
       "theme": "leadership-evangelism",
-      "label": "9",
+      "label": "12",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -593,7 +593,7 @@
     {
       "id": "product-product-mgmt-1",
       "theme": "product-product-mgmt",
-      "label": "10",
+      "label": "8",
       "hatched": false,
       "stations": [
         "hearken",
@@ -604,7 +604,7 @@
     {
       "id": "product-product-mgmt-2",
       "theme": "product-product-mgmt",
-      "label": "10",
+      "label": "8",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -614,7 +614,7 @@
     {
       "id": "product-product-mgmt-3",
       "theme": "product-product-mgmt",
-      "label": "10",
+      "label": "8",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -624,7 +624,7 @@
     {
       "id": "product-economics-1",
       "theme": "product-economics",
-      "label": "11",
+      "label": "9",
       "hatched": false,
       "stations": [
         "hearken",
@@ -635,7 +635,7 @@
     {
       "id": "product-economics-2",
       "theme": "product-economics",
-      "label": "11",
+      "label": "9",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -645,7 +645,7 @@
     {
       "id": "product-fundraising-1",
       "theme": "product-fundraising",
-      "label": "12",
+      "label": "10",
       "hatched": false,
       "stations": [
         "hearken",
@@ -657,7 +657,7 @@
     {
       "id": "product-fundraising-2",
       "theme": "product-fundraising",
-      "label": "12",
+      "label": "10",
       "hatched": true,
       "stations": [
         "seattle-globalist"
