@@ -14,7 +14,7 @@ import { MarqueeDivider } from './components/MarqueeDivider';
 import { Reveal } from './components/Reveal';
 import { getTheme, hexToRgb } from './themes';
 
-// Display font candidates. Preview with ?font=bricolage | dela | unbounded (default: bricolage).
+// Display font candidates. Dev-only preview with ?font=archivo | dela | unbounded (default: bricolage).
 // [family, first-line offset, second-line offset] offsets pull glyph edges onto the grid line (em).
 // Fourth value is letter-spacing in em.
 const DISPLAY_FONTS: Record<string, [string, number, number, number]> = {
@@ -22,6 +22,13 @@ const DISPLAY_FONTS: Record<string, [string, number, number, number]> = {
   bricolage: ["'Bricolage Grotesque', sans-serif", 0.05, 0.035, 0.01],
   dela: ["'Dela Gothic One', sans-serif", 0.04, 0.03, -0.02],
   unbounded: ["'Unbounded', sans-serif", 0.05, 0.04, -0.03]
+};
+
+// Stylesheets for dev-only ?font= previews (bricolage is loaded from index.html).
+const DEV_FONT_URLS: Record<string, string> = {
+  archivo: 'https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap',
+  dela: 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap',
+  unbounded: 'https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap'
 };
 
 export default function App() {
@@ -46,25 +53,35 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fontKey = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('font') || 'bricolage'
-    : 'bricolage';
-  const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey] || DISPLAY_FONTS.bricolage;
+  // ?font= preview is dev-only; production always uses bricolage (loaded from index.html).
+  const requestedFont = import.meta.env.DEV && typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('font')
+    : null;
+  const fontKey = requestedFont && DISPLAY_FONTS[requestedFont] ? requestedFont : 'bricolage';
+  const [displayFamily, off1, off2, track] = DISPLAY_FONTS[fontKey];
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || fontKey === 'bricolage') return;
+    const href = DEV_FONT_URLS[fontKey];
+    if (!href) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+    return () => { link.remove(); };
+  }, [fontKey]);
 
   // Palette comes from themes.ts (Pistachio only).
-  const themeKey = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('theme') : null;
-  const T = getTheme(themeKey);
+  const T = getTheme();
   const FIELD = hexToRgb(T.field);
-  // Dark theme may override field/paper/fill (hybrid themes); light theme always uses field/paper/fill.
-  const darkBg = T.darkField || T.field;
   const darkText = T.darkPaper || T.paper;
   const PAPER = hexToRgb(darkText);
-  const fillNow = isDark ? (T.darkFill || T.fill) : T.fill;
+  const fillNow = T.fill;
   // Text on accent fills: deeper than the field green for contrast (~8:1 on the pink).
   const ON_FILL = '#04231A';
   const PAL = { field: T.field, paper: T.paper, ink: T.ink };
   const colors = {
-    bg: isDark ? darkBg : PAL.paper,
+    bg: isDark ? T.field : PAL.paper,
     text: isDark ? darkText : PAL.field,
     accent: isDark ? T.lineDark : T.lineLight,
     border: isDark ? `rgba(${PAPER},0.25)` : `rgba(${FIELD},0.18)`
@@ -96,8 +113,6 @@ export default function App() {
       style={rootVars}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Dela+Gothic+One&family=Unbounded:wght@900&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@700&display=swap');
-
         :root {
           --font-body: 'Space Grotesk', sans-serif;
           --font-mono: 'JetBrains Mono', monospace;
