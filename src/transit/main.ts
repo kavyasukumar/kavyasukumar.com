@@ -3,6 +3,7 @@ import { renderKey } from './key';
 import { careerLayout } from './layout-code';
 import { yearsOf } from './model';
 import { renderMap, type RenderResult } from './render';
+import { initScrollHint } from './scroll-hint';
 import { initTrackbar } from './trackbar';
 import type { MapData } from './types';
 
@@ -12,10 +13,12 @@ const keyEl = document.getElementById('transit-key');
 const kindEl = document.getElementById('ck');
 const nameEl = document.getElementById('ch');
 const infoEl = document.getElementById('cp');
+const hintEl = document.getElementById('transit-map-hint');
 
 let last: RenderResult | null = null;
 let lastWidth = -1;
 let lastKeyLw = -1;
+let updateHint: (() => void) | null = null;
 
 function draw(el: HTMLElement): void {
   last = renderMap(el, data, careerLayout);
@@ -24,6 +27,7 @@ function draw(el: HTMLElement): void {
     const lw = Math.round(last.scale.lw * 100) / 100;
     if (lw !== lastKeyLw) { renderKey(keyEl, data, careerLayout, last.scale.lw); lastKeyLw = lw; }
   }
+  updateHint?.(); // a re-render changes scrollWidth
 }
 
 function showPrompt(): void {
@@ -51,6 +55,7 @@ function clearStation(): void {
 if (mapEl) {
   showPrompt();
   draw(mapEl);
+  if (hintEl) updateHint = initScrollHint(mapEl, hintEl);
   document.addEventListener('click', (e) => {
     const t = e.target;
     if (t instanceof Element && (t.closest('.tm-station') || t.closest('.card'))) return;
