@@ -11,7 +11,7 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
   { lines: string[]; x: number; y: number; anchor: string; box: [number, number, number, number] } {
   const { lw } = s;
   const horiz = s.orientation === 'horizontal';
-  const lines = wrap(sm.st.name, budget);
+  const lines = wrap(sm.st.name, horiz && layout.stations[sm.st.id]?.hWrap ? 0 : budget);
   const n = lines.length;
   const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
   const side = sm.labelSide;

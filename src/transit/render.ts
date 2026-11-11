@@ -113,8 +113,8 @@ export const contrast = (a: string, b: string): number => {
   return (hi + 0.05) / (lo + 0.05);
 };
 // Rule 22: a highlighted station's ID takes its own track's line colour, unless that line is dark
-// (contrast against the Ink dot below 3:1), which gets a Cream ID instead. Computed, not by line name.
-const DARK_LINE = 3;
+// (contrast against the Ink dot below 4.5:1), which gets a Cream ID instead. Computed, not by line name.
+const DARK_LINE = 4.5;
 export const glyphOn = (lineColour: string): string => (contrast(lineColour, INK) < DARK_LINE ? CREAM : lineColour);
 
 function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number): Plan {
@@ -126,9 +126,9 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     box.x1 = Math.max(box.x1, x1); box.y1 = Math.max(box.y1, y1);
   };
   const over = END_OVERRUN * lw;
-  // A track ending at a pure terminal stops at its square's centre, with no overrun (rule 26).
+  // A track that truly ends at a stop stops at its square's centre, with no overrun (rule 26).
   const endAt = new Map<string, [number, number]>();
-  for (const sm of model.stations) if (sm.square) for (const d of sm.dots) endAt.set(d.track.id, toXY(d.slot, d.lane, s));
+  for (const sm of model.stations) for (const d of sm.dots) if (d.square) endAt.set(d.track.id, toXY(d.slot, d.lane, s));
 
   const tracks: Plan['tracks'] = model.tracks.flatMap((t) => {
     const pts = layout.tracks[t.id]!.route.map((p) => toXY(p.slot, p.lane, s));
@@ -160,7 +160,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
       const [cx, cy] = toXY(d.slot, d.lane, s);
       grow(cx - lw / 2, cy - lw / 2, cx + lw / 2, cy + lw / 2);
       const glyph = glyphOn(model.colours[d.track.theme] ?? model.line.colour);
-      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label, square: sm.square, glyph };
+      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label, square: d.square, glyph };
     });
     // Every interchange's dots are joined by a thin connector, even where they touch (rules 24, 25).
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
@@ -275,7 +275,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('pointer-events', 'none');
   sts.selectAll<SVGCircleElement, Plan['stations'][number]['dots'][number]>('circle.tm-dot').data((d) => d.dots.filter((c) => !c.square), (c) => c.key).join('circle')
     .attr('class', 'tm-dot').attr('data-themes', (c) => c.theme).attr('cx', (c) => c.cx).attr('cy', (c) => c.cy).attr('r', (DOT_D * lw) / 2).attr('fill', INK);
-  // Pure terminals: sharp-cornered squares, same size, fill and hover state as the dots (rule 26).
+  // Tracks that truly end here: sharp-cornered squares, same size, fill and hover state as the dots (rule 26).
   sts.selectAll<SVGRectElement, Plan['stations'][number]['dots'][number]>('rect.tm-dot').data((d) => d.dots.filter((c) => c.square), (c) => c.key).join('rect')
     .attr('class', 'tm-dot tm-dot-square').attr('data-themes', (c) => c.theme)
     .attr('x', (c) => c.cx - (DOT_D * lw) / 2).attr('y', (c) => c.cy - (DOT_D * lw) / 2)
