@@ -77,6 +77,13 @@ export function tapTrack(e: PointerEvent, theme: string): void {
   apply();
 }
 
+/** Clear the touch pin only if it is one of `ids` (closing a key line clears that line's pin, not another's). */
+export function unpinIf(ids: string[]): void {
+  if (pinned === null || !ids.includes(pinned)) return;
+  pinned = null;
+  apply();
+}
+
 /** Pin `id` (or clear with null) from a touch tap that already knows the outcome (a key line header). */
 export function pinTo(id: string | null): void {
   pinned = id;
