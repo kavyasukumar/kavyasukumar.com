@@ -94,7 +94,7 @@ interface Plan {
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; d: string; themes: string }[];
-    dots: { key: string; theme: string; cx: number; cy: number; label: string; square: boolean }[];
+    dots: { key: string; theme: string; cx: number; cy: number; label: string; square: boolean; glyph: string }[];
     label: { lines: string[]; x: number; y: number; anchor: string };
   }[];
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
@@ -107,6 +107,15 @@ function luminance(hex: string): number {
   return 0.2126 * f((n >> 16) & 255) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255);
 }
 export const textOn = (colour: string): string => (luminance(colour) > 0.3 ? INK : WHITE);
+/** WCAG 2 contrast ratio between two hex colours. */
+export const contrast = (a: string, b: string): number => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
+  return (hi + 0.05) / (lo + 0.05);
+};
+// Rule 22: a highlighted station's ID takes its own track's line colour, unless that line is dark
+// (contrast against the Ink dot below 3:1), which gets a Cream ID instead. Computed, not by line name.
+const DARK_LINE = 3;
+export const glyphOn = (lineColour: string): string => (contrast(lineColour, INK) < DARK_LINE ? CREAM : lineColour);
 
 function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number): Plan {
   const { lw } = s;
@@ -150,7 +159,8 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const dots = sm.dots.map((d) => {
       const [cx, cy] = toXY(d.slot, d.lane, s);
       grow(cx - lw / 2, cy - lw / 2, cx + lw / 2, cy + lw / 2);
-      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label, square: sm.square };
+      const glyph = glyphOn(model.colours[d.track.theme] ?? model.line.colour);
+      return { key: d.track.id, theme: d.track.theme, cx, cy, label: d.track.label, square: sm.square, glyph };
     });
     // Every interchange's dots are joined by a thin connector, even where they touch (rules 24, 25).
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
@@ -197,8 +207,8 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('aria-label', `${model.line.name} line`)
     // Wider than its frame only at the phone lw floor; the frame then scrolls sideways (PH1).
     .style('min-width', () => (W > frameW ? `${W}px` : null))
-    // Line colour for hovered/selected station IDs and connector width for its hover scaling (CSS).
-    .style('--tm-line', model.line.colour).style('--tm-cw', `${CONNECTOR_W * lw}px`) as Sel<SVGSVGElement>;
+    // Connector width for its hover scaling (CSS).
+    .style('--tm-cw', `${CONNECTOR_W * lw}px`) as Sel<SVGSVGElement>;
 
   // Rule 8: crossing tracks below, then casings, then straight-through tracks on top.
   const drawTracks = (name: string, list: Plan['tracks'], cls = 'tm-track') => layer(svg, name)
@@ -273,7 +283,9 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')
     .attr('class', 'tm-dot-id').attr('x', (c) => c.cx).attr('y', (c) => c.cy)
     .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('dy', ID_DY).attr('pointer-events', 'none')
-    .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', Math.max(LABEL_PX, 0.62 * lw)).attr('fill', WHITE).text((c) => c.label);
+    .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', Math.max(LABEL_PX, 0.62 * lw)).attr('fill', WHITE)
+    // Highlight colour of this ID: its own track's line, or Cream on a dark line (CSS, rule 22).
+    .style('--tm-dot-line', (c) => c.glyph).text((c) => c.label);
   const labels = sts.selectAll<SVGTextElement, Plan['stations'][number]>('text.tm-label').data((d) => [d]).join('text')
     .attr('class', (d) => (d.major ? 'tm-label is-major' : 'tm-label'))
     .attr('text-anchor', (d) => d.label.anchor).attr('font-family', FONT).attr('font-size', LABEL_PX)
