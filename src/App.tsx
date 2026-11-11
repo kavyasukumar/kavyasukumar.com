@@ -13,6 +13,8 @@ import { SectionTitle } from './components/SectionTitle';
 import { MarqueeDivider } from './components/MarqueeDivider';
 import { Reveal } from './components/Reveal';
 import { getTheme, hexToRgb } from './themes';
+import { ON_FILL, themeVars } from './theme-vars';
+import { applyTheme, onExternalThemeChange, resolveTheme, storeTheme } from './theme-mode';
 
 // Display font candidates. Dev-only preview with ?font=archivo | dela | unbounded (default: bricolage).
 // [family, first-line offset, second-line offset] offsets pull glyph edges onto the grid line (em).
@@ -32,42 +34,16 @@ const DEV_FONT_URLS: Record<string, string> = {
 };
 
 export default function App() {
-  const readStoredTheme = (): 'dark' | 'light' | null => {
-    try {
-      const v = window.localStorage.getItem('theme');
-      return v === 'dark' || v === 'light' ? v : null;
-    } catch {
-      return null;
-    }
-  };
+  // Same mode logic as the dataviz page (theme-mode.ts): stored choice, else the OS preference.
+  const [isDark, setIsDark] = useState(() => typeof window !== 'undefined' && resolveTheme() === 'dark');
 
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = readStoredTheme();
-      if (stored) return stored === 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (readStoredTheme()) return;
-      setIsDark(e.matches);
-    };
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  useEffect(() => onExternalThemeChange((mode) => setIsDark(mode === 'dark')), []);
+  useEffect(() => applyTheme(isDark ? 'dark' : 'light'), [isDark]);
 
   const toggleTheme = (): void => {
     const next = !isDark;
     setIsDark(next);
-    try {
-      window.localStorage.setItem('theme', next ? 'dark' : 'light');
-    } catch {
-      /* storage unavailable */
-    }
+    storeTheme(next ? 'dark' : 'light');
   };
 
   const scrollTo = (id: string): void => {
@@ -99,8 +75,6 @@ export default function App() {
   const darkText = T.darkPaper || T.paper;
   const PAPER = hexToRgb(darkText);
   const fillNow = T.fill;
-  // Text on accent fills: deeper than the field green for contrast (~8:1 on the pink).
-  const ON_FILL = '#04231A';
   const PAL = { field: T.field, paper: T.paper, ink: T.ink };
   const colors = {
     bg: isDark ? T.field : PAL.paper,
@@ -109,21 +83,12 @@ export default function App() {
     border: isDark ? `rgba(${PAPER},0.25)` : `rgba(${FIELD},0.18)`
   };
 
+  // Theme variables come from theme-vars.ts (shared with the dataviz page).
   const rootVars = {
     backgroundColor: colors.bg,
     color: colors.text,
-    '--fg': colors.text,
-    '--bg': colors.bg,
-    '--accent': colors.accent,
-    '--fill': fillNow,
-    '--on-fill': ON_FILL,
-    '--hairline': colors.border,
-    // Outline words stroke at 2x and paint the fill over the inner half (paint-order),
-    // which hides overlapping contours in variable fonts.
-    '--stroke': isDark ? '4px' : '3px',
-    '--stroke-hover': '6px',
+    ...themeVars(isDark ? 'dark' : 'light'),
     '--track': `${track}em`,
-    '--hard': isDark ? ON_FILL : PAL.field,
     '--o1': `${-off1}em`,
     '--o2': `${-off2}em`,
     '--font-display': displayFamily
@@ -136,10 +101,6 @@ export default function App() {
     >
       <style>{`
         :root {
-          --font-body: 'Space Grotesk', sans-serif;
-          --font-mono: 'JetBrains Mono', monospace;
-          --ease: cubic-bezier(0.22, 1, 0.36, 1);
-          --gutter: clamp(1.5rem, 4vw, 3rem);
           --section-y: clamp(4rem, 10vw, 8rem);
           --title-gap: clamp(2rem, 5vw, 5rem);
         }
@@ -148,7 +109,7 @@ export default function App() {
         .font-body { font-family: var(--font-body); }
         .font-mono { font-family: var(--font-mono); }
 
-        html { scroll-behavior: smooth; font-size: 18px; }
+        html { scroll-behavior: smooth; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: ${colors.bg}; }
         ::-webkit-scrollbar-thumb { background: ${isDark ? darkText : PAL.field}; }
@@ -156,8 +117,7 @@ export default function App() {
         ::selection { background: var(--fill); color: var(--on-fill); }
         :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
-        /* One container, one grid edge, used by every section including nav and footer */
-        .wrap { width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: var(--gutter); }
+        /* .wrap, header (.site-nav, .nav-link, .theme-toggle) and .outline-word live in shared.css */
         .section { padding-block: var(--section-y); }
 
         /* Giant type */
@@ -172,31 +132,20 @@ export default function App() {
         .hero-line:nth-child(2) { margin-left: var(--o2); }
         .hero-line:nth-child(1) > span { color: var(--fg); }
         .hero-line:nth-child(2) > span {
-          color: var(--bg);
-          paint-order: stroke fill;
-          -webkit-text-stroke: var(--stroke) var(--fg);
           transition: -webkit-text-stroke-width 0.3s var(--ease);
         }
         .hero-line:nth-child(2) > span:hover { -webkit-text-stroke: var(--stroke-hover) var(--fg); }
 
         .section-title { font-size: clamp(2.5rem, 12vw, 10rem); line-height: 0.9; letter-spacing: var(--track); margin-bottom: var(--title-gap); }
         .title-solid { color: var(--fg); margin-left: var(--o1); }
-        .title-outline { color: var(--bg); paint-order: stroke fill; -webkit-text-stroke: var(--stroke) var(--fg); margin-left: var(--o2); }
+        .title-outline { margin-left: var(--o2); }
 
         /* Outline words thicken on hover (same as the hero surname). Shrink-wrap so only the glyph row triggers it. */
         .title-outline { width: fit-content; max-width: 100%; }
         .title-outline.reveal { transition: opacity .8s var(--ease), transform .8s var(--ease), -webkit-text-stroke-width .3s var(--ease); transition-delay: var(--d, 0ms), var(--d, 0ms), 0ms; }
         @media (hover: hover) and (pointer: fine) { .title-outline:hover { -webkit-text-stroke-width: var(--stroke-hover); } }
 
-        .theme-toggle { --knob: 24px; }
-        @media (min-width: 640px) { .theme-toggle { --knob: 32px; } }
-
         .label { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.25em; }
-
-        /* Nav */
-        .nav-link { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; min-height: 44px; display: inline-flex; align-items: center; background-image: linear-gradient(var(--accent), var(--accent)); background-repeat: no-repeat; background-position: 0 85%; background-size: 0 3px; transition: background-size .4s var(--ease); }
-        .nav-link:hover { background-size: 100% 3px; }
-        @media (max-width: 480px) { .nav-link { letter-spacing: 0.08em; } }
 
         /* CTA: hard offset shadow, tactile press */
         .cta { background: var(--fill); color: var(--on-fill); box-shadow: 6px 6px 0 var(--hard); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
@@ -285,7 +234,7 @@ export default function App() {
       {/* --- HERO --- */}
       <section className="min-h-[100dvh] flex flex-col">
         <div className="wrap">
-          <nav className="flex items-center justify-end gap-4 sm:gap-8 pt-6 md:pt-10 enter" style={{ ['--d' as string]: '0ms' }}>
+          <nav className="site-nav enter" style={{ ['--d' as string]: '0ms' }}>
             {SITE_DATA.navigation.map(item => (
               <button key={item.id} onClick={() => scrollTo(item.id)} className="nav-link" style={{ color: colors.text }}>
                 {item.name}
@@ -293,15 +242,11 @@ export default function App() {
             ))}
             <button
               onClick={toggleTheme}
-              className="theme-toggle relative w-14 sm:w-16 h-8 rounded-full border-2 transition-all duration-300 flex items-center px-1 shrink-0"
+              className="theme-toggle"
               title="Toggle Theme"
               aria-label="Toggle theme"
-              style={{ borderColor: colors.text, backgroundColor: isDark ? `rgba(${PAPER},0.1)` : 'transparent' }}
             >
-              <div
-                className="w-5 h-5 rounded-full flex items-center justify-center transition-transform duration-300"
-                style={{ backgroundColor: colors.text, color: colors.bg, transform: isDark ? 'translateX(var(--knob, 32px))' : 'translateX(0)' }}
-              >
+              <div className="theme-knob">
                 {isDark ? <Sun size={12} weight="bold" /> : <Moon size={12} weight="bold" />}
               </div>
             </button>
@@ -315,7 +260,7 @@ export default function App() {
 
           <h1 className="hero-name font-display uppercase mb-10 md:mb-14" aria-label={SITE_DATA.profile.name}>
             <span className="hero-line"><span>{SITE_DATA.profile.firstName}</span></span>
-            <span className="hero-line"><span>{SITE_DATA.profile.lastName}</span></span>
+            <span className="hero-line"><span className="outline-word">{SITE_DATA.profile.lastName}</span></span>
           </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
@@ -448,7 +393,7 @@ export default function App() {
         <div className="wrap">
           <h2 className="hero-name font-display uppercase mb-12" style={{ fontSize: 'clamp(2.5rem, 14vw, 12rem)' }}>
             <Reveal as="span" className="block title-solid">GET IN</Reveal>
-            <Reveal as="span" className="block title-outline" delay={140}>TOUCH</Reveal>
+            <Reveal as="span" className="block title-outline outline-word" delay={140}>TOUCH</Reveal>
           </h2>
           <Reveal delay={200}>
             <a

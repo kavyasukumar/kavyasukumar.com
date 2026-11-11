@@ -8,7 +8,7 @@ export const SectionTitle = ({ first, second }: SectionTitleProps) => (
     <Reveal as="span" className="block title-solid" delay={0}>
       {first}
     </Reveal>
-    <Reveal as="span" className="block title-outline" delay={140}>
+    <Reveal as="span" className="block title-outline outline-word" delay={140}>
       {second}
     </Reveal>
   </h2>
