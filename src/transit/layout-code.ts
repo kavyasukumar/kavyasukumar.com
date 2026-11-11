@@ -33,7 +33,7 @@ interface Spacing {
 // label clears UW Lecturer's legs. The phone keeps ORDER 16's spacing and x positions.
 const DESKTOP: Spacing = {
   k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 25.7, dotLh: 20.9, splitLh: 69.8,
-  x: { 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
+  x: { 'opennews-fellow': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
 };
 const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 50, upDot: -6.5 - 5.4, drop: 2.2, dot: 25, dotLh: 19.4, splitLh: 69.1, x: {} };
 
@@ -225,6 +225,8 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
   X['bad-idea-factory'] = sp.k0 - sp.upTurn + P; // slot only: label and order; dots are placed explicitly
   const stations: Record<string, StationLayout> = {};
   for (const [id, x] of Object.entries(X)) stations[id] = { slot: x / GAP, labelSide: sides[id] ?? 'before' };
+  // Desktop: Vox Media's label always wraps, so it clears OpenNews (moved east 1.5 lw) and Bad Idea Factory's rising branches.
+  stations['vox-media']!.hWrap = true;
   // Phone: the All Things Small label goes under its dots, clear of the fan's bends above them.
   stations['all-things-small']!.vUnder = true;
   // Phone: the Seattle Globalist label goes above its dots; under them it would touch All Things Small's.

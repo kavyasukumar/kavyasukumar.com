@@ -70,7 +70,7 @@ All sizes are in **lw**, one line width (the width of a single track).
 
 ### Labels
 
-29. **Labels are horizontal and sit on the same side along a straight run.** They switch side only at a bend or to avoid a collision. A label never crosses a track, a dot or another label. [LON, NYC08]
+29. **Labels are horizontal and sit on the same side along a straight run.** They switch side only at a bend or to avoid a collision. A label never crosses a track, a dot or another label. [LON, NYC08] **Owner decision (ORDER 20):** neighbouring labels keep at least 1 lw of clear space between them, so two names never read as one run. On desktop, OpenNews and Vox Media sit 1.5 lw further east (along time; the phone is unchanged) and the Vox Media label always wraps to two lines, which clears Palm Beach Post / OpenNews and OpenNews / Vox Media by at least 1 lw from 1280 to 1440. Medill / Palm Beach Post is still under 1 lw (open decision).
 30. **A label starts about 0.5–1 lw past the outer edge of the bundle.** It goes on the side away from the nearest parallel line. Long names stack on two or three lines, flush toward the line. [NYC08, LON]
 31. **Weight labels by role.** Interchange and terminal labels are bold and dark. Plain stations are regular weight and a lighter grey. [NYC08, NYC72]
 
@@ -106,4 +106,5 @@ The London map has a "Key to lines" and a "Key to symbols" outside the map frame
 - The name and theme of each track within a line, and which stops each track serves.
 - The screen width at which the map switches from the wide layout to the vertical one (rule 40).
 - Same-line crossings (rule 4) were chosen over separate bands for lines whose split tracks all have ongoing branches (journalism A, B, C). Check the result on the map before applying it to the code line.
+- Medill / Palm Beach Post labels on desktop are 0.2–0.65 lw apart (1280–1440), under rule 29's 1 lw gap. Palm Beach Post is already wrapped and Medill is one word, so closing it needs Medill or Palm Beach Post moved along time, or the gap accepted.
 - The cream dot ring (rule 22) is low contrast on Mint (Cream vs Mint about 1.35:1).

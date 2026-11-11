@@ -34,6 +34,8 @@ export interface StationLayout {
    * 'back' = beside the dots on the earlier-slot side (left in horizontal, above in vertical).
    */
   labelSide: 'before' | 'after' | 'tip' | 'back';
+  /** Horizontal layout only: the label always wraps to two lines, to keep clear of its neighbours (Vox Media). */
+  hWrap?: boolean;
   /** Vertical layout only: a 'back' label goes under the dots instead of above them, clear of the fan's bends. */
   vUnder?: boolean;
   /** Vertical layout only: a 'tip' label goes above the dots instead of under them (Seattle Globalist, clear of ATS). */
