@@ -38,7 +38,7 @@
       "line": "code",
       "name": "for the love of code",
       "short": "Love of code",
-      "theme": "Coding out of love and curiosity for all things coding",
+      "theme": "Coding out of love and curiosity for all things coding. Core engineering skills",
       "ongoing": true,
       "letter": "D",
       "strand_count": 4
@@ -48,7 +48,7 @@
       "line": "code",
       "name": "code as a tool for social justice",
       "short": "SJW coder",
-      "theme": "Civic tech and advocacy tools; code that exposes or fixes injustice",
+      "theme": "Civic-tech and advocacy tools; code that exposes or fixes injustice",
       "ongoing": true,
       "letter": "F",
       "strand_count": 4
@@ -58,7 +58,7 @@
       "line": "code",
       "name": "Data science",
       "short": "Data science",
-      "theme": "Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling",
+      "theme": "Data science and visualization: analysis, pipelines, charts & interactives.",
       "ongoing": true,
       "letter": "E",
       "strand_count": 5
@@ -78,7 +78,7 @@
       "line": "journalism",
       "name": "Finding stories",
       "short": "Finding stories",
-      "theme": "Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting)",
+      "theme": "Data-driven investigations, reporting, writing and editing stories.",
       "ongoing": true,
       "letter": "A",
       "strand_count": 4
@@ -88,7 +88,7 @@
       "line": "journalism",
       "name": "Storytelling and presentation",
       "short": "Storytelling",
-      "theme": "Craft of the story plus how it reaches the audience, including data and visualization as storytelling",
+      "theme": "Craft of the story, how it is presented and how it reaches the audience",
       "ongoing": true,
       "letter": "B",
       "strand_count": 5
@@ -98,7 +98,7 @@
       "line": "journalism",
       "name": "Editorial tooling",
       "short": "Tooling",
-      "theme": "Newsroom workflow tools plus story-finding and verification tools",
+      "theme": "Tools for newsroom workflow - finding, verifying and presenting stories",
       "ongoing": true,
       "letter": "C",
       "strand_count": 5
@@ -106,7 +106,7 @@
     {
       "id": "leadership-team",
       "line": "leadership",
-      "name": "Team leadership and management",
+      "name": "Leadership & management",
       "short": "Leadership",
       "theme": "Leading newsrooms, product and tech teams, and boards",
       "ongoing": true,
@@ -128,7 +128,7 @@
       "line": "product",
       "name": "product management",
       "short": "Product mgmt",
-      "theme": "Product strategy plus day-to-day delivery",
+      "theme": "Product strategy and delivery",
       "ongoing": true,
       "letter": "H",
       "strand_count": 3
@@ -148,7 +148,7 @@
       "line": "product",
       "name": "Fundraising and investor relations",
       "short": "Fundraising",
-      "theme": "Investor relations and fundraising, seen from the product side (owner wore a product manager hat)",
+      "theme": "Investor relations and fundraising",
       "ongoing": true,
       "letter": "J",
       "strand_count": 2
@@ -156,9 +156,9 @@
     {
       "id": "investing-diligence",
       "line": "investing",
-      "name": "Investment diligence",
+      "name": "Tech diligence",
       "short": "Diligence",
-      "theme": "Evaluating and diligencing investments, on the tech front",
+      "theme": "Evaluating and diligencing investments",
       "ongoing": false,
       "letter": "M",
       "strand_count": 1
