@@ -1,5 +1,5 @@
 import { select, type Selection } from 'd3-selection';
-import { focusIn, focusOut, hoverIn, hoverOut, registerKey, setGroups } from './highlight';
+import { focusIn, focusOut, hoverIn, hoverOut, pinTo, registerKey, setGroups, tapTrack } from './highlight';
 import { isOpen, setPanel, togglePanel } from './key-accordion';
 import { TRACK_LETTERS, type LineLayout, type MapData, type MapLine, type MapTheme } from './types';
 
@@ -9,6 +9,8 @@ type Group = { id: string; hl: string; name: string; colour: string; tracks: Tra
 
 /** Ribbon order: by track letter (A at the top). */
 const byLetter = (a: MapTheme, b: MapTheme): number => TRACK_LETTERS.indexOf(a.letter) - TRACK_LETTERS.indexOf(b.letter);
+
+let headTouch = false; // the last pointerdown on a line header was a touch
 
 /** Hover and keyboard focus on a key row highlight `id` (rule 41): a theme, or a `line:` group. */
 function wire<E extends HTMLElement, D, P extends Element>(sel: Selection<E, D, P, unknown>, id: (d: D) => string): void {
@@ -51,9 +53,17 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-key-row tm-key-head').attr('type', 'button')
     .attr('id', (g) => `tm-key-h-${g.id}`).attr('aria-controls', (g) => `tm-key-p-${g.id}`)
     .attr('data-themes', (g) => g.hl)
-    .on('click', function (_e, g) {
+    // Touch: a header tap also pins its line while open and clears when it closes
+    // (rule 41). The pointer type is noted on pointerdown because the click that
+    // follows is not a PointerEvent in every browser; Enter/Space clicks skip it.
+    .on('pointerdown', (e: PointerEvent) => { headTouch = e.pointerType === 'touch'; })
+    .on('click', function (e: MouseEvent, g) {
+      const touch = headTouch && e.detail > 0;
+      headTouch = false;
       const panel = document.getElementById(`tm-key-p-${g.id}`);
-      if (panel) togglePanel(g.id, this, panel);
+      if (!panel) return;
+      togglePanel(g.id, this, panel);
+      if (touch) pinTo(isOpen(g.id) ? g.hl : null);
     });
   wire(heads, (g) => g.hl);
   const swatches = heads.selectAll<HTMLSpanElement, Group>('span.tm-key-swatch').data((g) => [g]).join('span')
@@ -77,6 +87,8 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   const rows = panels.selectAll<HTMLDivElement, Track>('div.tm-key-row').data((g) => g.tracks, (t) => t.theme).join('div')
     .attr('class', 'tm-key-row').attr('data-themes', (t) => t.theme).attr('tabindex', 0);
   wire(rows, (t) => t.theme);
+  // Touch: a tap on a track row toggles its theme, as a tap on the map's track does.
+  rows.on('pointerup', (e: PointerEvent, t) => tapTrack(e, t.theme));
   rows.selectAll<HTMLSpanElement, Track>('span.tm-key-name').data((t) => [t]).join('span')
     .attr('class', 'tm-key-name').text((t) => t.name);
 
