@@ -4,7 +4,7 @@ import type { LayoutPoint, LineLayout, StationLayout, TrackLayout } from './type
 const slots: Record<string, number> = {
   'medill': 0,
   'palm-beach-post': 1,
-  'opennews-fellow': 2,
+  'opennews': 2,
   'vox-media': 3,
   'bad-idea-factory': 4,
   'hearken': 5,

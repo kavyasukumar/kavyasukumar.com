@@ -8,7 +8,7 @@ import type { LayoutPoint, LineLayout, StationLayout, TrackLayout, TrackLetter }
 
 // ---- TWEAK ME: station x positions along the ribbon (lw). Fan stations: centre of the legs. ----
 const X0: Record<string, number> = {
-  'nit-trichy': 0, 'microsoft': 5, 'medill': 10, 'palm-beach-post': 15, 'opennews-fellow': 20, 'vox-media': 25,
+  'nit-trichy': 0, 'microsoft': 5, 'medill': 10, 'palm-beach-post': 15, 'opennews': 20, 'vox-media': 25,
   'bad-idea-factory': 0, // set in build() from k0
   'hearken': 46, 'seattle-globalist': 55, 'all-things-small': 65, 'uw-lecturer': 63.5, 'washington-post': 67,
   'lightrock-india': 81, 'lighthouse-reports': 86, 'aspada': 89,
@@ -21,7 +21,7 @@ const LINE_GAP = 0.25; // empty space between two lines' tracks, everywhere they
 interface Spacing {
   k0: number; // x + lane of the first (journalism A) 45 degree run north-east at Bad Idea Factory
   upTurn: number; // lane where journalism A turns from 45 degrees to north
-  uwK0: number; // x + lane of UW Lecturer's first 45 degree run north-east (R1, between Hearken and WaPo)
+  uwK0: number; // x + lane of Uni. of Washington's first 45 degree run north-east (R1, between Hearken and WaPo)
   upDot: number; // lane of the BIF and UW dot rows, past the widest arc plus 1.5 lw of straight
   drop: number; // lw below the ribbon before a fan's last turn
   dot: number; // lane of every gig leg-end dot below the ribbon (Seattle Globalist, ATS)
@@ -30,10 +30,10 @@ interface Spacing {
   x: Record<string, number>; // station x overrides (along time) for this spacing
 }
 // Desktop R1-R3 are another ~20% taller (LD4), and WaPo, LightRock and Aspada sit further east so the WaPo
-// label clears UW Lecturer's legs. The phone keeps ORDER 16's spacing and x positions.
+// label clears Uni. of Washington's legs. The phone keeps ORDER 16's spacing and x positions.
 const DESKTOP: Spacing = {
   k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 25.7, dotLh: 20.9, splitLh: 69.8,
-  x: { 'opennews-fellow': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
+  x: { 'opennews': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
 };
 const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 50, upDot: -6.5 - 5.4, drop: 2.2, dot: 25, dotLh: 19.4, splitLh: 69.1, x: {} };
 
@@ -204,7 +204,7 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
     // Code trunks. Each starts at its first station. Love of code and Data science are ongoing.
     [`${C}love-of-code-1`]: trunk(X['nit-trichy']!, X['aspada']!, 'D'),
     [`${C}open-source-1`]: trunk(X['nit-trichy']!, wapo, 'G'),
-    [`${C}sjw-coder-1`]: trunk(X['opennews-fellow']!, X['lightrock-india']!, 'F'),
+    [`${C}sjw-coder-1`]: trunk(X['opennews']!, X['lightrock-india']!, 'F'),
     [`${C}data-science-1`]: trunk(X['palm-beach-post']!, X['aspada']!, 'E'),
     ...bifBranches(sp, bif),
     ...hearkenBack(sp, X),
@@ -215,7 +215,7 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
     // Leadership (raspberry): K (Team, ongoing) runs PBP to Aspada; L (Evangelism) runs OpenNews to
     // Washington Post, where it continues as its Lighthouse branch.
     [`${L_}team-1`]: trunk(X['palm-beach-post']!, X['aspada']!, 'K'),
-    [`${L_}evangelism-1`]: trunk(X['opennews-fellow']!, wapo, 'L'),
+    [`${L_}evangelism-1`]: trunk(X['opennews']!, wapo, 'L'),
     ...fanDown(sp, sg, X['seattle-globalist']!, 'seattle-globalist'),
     ...fanDown(sp, [...ats, ...atsP], X['all-things-small']!, 'all-things-small'),
     ...bifBranches(sp, uw, sp.uwK0, 'uw-lecturer'),
