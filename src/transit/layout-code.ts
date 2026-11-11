@@ -256,7 +256,7 @@ export const careerLayout: LineLayout = {
   lineId: 'journalism',
   lineIds: ['journalism', 'code', 'leadership', 'investing', 'product'], // key order follows the ribbon, top to bottom
   slotGap: { horizontal: GAP, vertical: GAP },
-  minLw: 12, // draft: as close to 16px per track as 14 stations x 7 tracks allow at 1440
+  minLw: 11, // desktop floor and switch point (rule 22): below 12 so nothing clips at 1260-1350
   ...build(DESKTOP),
   discs: [],
 };
