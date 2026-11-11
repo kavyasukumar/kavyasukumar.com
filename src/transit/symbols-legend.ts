@@ -15,7 +15,7 @@ type Pt = [number, number];
 const INK = '#0A0A0A';
 const CREAM = '#F4E9D5';
 const WHITE = '#FFFFFF';
-const MUTED = '#555555'; // plain station label and key heading grey
+const MUTED = '#555555'; // the SYMBOLS heading grey, as the key heading
 /** Swatch track grey: --tm-grey-ink, the map's greyed-dot / greyed-label colour (≈4.9:1 on Cream). */
 export const SYMBOL_GREY = '#6F6A61';
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
@@ -96,7 +96,7 @@ export function drawLegend(g: G, lw: number): void {
     swatch(row.append('g').attr('aria-hidden', 'true') as G, r.key, lw);
     row.append('text').attr('class', 'tm-sym-name').attr('aria-hidden', 'true')
       .attr('x', swatchW(lw) + NAME_GAP).attr('y', (r.h * lw) / 2).attr('dominant-baseline', 'central')
-      .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text(r.name);
+      .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', INK).text(r.name); // Ink, as station names
   });
 }
 
