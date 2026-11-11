@@ -1,6 +1,8 @@
-// Pure terminals (rule 26): stops where every track at the stop ends. Their dots are squares and
-// their tracks end at the square's centre, with no overrun. A stop where a track ends while a
-// branch split off it runs on past the stop (e.g. Washington Post) is mixed and keeps circles.
+// Terminals (rule 26), per track: a track that truly ends at a stop (not ongoing, and no branch of
+// it carries on past the stop) gets a square dot and ends at the square's centre, with no overrun. At a
+// mixed stop only those tracks get squares; the rest keep circles. A track that ends while a branch
+// split off it runs on (e.g. the trunks at Washington Post) keeps its circle. A pure terminal is a
+// stop where every track truly ends.
 import { laneAt } from './geometry';
 import type { LineLayout, MapTrack } from './types';
 
@@ -8,6 +10,17 @@ import type { LineLayout, MapTrack } from './types';
 function lastSlot(t: MapTrack, layout: LineLayout): number {
   const last = t.stations[t.stations.length - 1]!;
   return layout.tracks[t.id]?.stops?.[last]?.slot ?? layout.stations[last]?.slot ?? -Infinity;
+}
+
+/**
+ * True if branch `b` carries track `t` on past the stop: it leaves t at the stop (its route starts
+ * there, as the Lighthouse branches start where the trunks end at Washington Post) and is ongoing or
+ * stops later. A branch that left t at an earlier stop (code F's Lighthouse branch, which leaves at
+ * Washington Post, seen from LightRock India) is its own track and does not.
+ */
+function carriesOn(b: MapTrack, slot: number, layout: LineLayout): boolean {
+  const start = layout.tracks[b.id]?.route[0];
+  return !!start && start.slot >= slot - 1e-6 && (b.ongoing || lastSlot(b, layout) > slot);
 }
 
 /** True if `b`'s route starts on track `on`'s route. */
@@ -28,9 +41,13 @@ function branchOf(b: MapTrack, t: MapTrack, layout: LineLayout, all: MapTrack[])
   return !all.some((p) => p.id !== b.id && p.id !== t.id && p.theme === t.theme && startsOn(b, p, layout) && startsOn(t, p, layout));
 }
 
-/** True if every track at the stop ends there and none has a branch running on past it. */
+/** True if this one track truly ends at the stop: not ongoing, its last stop, and no branch carries it on past. */
+export function endsHere(stationId: string, slot: number, t: MapTrack, all: MapTrack[], layout: LineLayout): boolean {
+  return !t.ongoing && t.stations[t.stations.length - 1] === stationId &&
+    !all.some((b) => branchOf(b, t, layout, all) && carriesOn(b, slot, layout));
+}
+
+/** True if every track at the stop truly ends there. */
 export function isPureTerminal(stationId: string, slot: number, here: MapTrack[], all: MapTrack[], layout: LineLayout): boolean {
-  if (!here.length) return false;
-  return here.every((t) => !t.ongoing && t.stations[t.stations.length - 1] === stationId &&
-    !all.some((b) => branchOf(b, t, layout, all) && (b.ongoing || lastSlot(b, layout) > slot)));
+  return here.length > 0 && here.every((t) => endsHere(stationId, slot, t, all, layout));
 }

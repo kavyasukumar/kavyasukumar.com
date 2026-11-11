@@ -1,5 +1,5 @@
 import { laneAt } from './geometry';
-import { isPureTerminal } from './terminals';
+import { endsHere as trackEndsHere, isPureTerminal } from './terminals';
 import type { LineLayout, MapData, MapLine, MapStation, MapTrack, StationLayout } from './types';
 
 /** The map's data joined to its layout: tracks drawn, and each station's dots in lane order. */
@@ -7,7 +7,8 @@ export interface StationModel {
   st: MapStation;
   slot: number;
   labelSide: StationLayout['labelSide'];
-  dots: { track: MapTrack; lane: number; slot: number }[];
+  /** square: this track truly ends here (rule 26, per track), so its dot is a square and the track stops at it. */
+  dots: { track: MapTrack; lane: number; slot: number; square: boolean }[];
   minLane: number;
   maxLane: number;
   kind: 'station' | 'interchange' | 'terminal';
@@ -40,13 +41,14 @@ export function buildModel(data: MapData, layout: LineLayout): Model {
     const sl = layout.stations[st.id];
     if (!sl || !st.lines.some((l) => lineIds.includes(l))) continue;
     const dots: StationModel['dots'] = [];
+    const sq = (track: MapTrack): boolean => trackEndsHere(st.id, sl.slot, track, tracks, layout);
     for (const track of tracks) {
       if (!track.stations.includes(st.id)) continue;
       const tl = layout.tracks[track.id]!;
       const at = tl.stops?.[st.id];
-      if (at) { dots.push({ track, lane: at.lane, slot: at.slot }); continue; }
+      if (at) { dots.push({ track, lane: at.lane, slot: at.slot, square: sq(track) }); continue; }
       const lane = laneAt(tl.route, sl.slot);
-      if (lane !== null) dots.push({ track, lane, slot: sl.slot });
+      if (lane !== null) dots.push({ track, lane, slot: sl.slot, square: sq(track) });
     }
     if (!dots.length) continue;
     dots.sort((a, b) => a.lane - b.lane || a.slot - b.slot);
