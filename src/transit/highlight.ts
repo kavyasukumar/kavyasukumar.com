@@ -1,5 +1,6 @@
 // Theme highlight (rule 41). Mouse hover on a track or key row, keyboard focus
-// on a key row, or a touch tap on a track highlights every track of that theme.
+// on a key row, or a touch tap on a track or key row highlights every track of
+// that theme.
 // State lives here; the DOM gets classes (`has-hl` on the svg / key, `is-hl` on
 // matching elements) and CSS does the greying. One map per page.
 // A highlight is one id: a theme, or a group such as a key line header
@@ -76,14 +77,20 @@ export function tapTrack(e: PointerEvent, theme: string): void {
   apply();
 }
 
+/** Pin `id` (or clear with null) from a touch tap that already knows the outcome (a key line header). */
+export function pinTo(id: string | null): void {
+  pinned = id;
+  apply();
+}
+
 function bindDocument(): void {
   if (docBound) return;
   docBound = true;
-  // A touch tap anywhere that is not a track clears a pinned highlight.
+  // A touch tap anywhere that is not a track or a key row/header clears a pinned highlight.
   document.addEventListener('pointerup', (e) => {
     if (!isTouch(e) || pinned === null) return;
     const target = e.target as Element | null;
-    if (target?.closest?.('.tm-track')) return;
+    if (target?.closest?.('.tm-track, .tm-key [data-themes]')) return;
     pinned = null;
     apply();
   });
