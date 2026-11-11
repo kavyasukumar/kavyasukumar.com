@@ -48,9 +48,12 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
     return { lw, ...out };
   };
   const h = tryFit('horizontal');
-  // The desktop floor is also the switch point (rule 22): a fit below it goes vertical, so the
-  // horizontal map is never clamped up past its frame and no label clips.
-  if (h.lw < (layout.minLw ?? H_SWITCH_LW)) return fitVertical(width, model, layout);
+  // Switch point (rule 22): a fit below the layout's horizontal switch lw goes vertical. That lw is
+  // where the rule 29 label gaps reach 1 lw; it is never below the desktop floor (minLw), so the
+  // horizontal map is never clamped up past its frame and no label clips. In lw, not px, so it
+  // holds for any frame width.
+  const switchLw = Math.max(layout.minLw ?? H_SWITCH_LW, layout.hSwitchLw ?? 0);
+  if (h.lw < switchLw) return fitVertical(width, model, layout);
   const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, h.lw));
   const m = measure('horizontal', lw, width, model, layout);
   const b = m.box;

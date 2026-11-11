@@ -256,7 +256,12 @@ export const careerLayout: LineLayout = {
   lineId: 'journalism',
   lineIds: ['journalism', 'code', 'leadership', 'investing', 'product'], // key order follows the ribbon, top to bottom
   slotGap: { horizontal: GAP, vertical: GAP },
-  minLw: 11, // desktop floor and switch point (rule 22): below 12 so nothing clips at 1260-1350
+  minLw: 11, // desktop floor (rule 22): below 12 so nothing clips just above the switch
+  // Switch point (rule 22, ORDER 28): the smallest horizontal fit lw at which the rule 29 gaps
+  // (Medill / Palm Beach Post, Palm Beach Post / OpenNews, OpenNews / Vox Media) are at least 1 lw.
+  // Measured: Palm Beach Post / OpenNews binds and reaches 1 lw at a fit of about 11.783 lw.
+  // Labels are fixed px, so re-measure if label text, label size or station spacing changes.
+  hSwitchLw: 11.79,
   ...build(DESKTOP),
   discs: [],
 };
