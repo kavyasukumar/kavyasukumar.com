@@ -51,10 +51,11 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .tm-svg.has-hl .tm-connector:not(.is-hl){stroke:var(--tm-grey-ink)}
 #transit .tm-svg.has-hl .tm-label{fill:var(--tm-grey-ink);font-weight:400}
 #transit .tm-svg.has-hl .tm-station.is-hl .tm-label{fill:var(--ink);font-weight:700}
-/* Hovered, focused or selected station: Ink dots ~1.2x, ID in the line colour, Ink connector.
+/* Hovered, focused or selected station: Ink dots ~1.2x, each ID in its own track's line colour
+   (--tm-dot-line, Cream on a dark line; set per ID in src/transit/render.ts), Ink connector.
    Placed after the grey-out and more specific, so it wins over it for that station only. */
 #transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-dot.tm-dot{fill:var(--ink);transform:scale(1.18)}
-#transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-dot-id{fill:var(--tm-line,var(--pink));transform:scale(1.18)}
+#transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-dot-id{fill:var(--tm-dot-line,var(--pink));transform:scale(1.18)}
 #transit .tm-svg .tm-station:is(:hover,:focus-visible,.is-selected) .tm-connector.tm-connector{stroke:var(--ink);stroke-width:calc(var(--tm-cw,2px)*1.18)}
 #transit .tm-key-row[data-themes]{padding:2px 6px;margin-left:-6px;cursor:default}
 #transit .tm-key-row[data-themes]:focus{outline:none}
