@@ -1,68 +1,88 @@
 import { select, type Selection } from 'd3-selection';
-import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
-import { INK } from './render';
-import { TRACK_LETTERS, type LineLayout, type MapData, type MapTheme } from './types';
+import { focusIn, focusOut, hoverIn, hoverOut, registerKey, setGroups } from './highlight';
+import { isOpen, setPanel, togglePanel } from './key-accordion';
+import { TRACK_LETTERS, type LineLayout, type MapData, type MapLine, type MapTheme } from './types';
 
 type Svg = Selection<SVGSVGElement, unknown, null, undefined>;
-type Row = { key: string; theme?: string; name: string; draw: (svg: Svg) => void; w: number; h: number };
+type Track = { theme: string; name: string };
+type Group = { id: string; hl: string; name: string; colour: string; tracks: Track[] };
 
 /** Ribbon order: by track letter (A at the top). */
 const byLetter = (a: MapTheme, b: MapTheme): number => TRACK_LETTERS.indexOf(a.letter) - TRACK_LETTERS.indexOf(b.letter);
+
+/** Hover and keyboard focus on a key row highlight `id` (rule 41): a theme, or a `line:` group. */
+function wire<E extends HTMLElement, D, P extends Element>(sel: Selection<E, D, P, unknown>, id: (d: D) => string): void {
+  sel.on('pointerenter', (e: Event, d) => hoverIn(e as PointerEvent, id(d)))
+    .on('pointerleave', (e: Event) => hoverOut(e as PointerEvent))
+    // Only keyboard focus (:focus-visible) drives the highlight; a mouse click
+    // focuses the row too, but leaving it then clears like a plain hover-leave.
+    .on('focus', function (_e, d) { if (this.matches(':focus-visible')) focusIn(id(d)); })
+    .on('blur', () => focusOut());
+}
 
 /** Render the key into `container` at the current map lw (rules 32-34, 36, 38). Idempotent. */
 export function renderKey(container: HTMLElement, data: MapData, layout: LineLayout, lw: number): void {
   const line = data.lines.find((l) => l.id === layout.lineId);
   if (!line) return;
-  const lines = (layout.lineIds ?? [line.id]).map((id) => data.lines.find((l) => l.id === id)).filter((l): l is NonNullable<typeof l> => !!l);
+  const lines = (layout.lineIds ?? [line.id]).map((id) => data.lines.find((l) => l.id === id)).filter((l): l is MapLine => !!l);
 
   // Line swatches are drawn as the map draws tracks (rule 34): solid, 1 lw wide.
   // Every swatch is this wide so names line up (rule 36).
   const BW = 5 * lw;
-  const track = (svg: Svg, x0: number, x1: number, cy: number, fill: string): void => {
-    svg.append('rect').attr('class', 'tm-key-track').attr('x', x0).attr('y', cy - lw / 2)
-      .attr('width', x1 - x0).attr('height', lw).attr('fill', fill);
-  };
-  const mid = lw / 2;
+  // One accordion section per line, in ribbon order, each track listed once under it (rule 33).
+  const model: Group[] = lines.map((ln) => ({
+    id: ln.id, hl: `line:${ln.id}`, name: ln.name, colour: ln.colour,
+    tracks: data.themes.filter((th) => th.line === ln.id).sort(byLetter).map((th) => ({ theme: th.id, name: `${th.letter} ${th.short}` })),
+  }));
+  // A line header highlights all of its line's tracks.
+  setGroups(Object.fromEntries(model.map((g) => [g.hl, g.tracks.map((t) => t.theme)])));
 
-  // One group per line (journalism, code, product), each track listed once under it (rule 33).
-  const lineRows: Row[] = lines.flatMap((ln) => [
-    { key: `line-${ln.id}`, name: ln.name, w: BW, h: lw, draw: (svg: Svg) => track(svg, 0, BW, mid, ln.colour) },
-    ...data.themes.filter((th) => th.line === ln.id).sort(byLetter).map((th) => ({
-      key: th.id, theme: th.id, name: `${th.letter} ${th.short}`, w: 0, h: 0, draw: () => undefined,
-    })),
-  ]);
-  const root = select(container);
-  const key = root.selectAll<HTMLDivElement, null>('div.tm-key').data([null]).join('div').attr('class', 'tm-key');
-  const groups = key.selectAll<HTMLDivElement, { heading: string; rows: Row[] }>('div.tm-key-group')
-    // The Symbols group lives in the map's bottom-left corner now (symbols-legend.ts, rule 34).
-    .data([{ heading: 'Lines', rows: lineRows }], (g) => g.heading).join('div')
-    .attr('class', 'tm-key-group')
-    .style('border-top', (_g, i) => (i === 0 ? null : `1px solid ${INK}`));
-  groups.selectAll<HTMLElement, { heading: string }>('h3.tm-key-heading').data((g) => [g]).join('h3')
-    .attr('class', 'tm-key-heading').text((g) => g.heading);
-  const rows = groups.selectAll<HTMLDivElement, Row>('div.tm-key-row').data((g) => g.rows, (r) => r.key).join('div')
-    .attr('class', 'tm-key-row').style('display', 'flex').style('align-items', 'center').style('gap', '0.75rem')
-    // Rule 41: theme rows highlight their theme on hover and keyboard focus.
-    .attr('data-themes', (r) => r.theme ?? null).attr('tabindex', (r) => (r.theme ? 0 : null))
-    .on('pointerenter', (e: PointerEvent, r) => { if (r.theme) hoverIn(e, r.theme); })
-    .on('pointerleave', (e: PointerEvent, r) => { if (r.theme) hoverOut(e); })
-    // Only keyboard focus (:focus-visible) drives the highlight; a mouse click
-    // focuses the row too, but leaving it then clears like a plain hover-leave.
-    .on('focus', function (_e, r) { if (r.theme && this.matches(':focus-visible')) focusIn(r.theme); })
-    .on('blur', (_e, r) => { if (r.theme) focusOut(); });
-  const swatches = rows.selectAll<HTMLSpanElement, Row>('span.tm-key-swatch').data((r) => [r]).join('span')
-    .attr('class', 'tm-key-swatch').style('flex', 'none').style('display', 'inline-block')
-    .style('width', (r) => `${r.w}px`).style('height', (r) => `${r.h}px`)
-    .style('display', (r) => (r.w ? 'inline-flex' : 'none')).style('align-items', 'center');
-  swatches.each(function (r) {
+  const key = select(container).selectAll<HTMLDivElement, null>('div.tm-key').data([null]).join('div').attr('class', 'tm-key');
+  // The Symbols group lives in the map's bottom-left corner now (symbols-legend.ts, rule 34).
+  const group = key.selectAll<HTMLDivElement, null>('div.tm-key-group').data([null]).join('div').attr('class', 'tm-key-group');
+  group.selectAll('h3.tm-key-heading').data([null]).join('h3').attr('class', 'tm-key-heading').text('Lines');
+  const sections = group.selectAll<HTMLDivElement, Group>('div.tm-key-line').data(model, (g) => g.id).join('div')
+    .attr('class', 'tm-key-line');
+
+  const heads = sections.selectAll<HTMLHeadingElement, Group>('h4.tm-key-h').data((g) => [g]).join('h4').attr('class', 'tm-key-h')
+    .selectAll<HTMLButtonElement, Group>('button.tm-key-head').data((g) => [g]).join('button')
+    .attr('class', 'tm-key-row tm-key-head').attr('type', 'button')
+    .attr('id', (g) => `tm-key-h-${g.id}`).attr('aria-controls', (g) => `tm-key-p-${g.id}`)
+    .attr('data-themes', (g) => g.hl)
+    .on('click', function (_e, g) {
+      const panel = document.getElementById(`tm-key-p-${g.id}`);
+      if (panel) togglePanel(g.id, this, panel);
+    });
+  wire(heads, (g) => g.hl);
+  const swatches = heads.selectAll<HTMLSpanElement, Group>('span.tm-key-swatch').data((g) => [g]).join('span')
+    .attr('class', 'tm-key-swatch').style('display', 'inline-flex').style('align-items', 'center')
+    .style('width', `${BW}px`).style('height', `${lw}px`);
+  swatches.each(function (g) {
     const sel = select(this);
     sel.selectAll('svg').remove();
-    if (!r.w) return;
-    const svg = sel.append('svg').attr('width', r.w).attr('height', r.h).attr('viewBox', `0 0 ${r.w} ${r.h}`)
+    const svg = sel.append('svg').attr('width', BW).attr('height', lw).attr('viewBox', `0 0 ${BW} ${lw}`)
       .attr('aria-hidden', 'true').style('display', 'block').style('overflow', 'hidden') as Svg;
-    r.draw(svg);
+    svg.append('rect').attr('class', 'tm-key-track').attr('x', 0).attr('y', 0)
+      .attr('width', BW).attr('height', lw).attr('fill', g.colour);
   });
-  rows.selectAll<HTMLSpanElement, Row>('span.tm-key-name').data((r) => [r]).join('span')
-    .attr('class', 'tm-key-name').text((r) => r.name);
+  heads.selectAll<HTMLSpanElement, Group>('span.tm-key-name').data((g) => [g]).join('span')
+    .attr('class', 'tm-key-name').text((g) => g.name);
+  heads.selectAll('span.tm-key-ind').data([null]).join('span').attr('class', 'tm-key-ind').attr('aria-hidden', 'true');
+
+  const panels = sections.selectAll<HTMLDivElement, Group>('div.tm-key-tracks').data((g) => [g]).join('div')
+    .attr('class', 'tm-key-tracks').attr('id', (g) => `tm-key-p-${g.id}`)
+    .attr('role', 'group').attr('aria-labelledby', (g) => `tm-key-h-${g.id}`);
+  const rows = panels.selectAll<HTMLDivElement, Track>('div.tm-key-row').data((g) => g.tracks, (t) => t.theme).join('div')
+    .attr('class', 'tm-key-row').attr('data-themes', (t) => t.theme).attr('tabindex', 0);
+  wire(rows, (t) => t.theme);
+  rows.selectAll<HTMLSpanElement, Track>('span.tm-key-name').data((t) => [t]).join('span')
+    .attr('class', 'tm-key-name').text((t) => t.name);
+
+  // Sync each section to its stored state (all closed on first render).
+  sections.each(function (g) {
+    const btn = this.querySelector<HTMLElement>('button.tm-key-head');
+    const panel = this.querySelector<HTMLElement>('div.tm-key-tracks');
+    if (btn && panel && btn.getAttribute('aria-expanded') !== String(isOpen(g.id))) setPanel(btn, panel, isOpen(g.id), false);
+  });
   registerKey(container);
 }

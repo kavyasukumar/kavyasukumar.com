@@ -1,4 +1,5 @@
-// Names the highlighted track (rule 41). One panel (#transit-trackbar) shows the
+// Names the highlighted track (rule 41), or for a key line header the line and
+// its tracks (a `line:<id>` highlight, rule 33). One panel (#transit-trackbar) shows the
 // line, number, short name and description while a track is highlighted, in one
 // of two modes, driven by the `tm:highlight` event and highlightSource() from
 // highlight.ts:
@@ -125,30 +126,32 @@ export function initTrackbar(mapEl: HTMLElement, data: MapData): void {
   window.addEventListener('pointermove', schedule, { passive: true });
   window.addEventListener('scroll', schedule, { passive: true });
 
+  const el = (tag: string, cls: string, text: string): HTMLElement => {
+    const e = document.createElement(tag);
+    e.className = cls;
+    e.textContent = text;
+    return e;
+  };
+  // A key line header (`line:<id>`) names the line and lists its tracks.
+  const fillLine = (lineId: string): boolean => {
+    const line = data.lines.find((l) => l.id === lineId);
+    if (!line) return false;
+    const ths = data.themes.filter((t) => t.line === lineId);
+    const head = el('div', 'tb-head', '');
+    head.append(el('span', 'tb-line', line.name), el('span', 'tb-short', `${ths.length} tracks`));
+    bar.append(head, el('p', 'tb-desc', ths.map((t) => `${t.letter} ${t.short}`).sort().join(' \u00b7 ')));
+    return true;
+  };
   const fill = (themeId: string): boolean => {
+    bar.textContent = '';
+    if (themeId.startsWith('line:')) return fillLine(themeId.slice(5));
     const th = data.themes.find((t) => t.id === themeId);
     if (!th) return false;
     const line = data.lines.find((l) => l.id === th.line);
-    bar.textContent = '';
-    const head = document.createElement('div');
-    head.className = 'tb-head';
-    const name = document.createElement('span');
-    name.className = 'tb-line';
-    name.textContent = line?.name ?? th.line;
-    const id = document.createElement('span');
-    id.className = 'tb-id';
-    id.textContent = th.letter;
-    const short = document.createElement('span');
-    short.className = 'tb-short';
-    short.textContent = th.short;
-    head.append(name, id, short);
+    const head = el('div', 'tb-head', '');
+    head.append(el('span', 'tb-line', line?.name ?? th.line), el('span', 'tb-id', th.letter), el('span', 'tb-short', th.short));
     bar.appendChild(head);
-    if (th.theme) {
-      const d = document.createElement('p');
-      d.className = 'tb-desc';
-      d.textContent = th.theme;
-      bar.appendChild(d);
-    }
+    if (th.theme) bar.appendChild(el('p', 'tb-desc', th.theme));
     return true;
   };
 

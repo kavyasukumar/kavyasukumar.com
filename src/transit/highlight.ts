@@ -2,6 +2,8 @@
 // on a key row, or a touch tap on a track highlights every track of that theme.
 // State lives here; the DOM gets classes (`has-hl` on the svg / key, `is-hl` on
 // matching elements) and CSS does the greying. One map per page.
+// A highlight is one id: a theme, or a group such as a key line header
+// (`line:<id>`, see setGroups) that stands for all of its themes.
 
 let hover: string | null = null;
 let focus: string | null = null;
@@ -11,6 +13,10 @@ let keyEl: HTMLElement | null = null;
 let docBound = false;
 let announced: string | null = null;
 let announcedSrc: HighlightSource = null;
+let groups: Record<string, string[]> = {};
+
+/** Group ids (e.g. `line:code`) and the themes each one highlights. */
+export function setGroups(g: Record<string, string[]>): void { groups = g; apply(); }
 
 const active = (): string | null => hover ?? focus ?? pinned;
 
@@ -21,12 +27,14 @@ export const highlightSource = (): HighlightSource =>
 
 function apply(): void {
   const t = active();
+  // The id itself plus, for a group, its themes; an element matches if it lists any.
+  const ids = t === null ? [] : [t, ...(groups[t] ?? [])];
   const mark = (root: HTMLElement | null, host: Element | null): void => {
     if (!root || !host) return;
     host.classList.toggle('has-hl', t !== null);
     root.querySelectorAll<Element>('[data-themes]').forEach((el) => {
       const list = (el.getAttribute('data-themes') ?? '').split(' ');
-      el.classList.toggle('is-hl', t !== null && list.includes(t));
+      el.classList.toggle('is-hl', list.some((x) => ids.includes(x)));
     });
   };
   mark(mapEl, mapEl?.querySelector('svg.tm-svg') ?? null);
