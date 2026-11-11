@@ -16,7 +16,7 @@ Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing
 4. investing — Ink #0A0A0A (owner pick, replaces Mint; not drawn yet)
 5. leadership and outreach — Raspberry #B0466F (owner pick; a darker pink) (added during the station walk; working name)
 
-Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, product, top to bottom; every track is identified by one capital letter in ribbon order (owner decision): journalism A B C, code D E F G, product H I J, then leadership K L and investing M N, which are not drawn yet (`letter` on each theme in the data).
+Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, leadership and outreach, product, top to bottom: `A B C | D E F G | K L | H I J` (leadership moved above product, LD1). Every track is identified by one capital letter (owner decision): journalism A B C, code D E F G, product H I J, leadership K L, and investing M N, which is not drawn yet (`letter` on each theme in the data).
 
 Colours are also stored as `colour` on each line in `data/transit-map-data.json`. Raspberry is 4.4:1 on Cream but 2.3:1 on Forest, so the map keeps its Cream background in both themes.
 
@@ -42,7 +42,7 @@ Colours are also stored as `colour` on each line in `data/transit-map-data.json`
 | ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
 | K | Team leadership and management | Leadership | Leading newsrooms, product and tech teams, and boards | TBD | yes |
-| L | Teaching and evangelism of tech in media | Evangelism | Teaching and evangelising tech in media | TBD | yes |
+| L | Teaching and evangelism of tech in media | Evangelism | Teaching and evangelising tech in media | TBD | no |
 
 ## Product line
 

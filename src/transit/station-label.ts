@@ -4,7 +4,7 @@ import type { StationModel } from './model';
 import type { LineLayout, Scale } from './types';
 
 const LABEL_GAP = 0.75;
-const LABEL_GAP_H = 1.2; // horizontal (desktop) only: 20% more room between the ribbon and its label band (R2)
+const LABEL_GAP_H = 1.44; // horizontal (desktop) only: about 44% more room between the ribbon and its label band (R2, twice +20%)
 
 /** Where a station's name goes: its wrapped lines, anchor point and bounding box (rules 20, 29, 30). */
 export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, budget: number):
@@ -43,10 +43,14 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
       const mid = mean((d) => d.slot);
       // Vertical layout: the label sits under the dots, so it never crosses a track or runs
       // off a phone-width canvas past the tip (rules 20, 29).
+      // vOver: above the dots instead, where the next fan's dots leave no room under them.
       if (!horiz) {
-        const last = Math.max(...sm.dots.map((d) => d.slot));
-        [ex, ey] = toXY(last + DOT_D / 2 / s.slotGap, mean((d) => d.lane), s);
-        dir = 'down';
+        const over = !!layout.stations[sm.st.id]?.vOver;
+        const end = over ? Math.min(...sm.dots.map((d) => d.slot)) - DOT_D / 2 / s.slotGap
+          : Math.max(...sm.dots.map((d) => d.slot)) + DOT_D / 2 / s.slotGap;
+        [ex, ey] = toXY(end, mean((d) => d.lane), s);
+        dir = over ? 'up' : 'down';
+
       } else {
         [ex, ey] = toXY(mid, tip, s);
         dir = horiz ? 'down' : 'right';
@@ -60,6 +64,10 @@ export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, bud
       // Vertical: flush the label's right edge with the dots, away from the branches' bend (rule 30).
       if (!horiz) ex -= Math.max(0, wpx / 2 - (DOT_D * lw) / 2);
     }
+    // vMinLane: a wide label never reaches back west of this lane, over the trunks or bends there
+    // (owner call: Lighthouse Reports touched J at ~600 px).
+    const minLane = layout.stations[sm.st.id]?.vMinLane;
+    if (!horiz && minLane !== undefined && (dir === 'up' || dir === 'down')) ex = Math.max(ex, toXY(0, minLane, s)[0] + wpx / 2);
   } else {
     // Start just past this station's dots, then step past any track or disc in the
     // way. The label may sit in a gap between bands when it fits there (rules 29, 30).
