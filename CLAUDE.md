@@ -23,11 +23,12 @@ Two-page static Vite site (multi-page build in `vite.config.ts`: `index.html` an
 
 - All copy and structured content lives in `src/siteData.ts`; keep content out of `App.tsx`.
 - `src/themes.ts` holds the single Pistachio colour theme. Colours reach CSS via variables set from it. Light/dark mode is persisted in `localStorage` key `theme`.
+- **Shared between both pages:** `src/theme-vars.ts` turns `themes.ts` into the light/dark CSS variables (`--bg`, `--fg`, `--accent`, `--stroke` …); `src/theme-mode.ts` reads/stores/applies the mode (stored choice, else OS preference; also follows other tabs). A `theme-boot` plugin in `vite.config.ts` injects an inline head script into every page that applies the theme before first paint (no flash). `src/shared.css` (imported by `src/index.css` and `src/dataviz-page.ts`) holds the tokens, `.wrap`, the header (`.site-nav`, `.nav-link`, `.theme-toggle`) and `.outline-word`, the one rule for the outlined headline word. Plain shared CSS was chosen over adding `dataviz.html` to Tailwind `content` so the dataviz page needs no Tailwind preflight or React; its header is plain HTML using these classes.
 - Styling is build-time Tailwind 3 (`tailwind.config.js`, `postcss.config.js`) plus `src/index.css`. Tailwind `content` only scans `index.html` and `src/**/*.{ts,tsx}`, so Tailwind classes used in `dataviz.html` will not be generated.
 - `src/components/` has small motion/layout helpers (`Reveal`, `MarqueeDivider`, `SectionTitle`).
 - `vite.config.ts` splits `react`/`react-dom` and `@phosphor-icons/react` into vendor/icons chunks and strips `console`/`debugger` in builds.
 
-**Dataviz page** (`dataviz.html`): standalone, **not React**. Inline `<style>`, inline `<script>`, and a hand-authored inline SVG career "transit map" (`#transit`). A second "braided" section (`#braided`) is kept in the file but `hidden`. `career-transit-map.svg` at the root is a standalone export of that map. Earlier history shows the SVG was produced by a Python generator that is not in the repo, so edit the HTML/SVG directly and re-export the standalone SVG by hand if it needs to stay in sync.
+**Dataviz page** (`dataviz.html`): standalone, **not React**. Inline `<style>`, inline `<script>`, `src/dataviz-page.ts` (shared CSS + theme toggle), and a hand-authored inline SVG career "transit map" (`#transit`). A second "braided" section (`#braided`) is kept in the file but `hidden`. `career-transit-map.svg` at the root is a standalone export of that map. Earlier history shows the SVG was produced by a Python generator that is not in the repo, so edit the HTML/SVG directly and re-export the standalone SVG by hand if it needs to stay in sync.
 
 ## Design docs (read before UI changes)
 
