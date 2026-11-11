@@ -1,9 +1,9 @@
 import type { LayoutPoint, LineLayout, StationLayout, TrackLayout, TrackLetter } from './types';
 
 /**
- * Journalism (3 tracks), code (4) and product (3) drawn as ONE 10-wide ribbon, so every shared station is
- * an interchange of straight, touching dots. Top to bottom: A B C (journalism, pink) | D E F G (code, forest)
- * | H I J (product, mint), a line gap between lines. Every number below is in lw and meant to be tweaked.
+ * Journalism (3 tracks), code (4), leadership (2) and product (3) drawn as ONE 12-wide ribbon, so every
+ * shared station is an interchange of straight, touching dots. Top to bottom: A B C (journalism, pink) |
+ * D E F G (code, forest) | K L (leadership, raspberry) | H I J (product, mint), a line gap between lines. Every number below is in lw and meant to be tweaked.
  */
 
 // ---- TWEAK ME: station x positions along the ribbon (lw). Fan stations: centre of the legs. ----
@@ -35,17 +35,17 @@ const DESKTOP: Spacing = {
   k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 25.7, dotLh: 20.9, splitLh: 69.8,
   x: { 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
 };
-const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 51, upDot: -6.5 - 5.4, drop: 2.2, dot: 19, dotLh: 16.2, splitLh: 69.1, x: {} };
+const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 50, upDot: -6.5 - 5.4, drop: 2.2, dot: 25, dotLh: 19.4, splitLh: 69.1, x: {} };
 
-// ---- TWEAK ME: lane order, top to bottom, by track letter (journalism A B C, code D E F G, product H I J) ----
-type Lane = Extract<TrackLetter, 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'>;
-const ORDER: readonly Lane[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; // journalism | code | product
+// ---- TWEAK ME: lane order, top to bottom, by track letter (journalism A B C, code D E F G, leadership K L, product H I J) ----
+type Lane = Extract<TrackLetter, 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L'>;
+const ORDER: readonly Lane[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'K', 'L', 'H', 'I', 'J']; // journalism | code | leadership | product
 const P = 1.12; // track pitch (rule 10)
 const R = 1.5; // inner bend radius (rule 14)
 const DIAG = P * Math.SQRT2;
-const LINE_OF: Record<Lane, number> = { 'A': 0, 'B': 0, 'C': 0, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'H': 2, 'I': 2, 'J': 2 };
+const LINE_OF: Record<Lane, number> = { 'A': 0, 'B': 0, 'C': 0, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'K': 2, 'L': 2, 'H': 3, 'I': 3, 'J': 3 };
 const LANE = Object.fromEntries(ORDER.map((t, i) => [t, i * P + LINE_OF[t] * LINE_GAP])) as Record<Lane, number>;
-const BOTTOM = 9 * P + 2 * LINE_GAP; // lane of the lowest trunk
+const BOTTOM = 11 * P + 3 * LINE_GAP; // lane of the lowest trunk
 const TAN = Math.tan(Math.PI / 8);
 
 const pt = (x: number, lane: number): LayoutPoint => ({ slot: x / GAP, lane });
@@ -177,15 +177,18 @@ const ats = [t(`${J}storytelling-3`, 'B'), t(`${J}tooling-3`, 'C'), t(`${C}data-
 const uw = [
   t(`${J}finding-stories-3`, 'A'), t(`${J}storytelling-4`, 'B'), t(`${J}tooling-4`, 'C'),
   t(`${C}data-science-4`, 'E'), t(`${C}sjw-coder-3`, 'F'), t(`${C}open-source-3`, 'G'),
+  t('leadership-evangelism-3', 'L'),
 ];
 const lh = [
   t(`${J}finding-stories-4`, 'A'), t(`${J}storytelling-5`, 'B'), t(`${J}tooling-5`, 'C'),
   t(`${C}data-science-5`, 'E'), t(`${C}sjw-coder-4`, 'F'), t(`${C}open-source-4`, 'G'), t(`${C}love-of-code-4`, 'D'),
+  t('leadership-evangelism-4', 'L'),
 ];
 
 const P_ = 'product-';
-const atsP = [t(`${P_}product-mgmt-3`, 'H'), t(`${P_}economics-2`, 'I')];
-const sg = [t(`${P_}fundraising-2`, 'J')];
+const L_ = 'leadership-';
+const atsP = [t(`${P_}product-mgmt-3`, 'H'), t(`${P_}economics-2`, 'I'), t(`${L_}team-3`, 'K')];
+const sg = [t(`${P_}fundraising-2`, 'J'), t(`${L_}team-2`, 'K'), t(`${L_}evangelism-2`, 'L')];
 const sides: Record<string, StationLayout['labelSide']> = {
   'bad-idea-factory': 'back', 'all-things-small': 'tip', 'seattle-globalist': 'tip', 'uw-lecturer': 'tip', 'lighthouse-reports': 'tip',
 };
@@ -209,6 +212,10 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
     [`${P_}product-mgmt-1`]: trunk(X['hearken']!, X['aspada']!, 'H'),
     [`${P_}economics-1`]: trunk(X['hearken']!, X['aspada']!, 'I'),
     [`${P_}fundraising-1`]: trunk(X['hearken']!, X['aspada']!, 'J'),
+    // Leadership (raspberry): K (Team, ongoing) runs PBP to Aspada; L (Evangelism) runs OpenNews to
+    // Washington Post, where it continues as its Lighthouse branch.
+    [`${L_}team-1`]: trunk(X['palm-beach-post']!, X['aspada']!, 'K'),
+    [`${L_}evangelism-1`]: trunk(X['opennews-fellow']!, wapo, 'L'),
     ...fanDown(sp, sg, X['seattle-globalist']!, 'seattle-globalist'),
     ...fanDown(sp, [...ats, ...atsP], X['all-things-small']!, 'all-things-small'),
     ...bifBranches(sp, uw, sp.uwK0, 'uw-lecturer'),
@@ -220,12 +227,17 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
   for (const [id, x] of Object.entries(X)) stations[id] = { slot: x / GAP, labelSide: sides[id] ?? 'before' };
   // Phone: the All Things Small label goes under its dots, clear of the fan's bends above them.
   stations['all-things-small']!.vUnder = true;
+  // Phone: the Seattle Globalist label goes above its dots; under them it would touch All Things Small's.
+  stations['seattle-globalist']!.vOver = true;
+  // Phone: these labels stay east of the Seattle Globalist fan's outer bend and of the J trunk.
+  stations['seattle-globalist']!.vMinLane = BOTTOM + sp.drop + 2 * (DIAG - P) + 1;
+  stations['lighthouse-reports']!.vMinLane = BOTTOM + 1;
   return { stations, tracks };
 }
 
 export const careerLayout: LineLayout = {
   lineId: 'journalism',
-  lineIds: ['journalism', 'code', 'product'], // key order follows the ribbon, top to bottom
+  lineIds: ['journalism', 'code', 'leadership', 'product'], // key order follows the ribbon, top to bottom
   slotGap: { horizontal: GAP, vertical: GAP },
   minLw: 12, // draft: as close to 16px per track as 14 stations x 7 tracks allow at 1440
   ...build(DESKTOP),

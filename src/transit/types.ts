@@ -36,6 +36,10 @@ export interface StationLayout {
   labelSide: 'before' | 'after' | 'tip' | 'back';
   /** Vertical layout only: a 'back' label goes under the dots instead of above them, clear of the fan's bends. */
   vUnder?: boolean;
+  /** Vertical layout only: a 'tip' label goes above the dots instead of under them (Seattle Globalist, clear of ATS). */
+  vOver?: boolean;
+  /** Vertical layout only: lane west of which a 'tip' label above or under the dots may not reach. */
+  vMinLane?: number;
 }
 
 export interface LineLayout {
