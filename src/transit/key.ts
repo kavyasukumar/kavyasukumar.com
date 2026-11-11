@@ -1,5 +1,5 @@
 import { select, type Selection } from 'd3-selection';
-import { focusIn, focusOut, hoverIn, hoverOut, pinTo, registerKey, setGroups, tapTrack } from './highlight';
+import { focusIn, focusOut, hoverIn, hoverOut, pinTo, registerKey, setGroups, tapTrack, unpinIf } from './highlight';
 import { isOpen, setPanel, togglePanel } from './key-accordion';
 import { TRACK_LETTERS, type LineLayout, type MapData, type MapLine, type MapTheme } from './types';
 
@@ -53,8 +53,8 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-key-row tm-key-head').attr('type', 'button')
     .attr('id', (g) => `tm-key-h-${g.id}`).attr('aria-controls', (g) => `tm-key-p-${g.id}`)
     .attr('data-themes', (g) => g.hl)
-    // Touch: a header tap also pins its line while open and clears when it closes
-    // (rule 41). The pointer type is noted on pointerdown because the click that
+    // Touch: a header tap also pins its line while open; closing clears that line's
+    // pin only (rule 41). The pointer type is noted on pointerdown because the click that
     // follows is not a PointerEvent in every browser; Enter/Space clicks skip it.
     .on('pointerdown', (e: PointerEvent) => { headTouch = e.pointerType === 'touch'; })
     .on('click', function (e: MouseEvent, g) {
@@ -63,7 +63,8 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
       const panel = document.getElementById(`tm-key-p-${g.id}`);
       if (!panel) return;
       togglePanel(g.id, this, panel);
-      if (touch) pinTo(isOpen(g.id) ? g.hl : null);
+      // Closing clears only this line's pin (its line:<id> or one of its tracks); another line's pin stays.
+      if (touch) { if (isOpen(g.id)) pinTo(g.hl); else unpinIf([g.hl, ...g.tracks.map((t) => t.theme)]); }
     });
   wire(heads, (g) => g.hl);
   const swatches = heads.selectAll<HTMLSpanElement, Group>('span.tm-key-swatch').data((g) => [g]).join('span')
