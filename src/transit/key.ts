@@ -1,10 +1,10 @@
 import { select, type Selection } from 'd3-selection';
 import { CONNECTOR_W } from './connectors';
-import { DOT_D, END_OVERRUN, PITCH } from './geometry';
+import { DOT_D, END_OVERRUN, ID_DY, PITCH } from './geometry';
 import { focusIn, focusOut, hoverIn, hoverOut, registerKey } from './highlight';
 import { DASH, DASH_GAP } from './ongoing';
 import { INK } from './render';
-import type { LineLayout, MapData, MapTrack } from './types';
+import { TRACK_LETTERS, type LineLayout, type MapData, type MapTheme, type MapTrack } from './types';
 
 type Svg = Selection<SVGSVGElement, unknown, null, undefined>;
 type Row = { key: string; theme?: string; name: string; draw: (svg: Svg) => void; w: number; h: number };
@@ -12,6 +12,8 @@ type Row = { key: string; theme?: string; name: string; draw: (svg: Svg) => void
 const FONT = "'JetBrains Mono', ui-monospace, monospace";
 // Same ID size as the map's dots (render.ts: max(LABEL_PX, 0.62 lw)).
 const ID_PX = (lw: number): number => Math.max(12, 0.62 * lw);
+/** Ribbon order: by track letter (A at the top). */
+const byLetter = (a: MapTheme, b: MapTheme): number => TRACK_LETTERS.indexOf(a.letter) - TRACK_LETTERS.indexOf(b.letter);
 
 /** Render the key into `container` at the current map lw (rules 32-34, 36, 38). Idempotent. */
 export function renderKey(container: HTMLElement, data: MapData, layout: LineLayout, lw: number): void {
@@ -19,11 +21,11 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   if (!line) return;
   const colour = line.colour;
   const lines = (layout.lineIds ?? [line.id]).map((id) => data.lines.find((l) => l.id === id)).filter((l): l is NonNullable<typeof l> => !!l);
-  const themes = data.themes.filter((t) => t.line === line.id).sort((a, b) => a.num - b.num);
+  const themes = data.themes.filter((t) => t.line === line.id).sort(byLetter);
   const tracks = data.tracks.filter((t) => themes.some((th) => th.id === t.theme));
   const first = tracks[0];
   const other = tracks.find((t) => first && t.theme !== first.theme) ?? tracks[1];
-  // Dots show the theme number only, no letters (rules 22, 38).
+  // Dots show the track letter only (rules 22, 38).
   const idOf = (t: MapTrack | undefined): string => t?.label ?? '';
 
   // Key symbols are drawn exactly as the map draws them (rule 34): solid tracks
@@ -41,7 +43,7 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
     if (square) svg.append('rect').attr('class', 'tm-dot tm-dot-square').attr('x', CX - d / 2).attr('y', cy - d / 2).attr('width', d).attr('height', d).attr('fill', INK);
     else svg.append('circle').attr('class', 'tm-dot').attr('cx', CX).attr('cy', cy).attr('r', d / 2).attr('fill', INK);
     svg.append('text').attr('class', 'tm-dot-id').attr('x', CX).attr('y', cy).attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'central').attr('font-family', FONT).attr('font-weight', 700)
+      .attr('dominant-baseline', 'central').attr('dy', ID_DY).attr('font-family', FONT).attr('font-weight', 700)
       .attr('font-size', ID_PX(lw)).attr('fill', '#FFFFFF').text(id);
   };
   const mid = lw / 2;
@@ -49,8 +51,8 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   // One group per line (journalism, code, product), each track listed once under it (rule 33).
   const lineRows: Row[] = lines.flatMap((ln) => [
     { key: `line-${ln.id}`, name: ln.name, w: BW, h: lw, draw: (svg: Svg) => track(svg, 0, BW, mid, ln.colour) },
-    ...data.themes.filter((th) => th.line === ln.id).sort((a, b) => a.num - b.num).map((th) => ({
-      key: th.id, theme: th.id, name: `${th.num} ${th.short}`, w: 0, h: 0, draw: () => undefined,
+    ...data.themes.filter((th) => th.line === ln.id).sort(byLetter).map((th) => ({
+      key: th.id, theme: th.id, name: `${th.letter} ${th.short}`, w: 0, h: 0, draw: () => undefined,
     })),
   ]);
   const symbolRows: Row[] = [

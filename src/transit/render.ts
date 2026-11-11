@@ -2,7 +2,7 @@ import { select, type Selection } from 'd3-selection';
 import { hoverIn, hoverOut, registerMap, tapTrack } from './highlight';
 import { connectorFor, CONNECTOR_W } from './connectors';
 import { casings, type Casing } from './crossings';
-import { DISC_D, DOT_D, END_OVERRUN, roundedPath, toXY } from './geometry';
+import { DISC_D, DOT_D, END_OVERRUN, ID_DY, roundedPath, toXY } from './geometry';
 import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
 import { buildModel, yearsOf, type Model } from './model';
@@ -272,7 +272,7 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('width', DOT_D * lw).attr('height', DOT_D * lw).attr('fill', INK);
   sts.selectAll<SVGTextElement, Plan['stations'][number]['dots'][number]>('text.tm-dot-id').data((d) => d.dots, (c) => c.key).join('text')
     .attr('class', 'tm-dot-id').attr('x', (c) => c.cx).attr('y', (c) => c.cy)
-    .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('pointer-events', 'none')
+    .attr('text-anchor', 'middle').attr('dominant-baseline', 'central').attr('dy', ID_DY).attr('pointer-events', 'none')
     .attr('font-family', FONT).attr('font-weight', 700).attr('font-size', Math.max(LABEL_PX, 0.62 * lw)).attr('fill', WHITE).text((c) => c.label);
   const labels = sts.selectAll<SVGTextElement, Plan['stations'][number]>('text.tm-label').data((d) => [d]).join('text')
     .attr('class', (d) => (d.major ? 'tm-label is-major' : 'tm-label'))

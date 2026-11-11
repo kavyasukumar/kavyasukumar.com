@@ -135,13 +135,13 @@ export function initTrackbar(mapEl: HTMLElement, data: MapData): void {
     const name = document.createElement('span');
     name.className = 'tb-line';
     name.textContent = line?.name ?? th.line;
-    const num = document.createElement('span');
-    num.className = 'tb-num';
-    num.textContent = String(th.num);
+    const id = document.createElement('span');
+    id.className = 'tb-id';
+    id.textContent = th.letter;
     const short = document.createElement('span');
     short.className = 'tb-short';
     short.textContent = th.short;
-    head.append(name, num, short);
+    head.append(name, id, short);
     bar.appendChild(head);
     if (th.theme) {
       const d = document.createElement('p');

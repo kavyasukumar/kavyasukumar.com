@@ -2,6 +2,9 @@ import type { LayoutPoint, Scale } from './types';
 
 export const PITCH = 1.12;
 export const DOT_D = 1;
+/** Track letter nudge: with dominant-baseline central, JetBrains Mono capitals sit about 0.04 em above the
+ * dot centre; this centres their ink optically (ORDER 17, measured at 1440). */
+export const ID_DY = '0.04em';
 export const DISC_D = 2;
 export const END_OVERRUN = 0.6;
 

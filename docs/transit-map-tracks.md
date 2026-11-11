@@ -16,48 +16,48 @@ Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing
 4. investing — Ink #0A0A0A (owner pick, replaces Mint; not drawn yet)
 5. leadership and outreach — Raspberry #B0466F (owner pick; a darker pink) (added during the station walk; working name)
 
-Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, product, top to bottom; product's tracks are numbered 8, 9, 10 and leadership's 11, 12 for now (`num` in the data).
+Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, product, top to bottom; every track is identified by one capital letter in ribbon order (owner decision): journalism A B C, code D E F G, product H I J, then leadership K L and investing M N, which are not drawn yet (`letter` on each theme in the data).
 
 Colours are also stored as `colour` on each line in `data/transit-map-data.json`. Raspberry is 4.4:1 on Cream but 2.3:1 on Forest, so the map keeps its Cream background in both themes.
 
 ## Code line
 
-| # | Track | Short name | Theme | Stops | Ongoing? |
+| ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| 1 | for the love of code | Love of code | Coding out of love and curiosity for all things coding | TBD | yes |
-| 2 | code as a tool for social justice | SJW coder | Civic tech and advocacy tools; code that exposes or fixes injustice | TBD | yes |
-| 3 | Data science | Data science | Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling | TBD | yes |
-| 4 | opensource coding | Open source | Contributing to others' open source plus creating and releasing my own | TBD | yes |
+| D | for the love of code | Love of code | Coding out of love and curiosity for all things coding | TBD | yes |
+| F | code as a tool for social justice | SJW coder | Civic tech and advocacy tools; code that exposes or fixes injustice | TBD | yes |
+| E | Data science | Data science | Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling | TBD | yes |
+| G | opensource coding | Open source | Contributing to others' open source plus creating and releasing my own | TBD | yes |
 
 ## Journalism line
 
-| # | Track | Short name | Theme | Stops | Ongoing? |
+| ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| 1 | Finding stories | Finding stories | Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting) | TBD | no |
-| 2 | Storytelling and presentation | Storytelling | Craft of the story plus how it reaches the audience, including data and visualization as storytelling | TBD | no |
-| 3 | Editorial tooling | Tooling | Newsroom workflow tools plus story-finding and verification tools | TBD | yes |
+| A | Finding stories | Finding stories | Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting) | TBD | no |
+| B | Storytelling and presentation | Storytelling | Craft of the story plus how it reaches the audience, including data and visualization as storytelling | TBD | no |
+| C | Editorial tooling | Tooling | Newsroom workflow tools plus story-finding and verification tools | TBD | yes |
 
 ## Leadership and outreach line
 
-| # | Track | Short name | Theme | Stops | Ongoing? |
+| ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| 1 | Team leadership and management | Leadership | Leading newsrooms, product and tech teams, and boards | TBD | yes |
-| 2 | Teaching and evangelism of tech in media | Evangelism | Teaching and evangelising tech in media | TBD | yes |
+| K | Team leadership and management | Leadership | Leading newsrooms, product and tech teams, and boards | TBD | yes |
+| L | Teaching and evangelism of tech in media | Evangelism | Teaching and evangelising tech in media | TBD | yes |
 
 ## Product line
 
-| # | Track | Short name | Theme | Stops | Ongoing? |
+| ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| 1 | product management | Product mgmt | Product strategy plus day-to-day delivery | TBD | yes |
-| 2 | Product economics | Economics | Understanding the business of products and the realities of funding | TBD | yes |
-| 3 | Fundraising and investor relations | Fundraising | Investor relations and fundraising, seen from the product side (owner wore a product manager hat) | TBD | yes |
+| H | product management | Product mgmt | Product strategy plus day-to-day delivery | TBD | yes |
+| I | Product economics | Economics | Understanding the business of products and the realities of funding | TBD | yes |
+| J | Fundraising and investor relations | Fundraising | Investor relations and fundraising, seen from the product side (owner wore a product manager hat) | TBD | yes |
 
 ## Investing line
 
-| # | Track | Short name | Theme | Stops | Ongoing? |
+| ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| 1 | Investment diligence | Diligence | Evaluating and diligencing investments, on the tech front | TBD | no |
-| 2 | Portfolio advisory | Advisory | Advising and supporting portfolio companies on product and tech; helping hire tech leaders | TBD | yes |
+| M | Investment diligence | Diligence | Evaluating and diligencing investments, on the tech front | TBD | no |
+| N | Portfolio advisory | Advisory | Advising and supporting portfolio companies on product and tech; helping hire tech leaders | TBD | yes |
 
 ## Stations and the tracks that serve them
 
@@ -69,7 +69,7 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 | 2 | Microsoft | Win Gaming 2006, MSN Games 2006-09, Bing Video 2009-12 | code | for the love of code |
 | 3 | Medill | grad school, 2012-13 | journalism | Finding stories; Storytelling and presentation |
 | 4 | Palm Beach Post | data & interactives, 2014-15 | code, journalism, leadership and outreach | Data science; Finding stories; Storytelling and presentation; Editorial tooling; Team leadership and management |
-| 5 | OpenNews Fellow | at Vox Media, 2015-16 | code, journalism, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
+| 5 | OpenNews | at Vox Media, 2015-16 | code, journalism, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
 | 6 | Vox Media | full-stack +, 2016-18 | code, journalism | for the love of code; code as a tool for social justice; Data science; opensource coding; Storytelling and presentation; Editorial tooling; Finding stories |
 | 7 | Bad Idea Factory | since 2018 | code, journalism, product | for the love of code; code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; product management |
 | 8 | Hearken | full-stack to product, 2018-20 | code, journalism, product, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Editorial tooling; product management; Product economics; Fundraising and investor relations; Team leadership and management; Teaching and evangelism of tech in media |
@@ -83,7 +83,7 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 
 Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their branches are drawn solid like full-time ones (rule 35); the station card says "part-time".
 
-Branches: each theme above is one track, labelled by its number only (rule 38). Where its work runs in parallel, the track splits just after the latest stop before the parallel work starts, and each concurrent role gets its own branch (rules 5, 37). Full-time roles share one branch where they don't overlap. Part-time gigs never chain (owner, rule 37): each part-time station gets its own branch per theme that ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals (single-stop J-curves, rule 20); only Bad Idea Factory's branches run on. 14 themes (tracks) have 47 branches, listed in `data/transit-map-data.json` under `tracks` (one entry per branch; `label` is the theme number).
+Branches: each theme above is one track, labelled by its letter only (rule 38). Where its work runs in parallel, the track splits just after the latest stop before the parallel work starts, and each concurrent role gets its own branch (rules 5, 37). Full-time roles share one branch where they don't overlap. Part-time gigs never chain (owner, rule 37): each part-time station gets its own branch per theme that ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals (single-stop J-curves, rule 20); only Bad Idea Factory's branches run on. 14 themes (tracks) have 47 branches, listed in `data/transit-map-data.json` under `tracks` (one entry per branch; `label` is the track letter).
 
 ## Interview notes
 
