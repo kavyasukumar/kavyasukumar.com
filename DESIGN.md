@@ -64,6 +64,7 @@ Contrast: Forest on Cream 9.5:1. Pink on Forest 5.1:1. Ink on Pink 8.2:1. Pink o
 ## 7. Anti-Patterns (Banned)
 
 - No gradients, glows, or blurred drop shadows (hard offset shadows only).
+  - Exception: the transit map's phone scroll hint, a 12 px cream-to-transparent fade, which is functional and shown only while the map can scroll.
 - No second accent colour. No purple.
 - No pure black text.
 - No Inter, no generic serifs.
