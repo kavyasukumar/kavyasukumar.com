@@ -386,6 +386,22 @@ export default function App() {
               })}
             </div>
           </Reveal>
+
+          <Reveal className="mt-12 md:mt-16 pl-16 md:pl-24 flex flex-col items-start gap-6">
+            <p
+              className="text-base md:text-lg font-normal leading-relaxed max-w-2xl"
+              style={{ color: isDark ? `rgba(${PAPER},0.9)` : `rgba(${FIELD},0.85)` }}
+            >
+              {SITE_DATA.pivotViz.note}
+            </p>
+            <a
+              href={SITE_DATA.pivotViz.href}
+              className="cta flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto px-8 sm:px-10 py-5 font-black uppercase tracking-widest text-sm"
+            >
+              {SITE_DATA.pivotViz.label}
+              <ArrowUpRight size={20} weight="bold" />
+            </a>
+          </Reveal>
         </div>
       </section>
 

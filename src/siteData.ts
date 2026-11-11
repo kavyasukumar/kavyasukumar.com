@@ -62,6 +62,11 @@ const SITE_DATA = {
       icon: CurrencyCircleDollar
     },
   ],
+  pivotViz: {
+    note: "I love presenting data as visuals. See my career evolution as a transit map.",
+    label: "Visualize",
+    href: "dataviz.html"
+  },
   clips: [
     {
       source: "Nieman Lab",
