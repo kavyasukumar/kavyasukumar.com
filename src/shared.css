@@ -19,9 +19,8 @@ html { font-size: 18px; background-color: var(--bg); color: var(--fg); }
 .site-nav { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; padding-top: 1.5rem; }
 @media (min-width: 640px) { .site-nav { gap: 2rem; } }
 @media (min-width: 768px) { .site-nav { padding-top: 2.5rem; } }
-/* Back link (dataviz): pinned left; on phones it takes its own row above the links */
+/* Back link (dataviz header's only item): pinned left */
 .site-back { margin-right: auto; }
-@media (max-width: 639px) { .site-nav:has(.site-back) { flex-wrap: wrap; row-gap: 0; } .site-back { flex-basis: 100%; } }
 
 .nav-link { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; min-height: 44px; display: inline-flex; align-items: center; color: var(--fg); text-decoration: none; background-image: linear-gradient(var(--accent), var(--accent)); background-repeat: no-repeat; background-position: 0 85%; background-size: 0 3px; transition: background-size .4s var(--ease); }
 .nav-link:hover { background-size: 100% 3px; }
