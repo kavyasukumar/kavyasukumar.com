@@ -40,7 +40,7 @@ const DOT = 7.8; // lane of every gig leg-end dot
 const UP_TURN = -3.0; // lane where Bad Idea Factory's left branch turns from 45 degrees to north
 const UP_DOT = -4.5; // lane of the Bad Idea Factory dots, about 0.9 lw of straight leg past the arcs
 
-const LANE: Record<string, number> = { '5': 0, '6': P, '7': 2 * P };
+const LANE: Record<string, number> = { 'A': 0, 'B': P, 'C': 2 * P };
 const pt = (x: number, lane: number): LayoutPoint => ({ slot: x / GAP, lane });
 
 /** Trunk: straight through, so it stays on top at every crossing (rule 8). */
@@ -73,7 +73,7 @@ function fanDown(themes: string[], ids: string[], x: number, station: string): R
 
 /**
  * Ongoing branches that leave their trunks upward (owner decision: Bad Idea Factory is R1, on
- * top). The upper theme leaves first, so the bundle keeps its order: legs read 5-6-7 left to
+ * top). The upper theme leaves first, so the bundle keeps its order: legs read A-B-C left to
  * right, as on the trunk. Each 45 degree run and north leg is one pitch from its neighbour and
  * both bends are concentric about one centre per bend, upper theme on the inside (rule 14).
  * Lower themes cross the trunks above them on the 45 degree run (rules 8, 18). The route ends at
@@ -123,16 +123,16 @@ function fanDownThenEast(themes: string[], ids: string[], firstSplit: number, x:
 const J = 'journalism-';
 const tracks: Record<string, TrackLayout> = {
   // Trunks: full-time work (rule 37).
-  [`${J}finding-stories-1`]: trunk(0, 8, LANE['5']!),
-  [`${J}storytelling-1`]: trunk(0, 8, LANE['6']!),
-  [`${J}tooling-1`]: trunk(1, 8, LANE['7']!),
+  [`${J}finding-stories-1`]: trunk(0, 8, LANE['A']!),
+  [`${J}storytelling-1`]: trunk(0, 8, LANE['B']!),
+  [`${J}tooling-1`]: trunk(1, 8, LANE['C']!),
   // R1: Bad Idea Factory (ongoing) rises north just after Vox Media and runs off the top edge.
-  ...fanUp(['5', '6', '7'], [`${J}finding-stories-2`, `${J}storytelling-2`, `${J}tooling-2`], 4 * GAP + 0.82, 'bad-idea-factory'),
+  ...fanUp(['A', 'B', 'C'], [`${J}finding-stories-2`, `${J}storytelling-2`, `${J}tooling-2`], 4 * GAP + 0.82, 'bad-idea-factory'),
   // Gigs never chain (rule 37): each is a single-stop J-curve (rule 20).
-  ...fanDown(['6', '7'], [`${J}storytelling-3`, `${J}tooling-3`], 6 * GAP, 'all-things-small'),
-  ...fanDown(['5', '6', '7'], [`${J}finding-stories-3`, `${J}storytelling-4`, `${J}tooling-4`], 7 * GAP, 'uw-lecturer'),
+  ...fanDown(['B', 'C'], [`${J}storytelling-3`, `${J}tooling-3`], 6 * GAP, 'all-things-small'),
+  ...fanDown(['A', 'B', 'C'], [`${J}finding-stories-3`, `${J}storytelling-4`, `${J}tooling-4`], 7 * GAP, 'uw-lecturer'),
   // Lighthouse Reports leaves the trunk south-east before Washington Post, then runs east to its stop.
-  ...fanDownThenEast(['5', '6', '7'], [`${J}finding-stories-4`, `${J}storytelling-5`, `${J}tooling-5`], 58, 9 * GAP, 'lighthouse-reports'),
+  ...fanDownThenEast(['A', 'B', 'C'], [`${J}finding-stories-4`, `${J}storytelling-5`, `${J}tooling-5`], 58, 9 * GAP, 'lighthouse-reports'),
 };
 
 export const journalismLayout: LineLayout = {

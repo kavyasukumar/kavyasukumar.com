@@ -53,9 +53,17 @@ export interface LineLayout {
   vertical?: LineLayout;
 }
 
+/**
+ * A track's ID: one capital letter, in ribbon order top to bottom (owner decision, ORDER 17).
+ * Journalism A B C, code D E F G, product H I J, leadership K L, investing M N.
+ */
+export type TrackLetter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N';
+/** Track letters in ribbon (and key) order. */
+export const TRACK_LETTERS: readonly TrackLetter[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+
 export interface MapLine { id: string; name: string; order: number; colour: string }
-export interface MapTheme { id: string; line: string; name: string; short: string; theme: string; ongoing: boolean; num: number; strand_count: number }
-export interface MapTrack { id: string; theme: string; label: string; hatched: boolean; stations: string[]; ongoing: boolean }
+export interface MapTheme { id: string; line: string; name: string; short: string; theme: string; ongoing: boolean; letter: TrackLetter; strand_count: number }
+export interface MapTrack { id: string; theme: string; label: TrackLetter; hatched: boolean; stations: string[]; ongoing: boolean }
 export interface MapStation { id: string; order: number; name: string; start: number; end: number | null; ongoing: boolean; lines: string[]; themes: string[]; tracks: string[]; part_time: boolean }
 export interface MapData { lines: MapLine[]; themes: MapTheme[]; tracks: MapTrack[]; stations: MapStation[] }
 

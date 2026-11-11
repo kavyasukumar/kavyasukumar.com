@@ -1,5 +1,5 @@
 {
-  "_note": "Working names. Generated from docs/transit-map-tracks.md. A THEME is a named career thread and is ONE track of its line (rules vocabulary), labelled by its number only. Each entry under `tracks` is one BRANCH of that track: where a theme's work runs in parallel, the track splits and each concurrent role gets its own branch, so no branch is ever in two places at once. A branch is ongoing (runs off the map, rule 27) only if its last station is current (Bad Idea Factory or Aspada). Part-time stations (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Part-time branches never chain from one gig to the next (rule 37): each part-time station gets its own branch per theme, which ends there, unless the gig is ongoing. The `hatched` flag marks part-time branches; they are drawn solid (rule 35).",
+  "_note": "Working names. Generated from docs/transit-map-tracks.md. A THEME is a named career thread and is ONE track of its line (rules vocabulary), labelled by its letter only. Each entry under `tracks` is one BRANCH of that track: where a theme's work runs in parallel, the track splits and each concurrent role gets its own branch, so no branch is ever in two places at once. A branch is ongoing (runs off the map, rule 27) only if its last station is current (Bad Idea Factory or Aspada). Part-time stations (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Part-time branches never chain from one gig to the next (rule 37): each part-time station gets its own branch per theme, which ends there, unless the gig is ongoing. The `hatched` flag marks part-time branches; they are drawn solid (rule 35).",
   "lines": [
     {
       "id": "code",
@@ -40,7 +40,7 @@
       "short": "Love of code",
       "theme": "Coding out of love and curiosity for all things coding",
       "ongoing": true,
-      "num": 1,
+      "letter": "D",
       "strand_count": 4
     },
     {
@@ -50,7 +50,7 @@
       "short": "SJW coder",
       "theme": "Civic tech and advocacy tools; code that exposes or fixes injustice",
       "ongoing": true,
-      "num": 2,
+      "letter": "F",
       "strand_count": 4
     },
     {
@@ -60,7 +60,7 @@
       "short": "Data science",
       "theme": "Data science and the engineering of data and visualization: analysis, pipelines, charting code, interactive tooling. The storytelling side (charts as stories) lives in journalism / Storytelling",
       "ongoing": true,
-      "num": 3,
+      "letter": "E",
       "strand_count": 5
     },
     {
@@ -70,7 +70,7 @@
       "short": "Open source",
       "theme": "Contributing to others' open source plus creating and releasing my own",
       "ongoing": true,
-      "num": 4,
+      "letter": "G",
       "strand_count": 4
     },
     {
@@ -80,7 +80,7 @@
       "short": "Finding stories",
       "theme": "Data-driven investigations plus reporting, writing and editing stories (merged from Investigations and Reporting)",
       "ongoing": true,
-      "num": 5,
+      "letter": "A",
       "strand_count": 4
     },
     {
@@ -90,7 +90,7 @@
       "short": "Storytelling",
       "theme": "Craft of the story plus how it reaches the audience, including data and visualization as storytelling",
       "ongoing": true,
-      "num": 6,
+      "letter": "B",
       "strand_count": 5
     },
     {
@@ -100,7 +100,7 @@
       "short": "Tooling",
       "theme": "Newsroom workflow tools plus story-finding and verification tools",
       "ongoing": true,
-      "num": 7,
+      "letter": "C",
       "strand_count": 5
     },
     {
@@ -110,7 +110,7 @@
       "short": "Leadership",
       "theme": "Leading newsrooms, product and tech teams, and boards",
       "ongoing": true,
-      "num": 11,
+      "letter": "K",
       "strand_count": 3
     },
     {
@@ -120,7 +120,7 @@
       "short": "Evangelism",
       "theme": "Teaching and evangelising tech in media",
       "ongoing": false,
-      "num": 12,
+      "letter": "L",
       "strand_count": 4
     },
     {
@@ -130,7 +130,7 @@
       "short": "Product mgmt",
       "theme": "Product strategy plus day-to-day delivery",
       "ongoing": true,
-      "num": 8,
+      "letter": "H",
       "strand_count": 3
     },
     {
@@ -140,7 +140,7 @@
       "short": "Economics",
       "theme": "Understanding the business of products and the realities of funding",
       "ongoing": true,
-      "num": 9,
+      "letter": "I",
       "strand_count": 2
     },
     {
@@ -150,7 +150,7 @@
       "short": "Fundraising",
       "theme": "Investor relations and fundraising, seen from the product side (owner wore a product manager hat)",
       "ongoing": true,
-      "num": 10,
+      "letter": "J",
       "strand_count": 2
     },
     {
@@ -160,7 +160,7 @@
       "short": "Diligence",
       "theme": "Evaluating and diligencing investments, on the tech front",
       "ongoing": false,
-      "num": 13,
+      "letter": "M",
       "strand_count": 1
     },
     {
@@ -170,7 +170,7 @@
       "short": "Advisory",
       "theme": "Advising and supporting portfolio companies on product and tech; helping hire tech leaders",
       "ongoing": true,
-      "num": 14,
+      "letter": "N",
       "strand_count": 1
     }
   ],
@@ -178,7 +178,7 @@
     {
       "id": "code-love-of-code-1",
       "theme": "code-love-of-code",
-      "label": "1",
+      "label": "D",
       "hatched": false,
       "stations": [
         "nit-trichy",
@@ -194,7 +194,7 @@
     {
       "id": "code-love-of-code-2",
       "theme": "code-love-of-code",
-      "label": "1",
+      "label": "D",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -204,7 +204,7 @@
     {
       "id": "code-love-of-code-3",
       "theme": "code-love-of-code",
-      "label": "1",
+      "label": "D",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -214,7 +214,7 @@
     {
       "id": "code-love-of-code-4",
       "theme": "code-love-of-code",
-      "label": "1",
+      "label": "D",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -224,7 +224,7 @@
     {
       "id": "code-sjw-coder-1",
       "theme": "code-sjw-coder",
-      "label": "2",
+      "label": "F",
       "hatched": false,
       "stations": [
         "opennews-fellow",
@@ -238,7 +238,7 @@
     {
       "id": "code-sjw-coder-2",
       "theme": "code-sjw-coder",
-      "label": "2",
+      "label": "F",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -248,7 +248,7 @@
     {
       "id": "code-sjw-coder-3",
       "theme": "code-sjw-coder",
-      "label": "2",
+      "label": "F",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -258,7 +258,7 @@
     {
       "id": "code-sjw-coder-4",
       "theme": "code-sjw-coder",
-      "label": "2",
+      "label": "F",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -268,7 +268,7 @@
     {
       "id": "code-data-science-1",
       "theme": "code-data-science",
-      "label": "3",
+      "label": "E",
       "hatched": false,
       "stations": [
         "palm-beach-post",
@@ -284,7 +284,7 @@
     {
       "id": "code-data-science-2",
       "theme": "code-data-science",
-      "label": "3",
+      "label": "E",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -294,7 +294,7 @@
     {
       "id": "code-data-science-3",
       "theme": "code-data-science",
-      "label": "3",
+      "label": "E",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -304,7 +304,7 @@
     {
       "id": "code-data-science-4",
       "theme": "code-data-science",
-      "label": "3",
+      "label": "E",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -314,7 +314,7 @@
     {
       "id": "code-data-science-5",
       "theme": "code-data-science",
-      "label": "3",
+      "label": "E",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -324,7 +324,7 @@
     {
       "id": "code-open-source-1",
       "theme": "code-open-source",
-      "label": "4",
+      "label": "G",
       "hatched": false,
       "stations": [
         "nit-trichy",
@@ -338,7 +338,7 @@
     {
       "id": "code-open-source-2",
       "theme": "code-open-source",
-      "label": "4",
+      "label": "G",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -348,7 +348,7 @@
     {
       "id": "code-open-source-3",
       "theme": "code-open-source",
-      "label": "4",
+      "label": "G",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -358,7 +358,7 @@
     {
       "id": "code-open-source-4",
       "theme": "code-open-source",
-      "label": "4",
+      "label": "G",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -368,7 +368,7 @@
     {
       "id": "journalism-finding-stories-1",
       "theme": "journalism-finding-stories",
-      "label": "5",
+      "label": "A",
       "hatched": false,
       "stations": [
         "medill",
@@ -381,7 +381,7 @@
     {
       "id": "journalism-finding-stories-2",
       "theme": "journalism-finding-stories",
-      "label": "5",
+      "label": "A",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -391,7 +391,7 @@
     {
       "id": "journalism-finding-stories-3",
       "theme": "journalism-finding-stories",
-      "label": "5",
+      "label": "A",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -401,7 +401,7 @@
     {
       "id": "journalism-finding-stories-4",
       "theme": "journalism-finding-stories",
-      "label": "5",
+      "label": "A",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -411,7 +411,7 @@
     {
       "id": "journalism-storytelling-1",
       "theme": "journalism-storytelling",
-      "label": "6",
+      "label": "B",
       "hatched": false,
       "stations": [
         "medill",
@@ -425,7 +425,7 @@
     {
       "id": "journalism-storytelling-2",
       "theme": "journalism-storytelling",
-      "label": "6",
+      "label": "B",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -435,7 +435,7 @@
     {
       "id": "journalism-storytelling-3",
       "theme": "journalism-storytelling",
-      "label": "6",
+      "label": "B",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -445,7 +445,7 @@
     {
       "id": "journalism-storytelling-4",
       "theme": "journalism-storytelling",
-      "label": "6",
+      "label": "B",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -455,7 +455,7 @@
     {
       "id": "journalism-storytelling-5",
       "theme": "journalism-storytelling",
-      "label": "6",
+      "label": "B",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -465,7 +465,7 @@
     {
       "id": "journalism-tooling-1",
       "theme": "journalism-tooling",
-      "label": "7",
+      "label": "C",
       "hatched": false,
       "stations": [
         "palm-beach-post",
@@ -479,7 +479,7 @@
     {
       "id": "journalism-tooling-2",
       "theme": "journalism-tooling",
-      "label": "7",
+      "label": "C",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -489,7 +489,7 @@
     {
       "id": "journalism-tooling-3",
       "theme": "journalism-tooling",
-      "label": "7",
+      "label": "C",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -499,7 +499,7 @@
     {
       "id": "journalism-tooling-4",
       "theme": "journalism-tooling",
-      "label": "7",
+      "label": "C",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -509,7 +509,7 @@
     {
       "id": "journalism-tooling-5",
       "theme": "journalism-tooling",
-      "label": "7",
+      "label": "C",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -519,7 +519,7 @@
     {
       "id": "leadership-team-1",
       "theme": "leadership-team",
-      "label": "11",
+      "label": "K",
       "hatched": false,
       "stations": [
         "palm-beach-post",
@@ -532,7 +532,7 @@
     {
       "id": "leadership-team-2",
       "theme": "leadership-team",
-      "label": "11",
+      "label": "K",
       "hatched": true,
       "stations": [
         "seattle-globalist"
@@ -542,7 +542,7 @@
     {
       "id": "leadership-team-3",
       "theme": "leadership-team",
-      "label": "11",
+      "label": "K",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -552,7 +552,7 @@
     {
       "id": "leadership-evangelism-1",
       "theme": "leadership-evangelism",
-      "label": "12",
+      "label": "L",
       "hatched": false,
       "stations": [
         "opennews-fellow",
@@ -563,7 +563,7 @@
     {
       "id": "leadership-evangelism-2",
       "theme": "leadership-evangelism",
-      "label": "12",
+      "label": "L",
       "hatched": true,
       "stations": [
         "seattle-globalist"
@@ -573,7 +573,7 @@
     {
       "id": "leadership-evangelism-3",
       "theme": "leadership-evangelism",
-      "label": "12",
+      "label": "L",
       "hatched": true,
       "stations": [
         "uw-lecturer"
@@ -583,7 +583,7 @@
     {
       "id": "leadership-evangelism-4",
       "theme": "leadership-evangelism",
-      "label": "12",
+      "label": "L",
       "hatched": true,
       "stations": [
         "lighthouse-reports"
@@ -593,7 +593,7 @@
     {
       "id": "product-product-mgmt-1",
       "theme": "product-product-mgmt",
-      "label": "8",
+      "label": "H",
       "hatched": false,
       "stations": [
         "hearken",
@@ -604,7 +604,7 @@
     {
       "id": "product-product-mgmt-2",
       "theme": "product-product-mgmt",
-      "label": "8",
+      "label": "H",
       "hatched": true,
       "stations": [
         "bad-idea-factory"
@@ -614,7 +614,7 @@
     {
       "id": "product-product-mgmt-3",
       "theme": "product-product-mgmt",
-      "label": "8",
+      "label": "H",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -624,7 +624,7 @@
     {
       "id": "product-economics-1",
       "theme": "product-economics",
-      "label": "9",
+      "label": "I",
       "hatched": false,
       "stations": [
         "hearken",
@@ -635,7 +635,7 @@
     {
       "id": "product-economics-2",
       "theme": "product-economics",
-      "label": "9",
+      "label": "I",
       "hatched": true,
       "stations": [
         "all-things-small"
@@ -645,7 +645,7 @@
     {
       "id": "product-fundraising-1",
       "theme": "product-fundraising",
-      "label": "10",
+      "label": "J",
       "hatched": false,
       "stations": [
         "hearken",
@@ -657,7 +657,7 @@
     {
       "id": "product-fundraising-2",
       "theme": "product-fundraising",
-      "label": "10",
+      "label": "J",
       "hatched": true,
       "stations": [
         "seattle-globalist"
@@ -667,7 +667,7 @@
     {
       "id": "investing-diligence-1",
       "theme": "investing-diligence",
-      "label": "13",
+      "label": "M",
       "hatched": false,
       "stations": [
         "lightrock-india"
@@ -677,7 +677,7 @@
     {
       "id": "investing-advisory-1",
       "theme": "investing-advisory",
-      "label": "14",
+      "label": "N",
       "hatched": false,
       "stations": [
         "lightrock-india",
@@ -776,7 +776,7 @@
     {
       "id": "opennews-fellow",
       "order": 5,
-      "name": "OpenNews Fellow",
+      "name": "OpenNews",
       "start": 2015,
       "end": 2016,
       "ongoing": false,
