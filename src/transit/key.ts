@@ -37,7 +37,9 @@ export function renderKey(container: HTMLElement, data: MapData, layout: LineLay
   // A line header highlights all of its line's tracks.
   setGroups(Object.fromEntries(model.map((g) => [g.hl, g.tracks.map((t) => t.theme)])));
 
-  const key = select(container).selectAll<HTMLDivElement, null>('div.tm-key').data([null]).join('div').attr('class', 'tm-key');
+  // Track rows indent by swatch + gap so their names start under the line name (CSS reads --tm-key-sw).
+  const key = select(container).selectAll<HTMLDivElement, null>('div.tm-key').data([null]).join('div').attr('class', 'tm-key')
+    .style('--tm-key-sw', `${BW}px`);
   // The Symbols group lives in the map's bottom-left corner now (symbols-legend.ts, rule 34).
   const group = key.selectAll<HTMLDivElement, null>('div.tm-key-group').data([null]).join('div').attr('class', 'tm-key-group');
   group.selectAll('h3.tm-key-heading').data([null]).join('h3').attr('class', 'tm-key-heading').text('Lines');

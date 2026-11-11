@@ -28,7 +28,7 @@ Two-page static Vite site (multi-page build in `vite.config.ts`: `index.html` an
 - `src/components/` has small motion/layout helpers (`Reveal`, `MarqueeDivider`, `SectionTitle`).
 - `vite.config.ts` splits `react`/`react-dom` and `@phosphor-icons/react` into vendor/icons chunks and strips `console`/`debugger` in builds.
 
-**Dataviz page** (`dataviz.html`): standalone, **not React**. Inline `<style>`, inline `<script>`, `src/dataviz-page.ts` (shared CSS + theme toggle), and a hand-authored inline SVG career "transit map" (`#transit`). A second "braided" section (`#braided`) is kept in the file but `hidden`. `career-transit-map.svg` at the root is a standalone export of that map. Earlier history shows the SVG was produced by a Python generator that is not in the repo, so edit the HTML/SVG directly and re-export the standalone SVG by hand if it needs to stay in sync.
+**Dataviz page** (`dataviz.html`): standalone, **not React**. Inline `<style>`, inline `<script>`, `src/dataviz-page.ts` (shared CSS + theme follow; its header is only the "← Kavya Sukumar" back link, with no nav links or toggle: the theme is set on the main page and followed here), and a hand-authored inline SVG career "transit map" (`#transit`). A second "braided" section (`#braided`) is kept in the file but `hidden`. `career-transit-map.svg` at the root is a standalone export of that map. Earlier history shows the SVG was produced by a Python generator that is not in the repo, so edit the HTML/SVG directly and re-export the standalone SVG by hand if it needs to stay in sync.
 
 ## Design docs (read before UI changes)
 
