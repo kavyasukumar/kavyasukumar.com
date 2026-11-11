@@ -7,6 +7,7 @@ import { LABEL_PX, LINE_H } from './labels';
 import { dashedRun } from './ongoing';
 import { buildModel, yearsOf, type Model } from './model';
 import { stationLabel } from './station-label';
+import { drawLegend, placeLegend, type Obstacles } from './symbols-legend';
 import type { LineLayout, MapData, Orientation, Scale } from './types';
 
 export const INK = '#0A0A0A';
@@ -25,7 +26,8 @@ const AXIS_COL = PAD;
 const VPAD = 6; // side margin of the vertical (phone) layout
 const FLOOR_LW = 8; // phone lw floor (rule 22, PH1): below it the map frame scrolls sideways instead
 
-export interface RenderResult { scale: Scale; model: Model }
+/** `symbolsInMap`: false when the symbols legend has no room in the canvas (phone) and goes below the frame. */
+export interface RenderResult { scale: Scale; model: Model; symbolsInMap: boolean }
 
 /** Choose orientation and lw for a container width. Fits content by iterating on measured extent. */
 export function chooseScale(width: number, model: Model, layout: LineLayout): { scale: Scale; box: Box; canvasW: number } {
@@ -88,14 +90,14 @@ function measure(o: Orientation, lw: number, width: number, model: Model, layout
 
 interface Plan {
   box: Box;
-  tracks: { id: string; theme: string; d: string; colour: string; top: boolean; low: boolean; dash: string | null }[];
+  tracks: { id: string; theme: string; d: string; pts: [number, number][]; colour: string; top: boolean; low: boolean; dash: string | null }[];
   casings: Casing[];
   lowCasings: Casing[];
   stations: {
     id: string; aria: string; major: boolean; themes: string;
     connectors: { key: string; d: string; themes: string }[];
     dots: { key: string; theme: string; cx: number; cy: number; label: string; square: boolean; glyph: string }[];
-    label: { lines: string[]; x: number; y: number; anchor: string };
+    label: { lines: string[]; x: number; y: number; anchor: string; box: [number, number, number, number] };
   }[];
   discs: { key: string; cx: number; cy: number; label: string; text: string }[];
   axis: { key: string; x: number; y: number; anchor: string; text: string }[];
@@ -146,13 +148,14 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number, 
     for (const q of [start, ...pts, end]) grow(q[0] - lw / 2, q[1] - lw / 2, q[0] + lw / 2, q[1] + lw / 2);
     const tl = layout.tracks[t.id]!;
     const colour = model.colours[t.theme] ?? model.line.colour;
+    const line: [number, number][] = [start, ...pts.slice(1, -1), end];
     const solid: Plan['tracks'][number] = { id: t.id, theme: t.theme, colour, top: !!tl.top, low: !!tl.low, dash: null,
-      d: roundedPath([start, ...pts.slice(1, -1), end], (tl.radii ?? [1.5]).map((r) => r * lw)) };
+      pts: line, d: roundedPath(line, (tl.radii ?? [1.5]).map((r) => r * lw)) };
     if (!t.ongoing) return [solid];
     // Ongoing work runs on dashed past its last stop and off the canvas edge (rule 27).
     const run = dashedRun(end, l, lw, W, H);
     if (H === 0) grow(run.to[0] - lw / 2, run.to[1] - lw / 2, run.to[0] + lw / 2, run.to[1] + lw / 2);
-    return [solid, { ...solid, id: `${t.id}~dash`, d: run.d, dash: run.dash }];
+    return [solid, { ...solid, id: `${t.id}~dash`, pts: [run.from, run.to], d: run.d, dash: run.dash }];
   });
 
   const vBudget = (w: number): number => Math.min(150, Math.max(72, w * 0.28));
@@ -172,7 +175,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number, 
     grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
-      themes, connectors, dots, label: { lines: placed.lines, x: placed.x, y: placed.y, anchor: placed.anchor },
+      themes, connectors, dots, label: { lines: placed.lines, x: placed.x, y: placed.y, anchor: placed.anchor, box: placed.box },
     };
   });
 
@@ -198,9 +201,16 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
   }
   const { scale, canvasW: W } = fit;
   const bbox = plan(model, layout, scale, W, 0, frameW).box;
-  const H = Math.ceil(bbox.y1 + (scale.orientation === 'horizontal' ? 20 : PAD));
-  const p = plan(model, layout, scale, W, H, frameW);
+  const horiz = scale.orientation === 'horizontal';
+  let H = Math.ceil(bbox.y1 + (horiz ? 20 : PAD));
+  let p = plan(model, layout, scale, W, H, frameW);
   const lw = scale.lw;
+  // Symbols legend (rule 34) in the bottom-left corner. Desktop: the canvas may grow to fit it
+  // (its ongoing tracks run off the right edge, so growing does not move them). Phone: only if it
+  // fits as is (growing would lengthen the dashes that run off the bottom); otherwise below the frame.
+  const sym = placeLegend(obstaclesOf(p, lw), p.box.x0, p.box.y1, Math.max(lw, 12));
+  const symbolsInMap = horiz || sym.y1 <= p.box.y1;
+  if (horiz && Math.ceil(sym.y1 + 20) > H) { H = Math.ceil(sym.y1 + 20); p = plan(model, layout, scale, W, H, frameW); }
 
   const root = select(container);
   const svg = root.selectAll<SVGSVGElement, null>('svg.tm-svg').data([null]).join('svg')
@@ -300,6 +310,23 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     .attr('class', 'tm-axis').attr('x', (d) => d.x).attr('y', (d) => d.y).attr('text-anchor', (d) => d.anchor)
     .attr('font-family', FONT).attr('font-size', LABEL_PX).attr('fill', MUTED).text((d) => d.text);
 
+  const symLayer = layer(svg, 'symbols');
+  symLayer.selectAll<SVGGElement, null>('g.tm-symbols').data(symbolsInMap ? [null] : []).join('g')
+    .attr('transform', `translate(${sym.x0},${sym.y0})`).each(function () { drawLegend(select(this), lw); });
+
   registerMap(container);
-  return { scale, model };
+  return { scale, model, symbolsInMap };
+}
+
+/** Track centre lines, dot hulls (which cover the connectors) and label boxes of a plan. */
+function obstaclesOf(p: Plan, lw: number): Obstacles {
+  const boxes: Obstacles['boxes'] = [];
+  for (const st of p.stations) {
+    const [b0, b1, b2, b3] = st.label.box;
+    boxes.push({ x0: b0, y0: b1, x1: b2, y1: b3 });
+    if (!st.dots.length) continue;
+    const xs = st.dots.map((d) => d.cx); const ys = st.dots.map((d) => d.cy);
+    boxes.push({ x0: Math.min(...xs) - lw / 2, y0: Math.min(...ys) - lw / 2, x1: Math.max(...xs) + lw / 2, y1: Math.max(...ys) + lw / 2 });
+  }
+  return { lines: p.tracks.map((t) => t.pts), boxes, lw };
 }

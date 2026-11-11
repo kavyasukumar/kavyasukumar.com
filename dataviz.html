@@ -27,6 +27,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Space Grotesk',s
 #transit .map-hint{position:absolute;top:4px;right:4px;bottom:4px;width:12px;background:linear-gradient(to left,var(--cream),transparent);pointer-events:none;opacity:0;transition:opacity .2s} /* rule 40: shown only while the frame can scroll further right; inset by the 4px border */
 #transit .map-hint.is-on{opacity:1}
 #transit .map svg{display:block;width:100%;height:auto}
+#transit .map-symbols{width:max-content;max-width:100%;box-sizing:border-box;margin-top:32px;background:var(--cream);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--panel-shadow);padding:14px 16px} /* rule 34 phone fallback: symbols below the frame (clears its 12px shadow); Cream so it reads the same on Forest */
+#transit .map-symbols[hidden]{display:none}
 #transit svg text{font-family:'JetBrains Mono',monospace}
 #transit-map .tm-track{fill:none}
 #transit .tm-dot{fill:#0A0A0A;stroke:var(--cream);stroke-width:1.2px;paint-order:stroke} /* cream ring so Ink dots show on Ink tracks */
@@ -143,6 +145,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Space Grotesk',s
 <div class="eyebrow">/ A &mdash; as a transit map</div><h1>My story<br><span class="outline-word">thus far</span></h1>
 <p class="sub">Built one line at a time. <b>Tap a station.</b></p>
 <div class="map-shell"><div class="map" id="transit-map"></div><div class="map-hint" id="transit-map-hint" aria-hidden="true"></div></div>
+<div class="map-symbols" id="transit-symbols" hidden></div>
 <div class="panel">
  <div class="key" id="transit-key"></div>
  <div class="card"><div class="k" id="ck">Station</div><h3 id="ch">Tap a station.</h3><p id="cp"></p></div>

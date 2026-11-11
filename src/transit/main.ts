@@ -4,6 +4,7 @@ import { careerLayout } from './layout-code';
 import { yearsOf } from './model';
 import { renderMap, type RenderResult } from './render';
 import { initScrollHint } from './scroll-hint';
+import { renderSymbolsBelow } from './symbols-legend';
 import { initTrackbar } from './trackbar';
 import type { MapData } from './types';
 
@@ -14,6 +15,7 @@ const kindEl = document.getElementById('ck');
 const nameEl = document.getElementById('ch');
 const infoEl = document.getElementById('cp');
 const hintEl = document.getElementById('transit-map-hint');
+const symbolsEl = document.getElementById('transit-symbols');
 
 let last: RenderResult | null = null;
 let lastWidth = -1;
@@ -27,6 +29,8 @@ function draw(el: HTMLElement): void {
     const lw = Math.round(last.scale.lw * 100) / 100;
     if (lw !== lastKeyLw) { renderKey(keyEl, data, careerLayout, last.scale.lw); lastKeyLw = lw; }
   }
+  // Phone: the symbols legend goes below the frame when the canvas has no room for it (rule 34).
+  if (symbolsEl) renderSymbolsBelow(symbolsEl, last.symbolsInMap ? null : last.scale.lw);
   updateHint?.(); // a re-render changes scrollWidth
 }
 
