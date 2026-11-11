@@ -36,6 +36,14 @@ export interface StationLayout {
   labelSide: 'before' | 'after' | 'tip' | 'back';
   /** Horizontal layout only: the label always wraps to two lines, to keep clear of its neighbours (Vox Media). */
   hWrap?: boolean;
+  /**
+   * Vertical layout only: the label's wrap budget comes from the frame width, not the canvas width. At the lw
+   * floor the canvas grows past the frame (it scrolls), and the layout is measured at the frame width, so a
+   * label measured wrapped could otherwise draw on one line and run off the canvas (Bad Idea Factory, All Things Small).
+   */
+  vFrameWrap?: boolean;
+  /** Vertical layout only: the label always wraps to two lines (Uni. of Washington; on one line it reaches the A and B legs). */
+  vWrap?: boolean;
   /** Vertical layout only: a 'back' label goes under the dots instead of above them, clear of the fan's bends. */
   vUnder?: boolean;
   /** Vertical layout only: a 'tip' label goes above the dots instead of under them (Seattle Globalist, clear of ATS). */

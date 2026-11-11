@@ -1,14 +1,15 @@
 import type { LayoutPoint, LineLayout, StationLayout, TrackLayout, TrackLetter } from './types';
 
 /**
- * Journalism (3 tracks), code (4), leadership (2) and product (3) drawn as ONE 12-wide ribbon, so every
- * shared station is an interchange of straight, touching dots. Top to bottom: A B C (journalism, pink) |
- * D E F G (code, forest) | K L (leadership, raspberry) | H I J (product, mint), a line gap between lines. Every number below is in lw and meant to be tweaked.
+ * Journalism (3 tracks), code (4), leadership (2), investing (2) and product (3) drawn as ONE 14-wide ribbon,
+ * so every shared station is an interchange of straight, touching dots. Top to bottom: A B C (journalism, pink) |
+ * D E F G (code, forest) | K L (leadership, raspberry) | M N (investing, ink) | H I J (product, mint), a line gap
+ * between lines. Every number below is in lw and meant to be tweaked.
  */
 
 // ---- TWEAK ME: station x positions along the ribbon (lw). Fan stations: centre of the legs. ----
 const X0: Record<string, number> = {
-  'nit-trichy': 0, 'microsoft': 5, 'medill': 10, 'palm-beach-post': 15, 'opennews-fellow': 20, 'vox-media': 25,
+  'nit-trichy': 0, 'microsoft': 5, 'medill': 10, 'palm-beach-post': 15, 'opennews': 20, 'vox-media': 25,
   'bad-idea-factory': 0, // set in build() from k0
   'hearken': 46, 'seattle-globalist': 55, 'all-things-small': 65, 'uw-lecturer': 63.5, 'washington-post': 67,
   'lightrock-india': 81, 'lighthouse-reports': 86, 'aspada': 89,
@@ -21,7 +22,7 @@ const LINE_GAP = 0.25; // empty space between two lines' tracks, everywhere they
 interface Spacing {
   k0: number; // x + lane of the first (journalism A) 45 degree run north-east at Bad Idea Factory
   upTurn: number; // lane where journalism A turns from 45 degrees to north
-  uwK0: number; // x + lane of UW Lecturer's first 45 degree run north-east (R1, between Hearken and WaPo)
+  uwK0: number; // x + lane of Uni. of Washington's first 45 degree run north-east (R1, between Hearken and WaPo)
   upDot: number; // lane of the BIF and UW dot rows, past the widest arc plus 1.5 lw of straight
   drop: number; // lw below the ribbon before a fan's last turn
   dot: number; // lane of every gig leg-end dot below the ribbon (Seattle Globalist, ATS)
@@ -30,22 +31,26 @@ interface Spacing {
   x: Record<string, number>; // station x overrides (along time) for this spacing
 }
 // Desktop R1-R3 are another ~20% taller (LD4), and WaPo, LightRock and Aspada sit further east so the WaPo
-// label clears UW Lecturer's legs. The phone keeps ORDER 16's spacing and x positions.
+// label clears Uni. of Washington's legs. Medill sits 0.9 lw west so its label clears Palm Beach Post's by at least
+// 1 lw at 1280 (Palm Beach Post, OpenNews and Vox Media have no room to move east: Vox's dots already touch the Bad
+// Idea Factory bends). The phone keeps ORDER 16's spacing and x positions.
 const DESKTOP: Spacing = {
-  k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 25.7, dotLh: 20.9, splitLh: 69.8,
-  x: { 'opennews-fellow': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
+  k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 27.9, dotLh: 23.1, splitLh: 69.8,
+  x: { 'medill': 9.1, 'opennews': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
 };
-const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 50, upDot: -6.5 - 5.4, drop: 2.2, dot: 25, dotLh: 19.4, splitLh: 69.1, x: {} };
+// Investing's two lanes (2 pitches + 1 line gap = 2.49 lw) push R3 down: desktop dot and dotLh follow the investing
+// experiment (+2.2 lw each); the phone moves both by the full 2.49, so its legs and Lighthouse clearance are unchanged.
+const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 50, upDot: -6.5 - 5.4, drop: 2.2, dot: 27.5, dotLh: 21.9, splitLh: 69.1, x: {} };
 
-// ---- TWEAK ME: lane order, top to bottom, by track letter (journalism A B C, code D E F G, leadership K L, product H I J) ----
-type Lane = Extract<TrackLetter, 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L'>;
-const ORDER: readonly Lane[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'K', 'L', 'H', 'I', 'J']; // journalism | code | leadership | product
+// ---- TWEAK ME: lane order, top to bottom, by track letter (journalism A B C, code D E F G, leadership K L, investing M N, product H I J) ----
+type Lane = TrackLetter;
+const ORDER: readonly Lane[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'K', 'L', 'M', 'N', 'H', 'I', 'J']; // journalism | code | leadership | investing | product
 const P = 1.12; // track pitch (rule 10)
 const R = 1.5; // inner bend radius (rule 14)
 const DIAG = P * Math.SQRT2;
-const LINE_OF: Record<Lane, number> = { 'A': 0, 'B': 0, 'C': 0, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'K': 2, 'L': 2, 'H': 3, 'I': 3, 'J': 3 };
+const LINE_OF: Record<Lane, number> = { 'A': 0, 'B': 0, 'C': 0, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'K': 2, 'L': 2, 'M': 3, 'N': 3, 'H': 4, 'I': 4, 'J': 4 };
 const LANE = Object.fromEntries(ORDER.map((t, i) => [t, i * P + LINE_OF[t] * LINE_GAP])) as Record<Lane, number>;
-const BOTTOM = 11 * P + 3 * LINE_GAP; // lane of the lowest trunk
+const BOTTOM = 13 * P + 4 * LINE_GAP; // lane of the lowest trunk
 const TAN = Math.tan(Math.PI / 8);
 
 const pt = (x: number, lane: number): LayoutPoint => ({ slot: x / GAP, lane });
@@ -204,7 +209,7 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
     // Code trunks. Each starts at its first station. Love of code and Data science are ongoing.
     [`${C}love-of-code-1`]: trunk(X['nit-trichy']!, X['aspada']!, 'D'),
     [`${C}open-source-1`]: trunk(X['nit-trichy']!, wapo, 'G'),
-    [`${C}sjw-coder-1`]: trunk(X['opennews-fellow']!, X['lightrock-india']!, 'F'),
+    [`${C}sjw-coder-1`]: trunk(X['opennews']!, X['lightrock-india']!, 'F'),
     [`${C}data-science-1`]: trunk(X['palm-beach-post']!, X['aspada']!, 'E'),
     ...bifBranches(sp, bif),
     ...hearkenBack(sp, X),
@@ -215,7 +220,11 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
     // Leadership (raspberry): K (Team, ongoing) runs PBP to Aspada; L (Evangelism) runs OpenNews to
     // Washington Post, where it continues as its Lighthouse branch.
     [`${L_}team-1`]: trunk(X['palm-beach-post']!, X['aspada']!, 'K'),
-    [`${L_}evangelism-1`]: trunk(X['opennews-fellow']!, wapo, 'L'),
+    [`${L_}evangelism-1`]: trunk(X['opennews']!, wapo, 'L'),
+    // Investing (ink, ongoing): M (Diligence) and N (Advisory) start abruptly at LightRock India, stop at Aspada
+    // and run on dashed off the east edge.
+    ['investing-diligence-1']: trunk(X['lightrock-india']!, X['aspada']!, 'M'),
+    ['investing-advisory-1']: trunk(X['lightrock-india']!, X['aspada']!, 'N'),
     ...fanDown(sp, sg, X['seattle-globalist']!, 'seattle-globalist'),
     ...fanDown(sp, [...ats, ...atsP], X['all-things-small']!, 'all-things-small'),
     ...bifBranches(sp, uw, sp.uwK0, 'uw-lecturer'),
@@ -227,6 +236,12 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
   for (const [id, x] of Object.entries(X)) stations[id] = { slot: x / GAP, labelSide: sides[id] ?? 'before' };
   // Desktop: Vox Media's label always wraps, so it clears OpenNews (moved east 1.5 lw) and Bad Idea Factory's rising branches.
   stations['vox-media']!.hWrap = true;
+  // Phone: Bad Idea Factory's and All Things Small's labels wrap by the frame's width, not the canvas's; at the lw
+  // floor the wider canvas unwrapped them and they ran off its west and east edges.
+  stations['bad-idea-factory']!.vFrameWrap = true;
+  stations['all-things-small']!.vFrameWrap = true;
+  // Phone: the Uni. of Washington label always wraps (Uni. of / Washington); on one line it reaches the A and B legs.
+  stations['uw-lecturer']!.vWrap = true;
   // Phone: the All Things Small label goes under its dots, clear of the fan's bends above them.
   stations['all-things-small']!.vUnder = true;
   // Phone: the Seattle Globalist label goes above its dots; under them it would touch All Things Small's.
@@ -239,7 +254,7 @@ function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
 
 export const careerLayout: LineLayout = {
   lineId: 'journalism',
-  lineIds: ['journalism', 'code', 'leadership', 'product'], // key order follows the ribbon, top to bottom
+  lineIds: ['journalism', 'code', 'leadership', 'investing', 'product'], // key order follows the ribbon, top to bottom
   slotGap: { horizontal: GAP, vertical: GAP },
   minLw: 12, // draft: as close to 16px per track as 14 stations x 7 tracks allow at 1440
   ...build(DESKTOP),

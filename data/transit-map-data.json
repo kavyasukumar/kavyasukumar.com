@@ -1,5 +1,5 @@
 {
-  "_note": "Working names. Generated from docs/transit-map-tracks.md. A THEME is a named career thread and is ONE track of its line (rules vocabulary), labelled by its letter only. Each entry under `tracks` is one BRANCH of that track: where a theme's work runs in parallel, the track splits and each concurrent role gets its own branch, so no branch is ever in two places at once. A branch is ongoing (runs off the map, rule 27) only if its last station is current (Bad Idea Factory or Aspada). Part-time stations (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Part-time branches never chain from one gig to the next (rule 37): each part-time station gets its own branch per theme, which ends there, unless the gig is ongoing. The `hatched` flag marks part-time branches; they are drawn solid (rule 35).",
+  "_note": "Working names. Generated from docs/transit-map-tracks.md. A THEME is a named career thread and is ONE track of its line (rules vocabulary), labelled by its letter only. Each entry under `tracks` is one BRANCH of that track: where a theme's work runs in parallel, the track splits and each concurrent role gets its own branch, so no branch is ever in two places at once. A branch is ongoing (runs off the map, rule 27) only if its last station is current (Bad Idea Factory or Aspada). Part-time stations (owner): Bad Idea Factory, Seattle Globalist, All Things Small, Uni. of Washington, Lighthouse Reports. Part-time branches never chain from one gig to the next (rule 37): each part-time station gets its own branch per theme, which ends there, unless the gig is ongoing. The `hatched` flag marks part-time branches; they are drawn solid (rule 35).",
   "lines": [
     {
       "id": "code",
@@ -159,7 +159,7 @@
       "name": "Tech diligence",
       "short": "Diligence",
       "theme": "Evaluating and diligencing investments",
-      "ongoing": false,
+      "ongoing": true,
       "letter": "M",
       "strand_count": 1
     },
@@ -183,7 +183,7 @@
       "stations": [
         "nit-trichy",
         "microsoft",
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "hearken",
         "washington-post",
@@ -227,7 +227,7 @@
       "label": "F",
       "hatched": false,
       "stations": [
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "hearken",
         "washington-post",
@@ -272,7 +272,7 @@
       "hatched": false,
       "stations": [
         "palm-beach-post",
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "hearken",
         "washington-post",
@@ -328,7 +328,7 @@
       "hatched": false,
       "stations": [
         "nit-trichy",
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "hearken",
         "washington-post"
@@ -416,7 +416,7 @@
       "stations": [
         "medill",
         "palm-beach-post",
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "washington-post"
       ],
@@ -469,7 +469,7 @@
       "hatched": false,
       "stations": [
         "palm-beach-post",
-        "opennews-fellow",
+        "opennews",
         "vox-media",
         "hearken",
         "washington-post"
@@ -555,7 +555,7 @@
       "label": "L",
       "hatched": false,
       "stations": [
-        "opennews-fellow",
+        "opennews",
         "hearken"
       ],
       "ongoing": false
@@ -670,9 +670,10 @@
       "label": "M",
       "hatched": false,
       "stations": [
-        "lightrock-india"
+        "lightrock-india",
+        "aspada"
       ],
-      "ongoing": false
+      "ongoing": true
     },
     {
       "id": "investing-advisory-1",
@@ -774,7 +775,7 @@
       "part_time": false
     },
     {
-      "id": "opennews-fellow",
+      "id": "opennews",
       "order": 5,
       "name": "OpenNews",
       "start": 2015,
@@ -968,7 +969,7 @@
     {
       "id": "uw-lecturer",
       "order": 11,
-      "name": "UW Lecturer",
+      "name": "Uni. of Washington",
       "start": 2020,
       "end": 2020,
       "ongoing": false,
@@ -1113,7 +1114,8 @@
         "product-economics",
         "investing-advisory",
         "product-fundraising",
-        "leadership-team"
+        "leadership-team",
+        "investing-diligence"
       ],
       "tracks": [
         "code-love-of-code-1",
@@ -1122,7 +1124,8 @@
         "product-product-mgmt-1",
         "product-economics-1",
         "product-fundraising-1",
-        "investing-advisory-1"
+        "investing-advisory-1",
+        "investing-diligence-1"
       ],
       "part_time": false
     }

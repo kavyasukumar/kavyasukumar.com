@@ -6,17 +6,17 @@ Inputs for the redraw in `transit-map-rules.md`. Vocabulary: line = colour/facet
 
 Short names (column "Short name") are for the map labels and the key; the long names stay as descriptions. Space is tight on the map.
 
-Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing (2) and leadership and outreach (2) have tracks (14 total). Dropped "code as a problem solver" (covered by the line plus other tracks). Station walk done for all 14 tracks. Ongoing (owner rule): a track runs on only if a current station (Bad Idea Factory or Aspada) serves it; every other track ends as a terminal at its last station. Ends: Diligence (LightRock India) and Teaching and evangelism (its last full-time stop is Hearken; owner removed it from Bad Idea Factory). Finding stories and Storytelling are back on Bad Idea Factory, so they are ongoing. Years: station years only, no per-track dates (owner decision); stations are placed in career order only; the map shows no years (rule 39). All station years filled. Next: redraw (rules in transit-map-rules.md).
+Status: lines confirmed. Code (4 tracks), journalism (3), product (3), investing (2) and leadership and outreach (2) have tracks (14 total). Dropped "code as a problem solver" (covered by the line plus other tracks). Station walk done for all 14 tracks. Ongoing (owner rule): a track runs on only if a current station (Bad Idea Factory or Aspada) serves it; every other track ends as a terminal at its last station. Ends: Teaching and evangelism (its last full-time stop is Hearken; owner removed it from Bad Idea Factory). Diligence is ongoing: it stops at LightRock India and Aspada (owner, IV5). Finding stories and Storytelling are back on Bad Idea Factory, so they are ongoing. Years: station years only, no per-track dates (owner decision); stations are placed in career order only; the map shows no years (rule 39). All station years filled. Next: redraw (rules in transit-map-rules.md).
 
 ## Lines (in order)
 
 1. code — Forest #0B3D2E (owner pick, replaces Ink)
 2. journalism — Pink #E39BAE (from the old map)
 3. product — Mint #9AD9B0 (owner pick, replaces Gold)
-4. investing — Ink #0A0A0A (owner pick, replaces Mint; not drawn yet)
+4. investing — Ink #0A0A0A (owner pick, replaces Mint)
 5. leadership and outreach — Raspberry #B0466F (owner pick; a darker pink) (added during the station walk; working name)
 
-Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, leadership and outreach, product, top to bottom: `A B C | D E F G | K L | H I J` (leadership moved above product, LD1). Every track is identified by one capital letter (owner decision): journalism A B C, code D E F G, product H I J, leadership K L, and investing M N, which is not drawn yet (`letter` on each theme in the data).
+Gold #F2C14E (product on the old map) is now unused. On the map the ribbon runs journalism, code, leadership and outreach, investing, product, top to bottom: `A B C | D E F G | K L | M N | H I J` (leadership moved above product, LD1; investing sits directly under leadership, IV1). Every track is identified by one capital letter (owner decision): journalism A B C, code D E F G, product H I J, leadership K L and investing M N (`letter` on each theme in the data).
 
 Colours are also stored as `colour` on each line in `data/transit-map-data.json`. Raspberry is 4.4:1 on Cream but 2.3:1 on Forest, so the map keeps its Cream background in both themes.
 
@@ -56,8 +56,8 @@ Colours are also stored as `colour` on each line in `data/transit-map-data.json`
 
 | ID | Track | Short name | Theme | Stops | Ongoing? |
 |---|-------|------------|-------|-------|----------|
-| M | Investment diligence | Diligence | Evaluating and diligencing investments, on the tech front | TBD | no |
-| N | Portfolio advisory | Advisory | Advising and supporting portfolio companies on product and tech; helping hire tech leaders | TBD | yes |
+| M | Investment diligence | Diligence | Evaluating and diligencing investments, on the tech front | LightRock India, Aspada | yes |
+| N | Portfolio advisory | Advisory | Advising and supporting portfolio companies on product and tech; helping hire tech leaders | LightRock India, Aspada | yes |
 
 ## Stations and the tracks that serve them
 
@@ -75,15 +75,15 @@ Station list taken from the old map (17), with Win Gaming, MSN Games and Bing Vi
 | 8 | Hearken | full-stack to product, 2018-20 | code, journalism, product, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Editorial tooling; product management; Product economics; Fundraising and investor relations; Team leadership and management; Teaching and evangelism of tech in media |
 | 9 | Seattle Globalist | board, 2019 | product, leadership and outreach | Team leadership and management; Fundraising and investor relations; Teaching and evangelism of tech in media |
 | 10 | All Things Small | consulting, 2019-20 | code, journalism, product, leadership and outreach | for the love of code; Data science; Editorial tooling; Storytelling and presentation; product management; Product economics; Team leadership and management |
-| 11 | UW Lecturer | teaching, 2020 | code, journalism, leadership and outreach | code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
+| 11 | Uni. of Washington | teaching, 2020 | code, journalism, leadership and outreach | code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
 | 12 | Washington Post | sr engineer, 2020-22 | code, journalism | for the love of code; code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling |
 | 13 | LightRock India | principal & CTO, 2022-25 | code, product, investing, leadership and outreach | code as a tool for social justice; Data science; Investment diligence; Portfolio advisory; Fundraising and investor relations; Team leadership and management |
 | 14 | Lighthouse Reports | data specialist, 2024-25 | code, journalism, leadership and outreach | for the love of code; code as a tool for social justice; Data science; opensource coding; Finding stories; Storytelling and presentation; Editorial tooling; Teaching and evangelism of tech in media |
-| 15 | Aspada | CTO, 2025- | code, product, investing, leadership and outreach | for the love of code; Data science; product management; Product economics; Portfolio advisory; Fundraising and investor relations; Team leadership and management |
+| 15 | Aspada | CTO, 2025- | code, product, investing, leadership and outreach | for the love of code; Data science; product management; Product economics; Investment diligence; Portfolio advisory; Fundraising and investor relations; Team leadership and management |
 
-Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, UW Lecturer, Lighthouse Reports. Their branches are drawn solid like full-time ones (rule 35); the station card says "part-time".
+Part-time or side ventures (owner): Bad Idea Factory, Seattle Globalist, All Things Small, Uni. of Washington, Lighthouse Reports. Their branches are drawn solid like full-time ones (rule 35); the station card says "part-time".
 
-Branches: each theme above is one track, labelled by its letter only (rule 38). Where its work runs in parallel, the track splits just after the latest stop before the parallel work starts, and each concurrent role gets its own branch (rules 5, 37). Full-time roles share one branch where they don't overlap. Part-time gigs never chain (owner, rule 37): each part-time station gets its own branch per theme that ends there, so All Things Small, UW Lecturer, Seattle Globalist and Lighthouse Reports are terminals (single-stop J-curves, rule 20); only Bad Idea Factory's branches run on. 14 themes (tracks) have 47 branches, listed in `data/transit-map-data.json` under `tracks` (one entry per branch; `label` is the track letter).
+Branches: each theme above is one track, labelled by its letter only (rule 38). Where its work runs in parallel, the track splits just after the latest stop before the parallel work starts, and each concurrent role gets its own branch (rules 5, 37). Full-time roles share one branch where they don't overlap. Part-time gigs never chain (owner, rule 37): each part-time station gets its own branch per theme that ends there, so All Things Small, Uni. of Washington, Seattle Globalist and Lighthouse Reports are terminals (single-stop J-curves, rule 20); only Bad Idea Factory's branches run on. 14 themes (tracks) have 47 branches, listed in `data/transit-map-data.json` under `tracks` (one entry per branch; `label` is the track letter).
 
 ## Interview notes
 
