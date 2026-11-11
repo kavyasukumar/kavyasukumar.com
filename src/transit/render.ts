@@ -117,7 +117,8 @@ export const contrast = (a: string, b: string): number => {
 const DARK_LINE = 4.5;
 export const glyphOn = (lineColour: string): string => (contrast(lineColour, INK) < DARK_LINE ? CREAM : lineColour);
 
-function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number): Plan {
+// frameW: the frame's width; it sets the wrap budget of vFrameWrap labels (the canvas can be wider at the lw floor).
+function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number, frameW = W): Plan {
   const { lw } = s;
   const horiz = s.orientation === 'horizontal';
   const box: Box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -154,7 +155,8 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     return [solid, { ...solid, id: `${t.id}~dash`, d: run.d, dash: run.dash }];
   });
 
-  const budget = horiz ? s.slotGap * lw * 0.92 : Math.min(150, Math.max(72, W * 0.28));
+  const vBudget = (w: number): number => Math.min(150, Math.max(72, w * 0.28));
+  const budget = horiz ? s.slotGap * lw * 0.92 : vBudget(W);
   const stations: Plan['stations'] = model.stations.map((sm) => {
     const dots = sm.dots.map((d) => {
       const [cx, cy] = toXY(d.slot, d.lane, s);
@@ -166,7 +168,7 @@ function plan(model: Model, layout: LineLayout, s: Scale, W: number, H: number):
     const conn = connectorFor(sm.st.id, sm.dots.map((d) => ({ trackId: d.track.id, slot: d.slot, lane: d.lane })), layout, s);
     const themes = [...new Set(sm.dots.map((d) => d.track.theme))].join(' ');
     const connectors = conn ? [{ ...conn, themes }] : [];
-    const placed = stationLabel(sm, layout, s, budget);
+    const placed = stationLabel(sm, layout, s, budget, horiz ? budget : vBudget(frameW));
     grow(...placed.box);
     return {
       id: sm.st.id, aria: `${sm.st.name}, ${yearsOf(sm.st)}`, major: sm.kind !== 'station',
@@ -195,9 +197,9 @@ export function renderMap(container: HTMLElement, data: MapData, layout: LineLay
     fit = fitVertical(frameW, model, layout);
   }
   const { scale, canvasW: W } = fit;
-  const bbox = plan(model, layout, scale, W, 0).box;
+  const bbox = plan(model, layout, scale, W, 0, frameW).box;
   const H = Math.ceil(bbox.y1 + (scale.orientation === 'horizontal' ? 20 : PAD));
-  const p = plan(model, layout, scale, W, H);
+  const p = plan(model, layout, scale, W, H, frameW);
   const lw = scale.lw;
 
   const root = select(container);

@@ -159,7 +159,7 @@
       "name": "Tech diligence",
       "short": "Diligence",
       "theme": "Evaluating and diligencing investments",
-      "ongoing": false,
+      "ongoing": true,
       "letter": "M",
       "strand_count": 1
     },
@@ -670,9 +670,10 @@
       "label": "M",
       "hatched": false,
       "stations": [
-        "lightrock-india"
+        "lightrock-india",
+        "aspada"
       ],
-      "ongoing": false
+      "ongoing": true
     },
     {
       "id": "investing-advisory-1",
@@ -1113,7 +1114,8 @@
         "product-economics",
         "investing-advisory",
         "product-fundraising",
-        "leadership-team"
+        "leadership-team",
+        "investing-diligence"
       ],
       "tracks": [
         "code-love-of-code-1",
@@ -1122,7 +1124,8 @@
         "product-product-mgmt-1",
         "product-economics-1",
         "product-fundraising-1",
-        "investing-advisory-1"
+        "investing-advisory-1",
+        "investing-diligence-1"
       ],
       "part_time": false
     }

@@ -7,11 +7,13 @@ const LABEL_GAP = 0.75;
 const LABEL_GAP_H = 1.44; // horizontal (desktop) only: about 44% more room between the ribbon and its label band (R2, twice +20%)
 
 /** Where a station's name goes: its wrapped lines, anchor point and bounding box (rules 20, 29, 30). */
-export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, budget: number):
+export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, budget: number, frameBudget = budget):
   { lines: string[]; x: number; y: number; anchor: string; box: [number, number, number, number] } {
   const { lw } = s;
   const horiz = s.orientation === 'horizontal';
-  const lines = wrap(sm.st.name, horiz && layout.stations[sm.st.id]?.hWrap ? 0 : budget);
+  const own = layout.stations[sm.st.id];
+  const lines = wrap(sm.st.name, horiz ? (own?.hWrap ? 0 : budget)
+    : own?.vWrap ? 0 : own?.vFrameWrap ? Math.min(budget, frameBudget) : budget);
   const n = lines.length;
   const wpx = Math.max(...lines.map((x) => x.length * CHAR_W));
   const side = sm.labelSide;
