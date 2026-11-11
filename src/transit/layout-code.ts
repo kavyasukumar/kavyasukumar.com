@@ -13,12 +13,11 @@ const X0: Record<string, number> = {
   'hearken': 46, 'seattle-globalist': 55, 'all-things-small': 65, 'uw-lecturer': 63.5, 'washington-post': 67,
   'lightrock-india': 81, 'lighthouse-reports': 86, 'aspada': 89,
 };
-const SPLIT_LH = 69.1; // x where the lowest Lighthouse branch leaves its trunk (just after Washington Post)
 const GAP = 5.5; // slotGap (lw per slot); slot = x / GAP
 
 const LINE_GAP = 0.25; // empty space between two lines' tracks, everywhere they run side by side (quarter track)
 
-/** Spacing across the ribbon (lanes). Desktop rows R1 and R3 are about 20% taller than the phone's (P7). */
+/** Spacing across the ribbon (lanes). Desktop rows R1 and R3 are about 44% taller than the phone's (P7, then LD4). */
 interface Spacing {
   k0: number; // x + lane of the first (journalism A) 45 degree run north-east at Bad Idea Factory
   upTurn: number; // lane where journalism A turns from 45 degrees to north
@@ -27,9 +26,16 @@ interface Spacing {
   drop: number; // lw below the ribbon before a fan's last turn
   dot: number; // lane of every gig leg-end dot below the ribbon (Seattle Globalist, ATS)
   dotLh: number; // centre lane of the Lighthouse dot column
+  splitLh: number; // x where the lowest Lighthouse branch leaves its trunk (just after Washington Post)
+  x: Record<string, number>; // station x overrides (along time) for this spacing
 }
-const DESKTOP: Spacing = { k0: 27.5, upTurn: -7.8, uwK0: 52, upDot: -7.8 - 6.5, drop: 2.64, dot: 20.9, dotLh: 16.2 };
-const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 51, upDot: -6.5 - 5.4, drop: 2.2, dot: 19, dotLh: 16.2 };
+// Desktop R1-R3 are another ~20% taller (LD4), and WaPo, LightRock and Aspada sit further east so the WaPo
+// label clears UW Lecturer's legs. The phone keeps ORDER 16's spacing and x positions.
+const DESKTOP: Spacing = {
+  k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 25.7, dotLh: 20.9, splitLh: 69.8,
+  x: { 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
+};
+const PHONE: Spacing = { k0: 29, upTurn: -6.5, uwK0: 51, upDot: -6.5 - 5.4, drop: 2.2, dot: 19, dotLh: 16.2, splitLh: 69.1, x: {} };
 
 // ---- TWEAK ME: lane order, top to bottom, by track letter (journalism A B C, code D E F G, product H I J) ----
 type Lane = Extract<TrackLetter, 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'>;
@@ -65,7 +71,10 @@ function fanDown(sp: Spacing, all: Tk[], x: number, station: string): Record<str
   const ts = byLane(all);
   const n = ts.length;
   const { off, tot } = offsets(ts);
-  const V0 = BOTTOM + sp.drop + (n - 1) * (DIAG - P);
+  // The 45 degree run of track i must be long enough that neither of its bends is clamped (roundedPath
+  // halves the room between bends), or its radius stops matching its neighbours and the gap goes uneven.
+  const need = ts.map((t, i) => LANE[t.theme]! + i * (DIAG - P) + off[i]! * TAN + (R + i * P + off[i]!) * 0.586 + 0.3);
+  const V0 = Math.max(BOTTOM + sp.drop + (n - 1) * (DIAG - P), ...need);
   const out: Record<string, TrackLayout> = {};
   ts.forEach((t, i) => {
     const lane = LANE[t.theme]!;
@@ -75,7 +84,7 @@ function fanDown(sp: Spacing, all: Tk[], x: number, station: string): Record<str
     const v = V0 - i * (DIAG - P) - o * TAN;
     const s = leg - (v - lane);
     out[t.id] = {
-      route: [pt(s - 2, lane), pt(s, lane), pt(leg, v), pt(leg, sp.dot)],
+      route: [pt(s - 6, lane), pt(s, lane), pt(leg, v), pt(leg, sp.dot)],
       radii: [R + (n - 1 - i) * P + (tot - o), R + i * P + o],
       stops: { [station]: pt(leg, sp.dot) },
     };
@@ -100,7 +109,7 @@ function bifBranches(sp: Spacing, all: Tk[], k0 = sp.k0, station = 'bad-idea-fac
     const leg = k0 - sp.upTurn + g * P + gap;
     const k = leg + v; // x + lane along this track's 45 degree run
     out[t.id] = {
-      route: [pt(k - lane - 2, lane), pt(k - lane, lane), pt(leg, v), pt(leg, sp.upDot)],
+      route: [pt(k - lane - 5, lane), pt(k - lane, lane), pt(leg, v), pt(leg, sp.upDot)],
       radii: [R + g * P + gap, R + g * P + gap],
       stops: { [station]: pt(leg, sp.upDot) },
       // The BIF diagonals pass over product H's back-branch, with the usual casing (low/over).
@@ -111,16 +120,22 @@ function bifBranches(sp: Spacing, all: Tk[], k0 = sp.k0, station = 'bad-idea-fac
 }
 
 /** Lighthouse: branches peel off at Washington Post, leave south-east, then run east to a column of dots. */
-function fanDownThenEast(sp: Spacing, X: Record<string, number>, all: Tk[], x: number, station: string): Record<string, TrackLayout> {
+function fanDownThenEast(sp: Spacing, X: Record<string, number>, all: Tk[], x0: number, station: string): Record<string, TrackLayout> {
   const ts = byLane(all);
   const n = ts.length;
   const { off, tot } = offsets(ts);
   const out: Record<string, TrackLayout> = {};
+  const runOf = (i: number): number => sp.dotLh + (i - (n - 1) / 2) * P + off[i]! - tot / 2;
+  // x - lane along branch i's 45 degree run
+  const cOf = (i: number): number => sp.splitLh - LANE[ts[n - 1]!.theme]! + (n - 1 - i) * DIAG + (tot - off[i]!) * Math.SQRT2;
+  // The 45 degree runs must end 1.5 lw plus the arc's tangent before the dots, or the bend hooks past them.
+  const x = Math.max(x0, ...ts.map((_, i) => cOf(i) + runOf(i) + 1.5 + (R + i * P + off[i]!) * TAN));
+  X[station] = x;
   ts.forEach((t, i) => {
     const lane = LANE[t.theme]!;
     const o = off[i]!;
-    const run = sp.dotLh + (i - (n - 1) / 2) * P + o - tot / 2;
-    const c = SPLIT_LH - LANE[ts[n - 1]!.theme]! + (n - 1 - i) * DIAG + (tot - o) * Math.SQRT2; // x - lane along this branch's 45 degree run
+    const run = runOf(i);
+    const c = cOf(i);
     out[t.id] = {
       // Starts on the trunk at Washington Post: no run-on past it.
       route: [pt(X['washington-post']!, lane), pt(c + lane, lane), pt(c + run, run), pt(x, run)],
@@ -176,7 +191,7 @@ const sides: Record<string, StationLayout['labelSide']> = {
 };
 /** Tracks and stations for one spacing (desktop or phone). */
 function build(sp: Spacing): Pick<LineLayout, 'stations' | 'tracks'> {
-  const X: Record<string, number> = { ...X0 };
+  const X: Record<string, number> = { ...X0, ...sp.x };
   const wapo = X['washington-post']!;
   const tracks: Record<string, TrackLayout> = {
     // Journalism trunks (full-time roles, rule 37); they end at Washington Post.
@@ -216,5 +231,5 @@ export const careerLayout: LineLayout = {
   ...build(DESKTOP),
   discs: [],
 };
-/** The vertical (phone) layout: same stations and order, R1 and R3 without the desktop's extra 20%. */
+/** The vertical (phone) layout: same stations and order, R1 and R3 without the desktop's extra height. */
 careerLayout.vertical = { ...careerLayout, ...build(PHONE) };

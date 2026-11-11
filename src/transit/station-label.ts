@@ -4,7 +4,7 @@ import type { StationModel } from './model';
 import type { LineLayout, Scale } from './types';
 
 const LABEL_GAP = 0.75;
-const LABEL_GAP_H = 1.2; // horizontal (desktop) only: 20% more room between the ribbon and its label band (R2)
+const LABEL_GAP_H = 1.44; // horizontal (desktop) only: about 44% more room between the ribbon and its label band (R2, twice +20%)
 
 /** Where a station's name goes: its wrapped lines, anchor point and bounding box (rules 20, 29, 30). */
 export function stationLabel(sm: StationModel, layout: LineLayout, s: Scale, budget: number):
