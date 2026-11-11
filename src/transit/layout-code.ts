@@ -31,10 +31,12 @@ interface Spacing {
   x: Record<string, number>; // station x overrides (along time) for this spacing
 }
 // Desktop R1-R3 are another ~20% taller (LD4), and WaPo, LightRock and Aspada sit further east so the WaPo
-// label clears Uni. of Washington's legs. The phone keeps ORDER 16's spacing and x positions.
+// label clears Uni. of Washington's legs. Medill sits 0.9 lw west so its label clears Palm Beach Post's by at least
+// 1 lw at 1280 (Palm Beach Post, OpenNews and Vox Media have no room to move east: Vox's dots already touch the Bad
+// Idea Factory bends). The phone keeps ORDER 16's spacing and x positions.
 const DESKTOP: Spacing = {
   k0: 27.5, upTurn: -9.4, uwK0: 49.5, upDot: -9.4 - 7.8, drop: 3.2, dot: 27.9, dotLh: 23.1, splitLh: 69.8,
-  x: { 'opennews': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
+  x: { 'medill': 9.1, 'opennews': 21.5, 'vox-media': 26.5, 'washington-post': 69, 'lightrock-india': 83, 'lighthouse-reports': 88, 'aspada': 91 },
 };
 // Investing's two lanes (2 pitches + 1 line gap = 2.49 lw) push R3 down: desktop dot and dotLh follow the investing
 // experiment (+2.2 lw each); the phone moves both by the full 2.49, so its legs and Lighthouse clearance are unchanged.
