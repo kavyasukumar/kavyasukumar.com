@@ -48,7 +48,9 @@ export function chooseScale(width: number, model: Model, layout: LineLayout): { 
     return { lw, ...out };
   };
   const h = tryFit('horizontal');
-  if (h.lw < (layout.minLw ? layout.minLw - 1 : H_SWITCH_LW)) return fitVertical(width, model, layout);
+  // The desktop floor is also the switch point (rule 22): a fit below it goes vertical, so the
+  // horizontal map is never clamped up past its frame and no label clips.
+  if (h.lw < (layout.minLw ?? H_SWITCH_LW)) return fitVertical(width, model, layout);
   const lw = Math.min(MAX_LW, Math.max(layout.minLw ?? MIN_LW, h.lw));
   const m = measure('horizontal', lw, width, model, layout);
   const b = m.box;
