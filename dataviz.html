@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kavya Sukumar | Dataviz</title>
-<link rel="icon" type="image/svg+xml" href="/vite.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0B3D2E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 :root{--forest:#0B3D2E;--cream:#F4E9D5;--pink:#E39BAE;--ink:#0A0A0A;--gold:#F2C14E;--mint:#9AD9B0}
 *{box-sizing:border-box}
-body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Grotesk',sans-serif}
-.topbar{max-width:1440px;margin:0 auto;padding:24px 32px 0;display:flex;justify-content:space-between;font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em}
-.topbar a{color:var(--cream);text-decoration:none;padding:12px 0;border-bottom:3px solid transparent}
-.topbar a:hover{border-bottom-color:var(--pink)}
+/* Page colours, header and outlined headline follow the shared light/dark theme (src/shared.css).
+   The map canvas, key and station card stay Cream map paper in both themes. */
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif}
+.dv-header{--gutter:32px} /* header edge = the map's content edge */
+@media(max-width:700px){.dv-header{--gutter:16px}}
 .eyebrow{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 #braided{border-top:4px solid var(--pink)}
 #transit .wrap{max-width:1440px;margin:0 auto;padding:48px 32px 64px}
 #transit h1{font:800 clamp(56px,13vw,200px)/.85 'Bricolage Grotesque',sans-serif;text-transform:uppercase;margin:0;letter-spacing:-.02em}
-#transit h1 .o{color:transparent;-webkit-text-stroke:3px var(--cream)}
 #transit .sub{font-family:'JetBrains Mono',monospace;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 8px;max-width:760px;line-height:1.6}
 #transit .sub b{background:var(--pink);color:var(--ink);padding:1px 6px}
 #transit .map-shell{position:relative;margin-top:24px} /* non-scrolling wrapper: pins the scroll hint to the frame's visible right edge */
@@ -37,14 +41,15 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 /* Station dots and IDs scale around their own centre on hover, focus and select (rule 22) */
 #transit .tm-svg .tm-station .tm-dot,#transit .tm-svg .tm-station .tm-dot-id{transform-box:fill-box;transform-origin:center;transition:fill .15s,transform .15s}
 #transit .tm-svg .tm-station .tm-connector{transition:stroke .15s,stroke-width .15s}
-#transit .key{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px 24px;text-align:left}
+#transit .key{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--panel-shadow);padding:20px 24px;text-align:left}
 #transit .tm-key-group+.tm-key-group{border-top:1px solid var(--ink);margin-top:16px;padding-top:16px}
 #transit .tm-key-heading{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555;margin:0 0 8px}
 #transit .tm-key-row{display:flex;align-items:center;gap:12px;margin:6px 0}
 #transit .tm-key-swatch{flex:none}
 #transit .tm-key-name{font:500 13px 'JetBrains Mono',monospace}
 /* Rule 41 theme highlight: state classes from src/transit/highlight.ts */
-#transit{--tm-grey:#C9C1B0;--tm-grey-ink:#6F6A61}
+#transit{--tm-grey:#C9C1B0;--tm-grey-ink:#6F6A61;--panel-shadow:var(--ink)}
+[data-theme='dark'] #transit{--panel-shadow:var(--pink)} /* Ink shadows vanish on Forest */
 #transit .tm-svg .tm-track,#transit .tm-svg .tm-connector{transition:stroke .15s}
 #transit .tm-svg .tm-label,#transit .tm-svg .tm-dot{transition:fill .15s}
 #transit .tm-svg.has-hl .tm-track:not(.is-hl){stroke:var(--tm-grey)}
@@ -68,7 +73,7 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #transit .tm-key.has-hl .tm-key-row.is-hl{background:var(--pink);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){#transit *{transition:none!important}}
 #transit .panel{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-#transit .card{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px 24px;min-height:150px}
+#transit .card{background:var(--cream);color:var(--ink);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--panel-shadow);padding:20px 24px;min-height:150px}
 #transit .card h3{font:800 28px/1 'Bricolage Grotesque',sans-serif;text-transform:uppercase;margin:0 0 8px}
 #transit .card .k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:#555}
 #transit .card p{margin:8px 0 0;line-height:1.5}
@@ -94,13 +99,11 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 @media(max-width:700px){
 #transit .wrap{padding:24px 16px}
 #transit .panel{grid-template-columns:1fr}
-#transit h1 .o{-webkit-text-stroke:2px var(--cream)}
 }
 #braided .wrap{max-width:1440px;margin:0 auto;padding:72px 56px 96px}
 #braided .mono{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;font-size:12px}
 #braided h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;text-transform:uppercase;margin:8px 0 16px;line-height:.86;font-size:clamp(64px,13vw,190px);letter-spacing:-.02em}
 #braided h2 span{display:block}
-#braided h2 .out{color:transparent;-webkit-text-stroke:3px var(--cream)}
 #braided .lede{max-width:640px;font-size:19px;line-height:1.45;margin:0 0 36px}
 #braided .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 #braided .chip{border:2px solid var(--ink);background:var(--cream);color:var(--ink);padding:8px 14px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);display:flex;gap:10px;align-items:center;font-weight:700}
@@ -128,9 +131,16 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 #braided .strip{grid-template-columns:1fr 1fr}
 }
 </style></head><body>
-<nav class="topbar"><a href="/">&larr; Kavya Sukumar</a><span>Dataviz</span></nav>
+<header class="wrap dv-header"><nav class="site-nav" aria-label="Site">
+<a class="nav-link site-back" href="/">&larr; Kavya Sukumar</a>
+<a class="nav-link" href="/#pivot">Evolution</a><a class="nav-link" href="/#clips">Clips</a><a class="nav-link" href="/#contact">Contact</a>
+<button type="button" id="theme-toggle" class="theme-toggle" title="Toggle Theme" aria-label="Toggle theme"><span class="theme-knob">
+<svg class="theme-icon-sun" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M116,36V20a12,12,0,0,1,24,0V36a12,12,0,0,1-24,0Zm80,92a68,68,0,1,1-68-68A68.07,68.07,0,0,1,196,128Zm-24,0a44,44,0,1,0-44,44A44.05,44.05,0,0,0,172,128ZM51.51,68.49a12,12,0,1,0,17-17l-12-12a12,12,0,0,0-17,17Zm0,119-12,12a12,12,0,0,0,17,17l12-12a12,12,0,1,0-17-17ZM196,72a12,12,0,0,0,8.49-3.51l12-12a12,12,0,0,0-17-17l-12,12A12,12,0,0,0,196,72Zm8.49,115.51a12,12,0,0,0-17,17l12,12a12,12,0,0,0,17-17ZM48,128a12,12,0,0,0-12-12H20a12,12,0,0,0,0,24H36A12,12,0,0,0,48,128Zm80,80a12,12,0,0,0-12,12v16a12,12,0,0,0,24,0V220A12,12,0,0,0,128,208Zm108-92H220a12,12,0,0,0,0,24h16a12,12,0,0,0,0-24Z"/></svg>
+<svg class="theme-icon-moon" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M236.37,139.4a12,12,0,0,0-12-3A84.07,84.07,0,0,1,119.6,31.59a12,12,0,0,0-15-15A108.86,108.86,0,0,0,49.69,55.07,108,108,0,0,0,136,228a107.09,107.09,0,0,0,64.93-21.69,108.86,108.86,0,0,0,38.44-54.94A12,12,0,0,0,236.37,139.4Zm-49.88,47.74A84,84,0,0,1,68.86,69.51,84.93,84.93,0,0,1,92.27,48.29Q92,52.13,92,56A108.12,108.12,0,0,0,200,164q3.87,0,7.71-.27A84.79,84.79,0,0,1,186.49,187.14Z"/></svg>
+</span></button>
+</nav></header>
 <section id="transit"><div class="wrap">
-<div class="eyebrow">/ A &mdash; as a transit map</div><h1>My story<br><span class="o">thus far</span></h1>
+<div class="eyebrow">/ A &mdash; as a transit map</div><h1>My story<br><span class="outline-word">thus far</span></h1>
 <p class="sub">Built one line at a time. <b>Tap a station.</b></p>
 <div class="map-shell"><div class="map" id="transit-map"></div><div class="map-hint" id="transit-map-hint" aria-hidden="true"></div></div>
 <div class="panel">
@@ -141,7 +151,7 @@ body{margin:0;background:var(--forest);color:var(--cream);font-family:'Space Gro
 <section id="braided" hidden>
 <div class="wrap">
 <div class="mono">/ B &mdash; braided threads</div>
-<h2><span>Braided</span><span class="out">Threads</span></h2>
+<h2><span>Braided</span><span class="outline-word">Threads</span></h2>
 <p class="lede">Not a ladder. Four threads that swell, shrink and cross. Code never stopped in the newsroom; the reporter's habits never left the fund. Tap a thread.</p>
 <div class="legend" id="legend"></div>
 <div class="chart">
@@ -202,4 +212,5 @@ function sel(id){R.querySelectorAll('.rib').forEach(p=>p.classList.toggle('dim',
  const r=T.find(t=>t.id===id);
  R.querySelectorAll('.era').forEach((d,i)=>{d.classList.toggle('hl',!!r);if(r)d.querySelector('.thr').innerHTML='<b style="font-size:12px;font-family:JetBrains Mono">'+r.name.toUpperCase()+' &rarr;</b> '+r.eras[i]})}
 })();</script>
+<script type="module" src="/src/dataviz-page.ts"></script>
 <script type="module" src="/src/transit/main.ts"></script></body></html>
